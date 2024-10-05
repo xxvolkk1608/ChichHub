@@ -436,6 +436,7 @@ footer p {
   border-color: var(--primary-color);
 }
 
+
 .btn-signin {
   background: var(--primary-color);
   color: var(--white);
@@ -489,6 +490,26 @@ footer p {
   margin-bottom: 20px;
   color: var(--secondary-color);
 }
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none; /* เอาสีพื้นหลังออก */
+  border: none;     /* เอาเส้นขอบออก */
+  color: #007BFF;   /* สีตัวอักษร */
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  outline: none;    /* เอา outline ออก */
+
+}
+
+.toggle-password:focus {
+  outline: none;    /* เอา outline ออกเมื่อคลิก */
+}
+
 
 .input-group {
   margin-bottom: 20px;

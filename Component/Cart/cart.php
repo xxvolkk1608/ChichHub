@@ -1,3 +1,19 @@
+<?php
+include '../db_connection.php';
+session_start();
+$user_id = $_SESSION['user_id'];
+
+if(!isset($user_id)){
+    header('location:../Sign-In/signin.php');
+};
+if(isset($_GET['logout'])){
+    unset($user_id);
+    session_destroy();
+    header('location:../Sign-In/signin.php');
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -7,7 +23,7 @@
     <!-- ลิงก์ไปยัง Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- ลิงก์ไปยังไฟล์ CSS -->
-    <link rel="stylesheet" href="../../styles.css">
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
     <!-- ส่วนหัว (Header) -->

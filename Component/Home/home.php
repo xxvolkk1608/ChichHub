@@ -1,3 +1,20 @@
+<?php
+include '../db_connection.php';
+session_start();
+$user_id = $_SESSION['user_id'];
+
+if(!isset($user_id)){
+    header('location:../Sign-In/signin.php');
+};
+if(isset($_GET['logout'])){
+    unset($user_id);
+    session_destroy();
+    header('location:../Sign-In/signin.php');
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -8,7 +25,9 @@
     <!-- ลิงก์ไปยัง Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- ลิงก์ไปยังไฟล์ CSS -->
-    <link rel="stylesheet" href="../../styles.css">
+    <!-- <link rel="stylesheet" href="../../styles.css"> -->
+    <!--ลิงก์ของ XAMMP-->
+    <link rel="stylesheet" href="../styles.css">
 </head>
 
 <body>
@@ -85,19 +104,19 @@
             <h2>หมวดหมู่สินค้า</h2>
             <div class="category-list">
                 <div class="category-item">
-                    <img class="tshirt" src="../../img/tshirt.png" alt="">
+                    <img class="tshirt" src="../img/tshirt.png" alt="">
                     <a href="#">เสื้อยืด</a>
                 </div>
                 <div class="category-item">
-                    <img class="shirt" src="../../img/shirt.png" alt="">
+                    <img class="shirt" src="../img/shirt.png" alt="">
                     <a href="#">เสื้อเชิ้ต</a>
                 </div>
                 <div class="category-item">
-                    <img class="pant" src="../../img/pant.png">
+                    <img class="pant" src="../img/pant.png">
                     <a href="#">กางเกง</a>
                 </div>
                 <div class="category-item">
-                    <img class="jacket" src="../../img/jacket.png">
+                    <img class="jacket" src="../img/jacket.png">
                     <a href="#">เสื้อแจ็คเก็ต</a>
                 </div>
                 <!-- เพิ่มหมวดหมู่เพิ่มเติมได้ที่นี่ -->
@@ -141,4 +160,5 @@
       </script>
 </body>
 
-</html>
+</html> 
+

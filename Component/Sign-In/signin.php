@@ -4,17 +4,17 @@ session_start(); // Start a session for user authentication
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     include '../db_connection.php'; // Include your database connection
 
-    $Username = $_POST['Usernamel'];
-    $Password = $_POST['Password'];
+    $gmail = $_POST['gmail'];
+    $password = $_POST['password'];
 
     // Check if user exists in the database
-    $sql = "SELECT * FROM Member WHERE Username='$Username'";
+    $sql = "SELECT * FROM Member WHERE Gmail='$gmail'";
     $result = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($result) > 0) {
         $user = mysqli_fetch_assoc($result);
         // Verify password
-        if (password_verify($password, $User['Password'])) {
+        if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['member_id'];
             header('Location: ../Home/home.html'); // Redirect to homepage after successful login
         } else {

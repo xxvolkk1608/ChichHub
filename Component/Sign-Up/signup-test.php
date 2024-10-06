@@ -11,11 +11,12 @@ if (isset($_POST['submit'])) {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = mysqli_real_escape_string($conn, $_POST['password']);
     $id = mysqli_real_escape_string($conn, $_POST['md_id']);  // รับค่า MD_ID
+   
 
     // เข้ารหัสรหัสผ่านก่อนบันทึก (คุณอาจต้องเพิ่มฟังก์ชันเข้ารหัสรหัสผ่าน เช่น password_hash())
     
     // บันทึกข้อมูลลงฐานข้อมูล (รวมฟิลด์ MD_ID ด้วย)
-    $query = "INSERT INTO Member (ID, Username, Password, MD_ID) VALUES ('$id', '$username', '$password', '$id')";
+    $query = "INSERT INTO Member (ID, Username, Password, MD_ID,test) VALUES ('$id', '$username', '$password', '$id')";
 
     // Print the query for debugging
     echo $query;
@@ -69,7 +70,7 @@ if (isset($_POST['submit'])) {
                         <label for="md_id">MD_ID</label>
                         <input type="number" name="md_id" id="md_id" placeholder="กรอก MD_ID" required>
                     </div>
-                    
+
                     <div class="input-group">
                         <button type="submit" name="submit" class="btn-signup">สมัครสมาชิก</button>
                     </div>

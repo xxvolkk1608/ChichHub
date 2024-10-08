@@ -10,7 +10,7 @@ if (isset($_POST['submit'])) {
     $name = mysqli_real_escape_string($conn, $_POST['name']);
     $surname = mysqli_real_escape_string($conn, $_POST['surname']);
     $email = mysqli_real_escape_string($conn, $_POST['email']); 
-    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+    $tel = mysqli_real_escape_string($conn, $_POST['tel']);
     $password = mysqli_real_escape_string($conn, $_POST['password']);
     $confirm_password = mysqli_real_escape_string($conn, $_POST['confirm-password']);
 
@@ -27,8 +27,8 @@ if (isset($_POST['submit'])) {
     }
 
     // เพิ่มข้อมูลในตาราง Member โดยไม่ต้องระบุค่า ID
-    $query = "INSERT INTO Member (Name, Surname, Phone, Password, Province, Amphure, Tambon, Zipcode, Gmail) 
-              VALUES ('$name', '$surname', '$phone', '$password', '$province', '$amphure', '$tambon', '$zipcode' , '$email' )";
+    $query = "INSERT INTO Member (Name, Surname, Tel, Password, Province, Amphure, Tambon, Zipcode, Gmail) 
+              VALUES ('$name', '$surname', '$tel', '$password', '$province', '$amphure', '$tambon', '$zipcode' , '$email' )";
 
 
 
@@ -84,7 +84,7 @@ if (isset($_POST['submit'])) {
                     </div>
                     <div class="input-group">
                         <label for="phone">เบอร์โทรศัพท์</label>
-                        <input type="text" name="phone" id="phone" placeholder="กรอกเบอร์โทรศัพท์ของคุณ" pattern="[0]{1}[0-9]{9}" maxlength="10" required>
+                        <input type="text" name="tel" id="tel" placeholder="กรอกเบอร์โทรศัพท์ของคุณ" pattern="[0]{1}[0-9]{9}" maxlength="10" required>
                     </div>
                     <div class="input-group">
                         <label for="email">อีเมล</label>
@@ -187,20 +187,6 @@ if (isset($_POST['submit'])) {
                 return;
             }
         });
-
-        // document.querySelector("#togglePassword").addEventListener("click", function() {
-        //     const password = document.querySelector("#password");
-        //     const type = password.getAttribute("type") === "password" ? "text" : "password";
-        //     password.setAttribute("type", type);
-        //     this.textContent = type === "password" ? "แสดงรหัสผ่าน" : "ซ่อนรหัสผ่าน";
-        // });
-
-        // document.querySelector("#toggleConfirmPassword").addEventListener("click", function() {
-        //     const confirmPassword = document.querySelector("#confirm-password");
-        //     const type = confirmPassword.getAttribute("type") === "password" ? "text" : "password";
-        //     confirmPassword.setAttribute("type", type);
-        //     this.textContent = type === "password" ? "แสดงรหัสผ่าน" : "ซ่อนรหัสผ่าน";
-        // });
     </script>
 </body>
 </html>

@@ -87,14 +87,12 @@
     </footer>
 
     <script>
-
-        document.querySelector("#togglePassword").addEventListener("click", function () {
+        document.querySelector("#togglePassword").addEventListener("click", function() {
             const password = document.querySelector("#password");
             const type = password.getAttribute("type") === "password" ? "text" : "password";
             password.setAttribute("type", type);
             this.textContent = type === "password" ? "แสดงรหัสผ่าน" : "ซ่อนรหัสผ่าน";
         });
-
     </script>
 </body>
 

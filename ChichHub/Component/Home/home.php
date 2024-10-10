@@ -1,16 +1,28 @@
 <?php
 session_start();
 
-// ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
+// ตรวจสอบว่ามี session อยู่หรือไม่
 if (!isset($_SESSION["Username"])) {
-    // หากยังไม่ได้เข้าสู่ระบบ เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
+    // ถ้าไม่มี session ให้เช็คว่ามี cookies หรือไม่
+    if (isset($_COOKIE["Username"])) {
+        // ตั้งค่า session ใหม่จาก cookies
+        $_SESSION["Username"] = $_COOKIE["Username"];
+    }
+}
+
+// ถ้าไม่มีทั้ง session และ cookies ให้เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
+if (!isset($_SESSION["Username"])) {
     header("Location: ../Sign-In/signin.php");
     exit();
 }
 
-// ดึงชื่อผู้ใช้จาก session
+// แสดงชื่อผู้ใช้
 $username = htmlspecialchars($_SESSION["Username"]);
+echo "สวัสดี, $username";
 ?>
+
+
+
 <!DOCTYPE html>
 <html lang="th">
 

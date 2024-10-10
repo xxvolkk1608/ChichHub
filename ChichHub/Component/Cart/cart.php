@@ -69,7 +69,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
     <header>
         <div class="container-header">
             <div class="logo">
-                <h1 class="chic-hub"><a href="./home.php">ChicHub</a></h1>
+                <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
             </div>
             <nav>
                 <ul class="nav-links">
@@ -127,6 +127,25 @@ $username = htmlspecialchars($_SESSION["Username"]);
     </footer>
 
     <script>
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        const blurBackground = document.querySelector('.blur-background');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            blurBackground.classList.toggle('active');
+        });
+
+        blurBackground.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            blurBackground.classList.remove('active');
+        });
+
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "../Home/logout.php";
+            }
+        }
         const cartItemsContainer = document.getElementById('cart-items');
         const totalPriceElement = document.getElementById('total-price');
 

@@ -17,6 +17,9 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
         session_regenerate_id(); // ป้องกัน session fixation attack
         $_SESSION["Username"] = $row["Username"]; // เก็บข้อมูลใน session
 
+        // ตั้งค่า cookies โดยอัตโนมัติให้จำ Username เป็นเวลา 7 วัน (7*24*60*60 วินาที)
+        setcookie("Username", $row["Username"], time() + (7 * 24 * 60 * 60), "/");
+
         // เปลี่ยนเส้นทางไปยังหน้า home
         header("Location: ../Home/home.php");
         exit();
@@ -29,4 +32,3 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
     echo "กรุณากรอก Username และ Password";
 }
 ?>
-

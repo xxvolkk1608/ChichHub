@@ -75,10 +75,8 @@
                     <div class="input-group">
                         <label for="username">Username</label>
                         <input type="text" name="username" id="username" placeholder="กรอก Username ของคุณ" required>
-                        <!-- ปุ่มสำหรับตรวจสอบ Username -->
-                        <button type="button" id="check-username-btn">ตรวจสอบ Username</button>
                         <!-- แสดงผลการตรวจสอบ -->
-                        <div id="username-feedback" style="font-size: 0.9em; color: red;"></div>
+                        <div id="username-feedback" style="color: red; font-size: 0.7em; font-weight: bold;"></div>
                     </div>
 
                     <!-- ฟิลด์สำหรับรหัสผ่าน -->
@@ -159,6 +157,10 @@
                     <div class="input-group">
                         <button type="submit" name="submit" class="btn-signup">สมัครสมาชิก</button>
                     </div>
+                    <!-- ข้อความเพิ่มเติม: มีบัญชีแล้ว? ไปที่หน้าเข้าสู่ระบบ -->
+                    <p class="sign-in-link">
+                        มีบัญชีแล้ว? <a href="../Sign-In/signin.php">เข้าสู่ระบบ</a>
+                    </p>
                 </form>
             </div>
         </div>
@@ -185,14 +187,14 @@
     <script src="script.js"></script>
     <script>
         // แสดงและซ่อนรหัสผ่าน
-        document.querySelector("#togglePassword").addEventListener("click", function () {
+        document.querySelector("#togglePassword").addEventListener("click", function() {
             const password = document.querySelector("#password");
             const type = password.getAttribute("type") === "password" ? "text" : "password";
             password.setAttribute("type", type);
             this.textContent = type === "password" ? "แสดงรหัสผ่าน" : "ซ่อนรหัสผ่าน";
         });
 
-        document.querySelector("#toggleConfirmPassword").addEventListener("click", function () {
+        document.querySelector("#toggleConfirmPassword").addEventListener("click", function() {
             const confirmPassword = document.querySelector("#confirm-password");
             const type = confirmPassword.getAttribute("type") === "password" ? "text" : "password";
             confirmPassword.setAttribute("type", type);
@@ -220,14 +222,13 @@
         document.getElementById('zipcode').addEventListener('change', updateAddress);
     </script>
     <script>
-        // ฟังก์ชันตรวจสอบ Username เมื่อคลิกปุ่ม
-        document.getElementById('check-username-btn').addEventListener('click', function () {
-            let username = document.getElementById('username').value; // ดึงค่าจาก input
+        // ตรวจสอบ Username ทุกครั้งที่มีการพิมพ์
+        document.getElementById('username').addEventListener('input', function() {
+            let username = this.value; // รับค่าจาก input
 
-            // ตรวจสอบว่าได้กรอก Username หรือยัง
             if (username === '') {
-                document.getElementById('username-feedback').textContent = 'กรุณากรอก Username ก่อนตรวจสอบ';
-                return; // หยุดการทำงานหากยังไม่ได้กรอก Username
+                document.getElementById('username-feedback').textContent = 'กรุณากรอก Username';
+                return; // ถ้าไม่ได้กรอก username ให้หยุดการทำงาน
             }
 
             // สร้าง AJAX Request
@@ -235,35 +236,30 @@
             xhr.open('POST', 'check-username.php', true);
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
-            // ตรวจสอบการทำงานและแสดงผลลัพธ์ใน console
-            xhr.onload = function () {
+            // ตรวจสอบการทำงานและแสดงผลลัพธ์ในฟิลด์
+            xhr.onload = function() {
                 if (xhr.status === 200) {
-                    console.log(xhr.responseText); // แสดงผลลัพธ์ใน console เพื่อดูข้อมูลที่ได้รับ
-
                     let response = xhr.responseText;
                     let usernameFeedback = document.getElementById('username-feedback');
 
-                    // ถ้า Username ซ้ำ แสดงข้อความแจ้งเตือน
+                    // ถ้า Username ซ้ำ
                     if (response === 'taken') {
                         usernameFeedback.textContent = 'Username นี้ถูกใช้แล้ว กรุณาเปลี่ยน';
                         usernameFeedback.style.color = 'red';
-                    } else {
+                    } else if (response === 'available') {
                         usernameFeedback.textContent = 'Username นี้สามารถใช้ได้';
                         usernameFeedback.style.color = 'green';
                     }
-                } else {
-                    console.error('Error:', xhr.status, xhr.statusText); // แสดง error ใน console
                 }
             };
 
             // ตรวจสอบข้อผิดพลาด
-            xhr.onerror = function () {
+            xhr.onerror = function() {
                 console.error('Request failed');
             };
 
-            xhr.send('Username=' + encodeURIComponent(username)); // ตรวจสอบว่าข้อมูลถูกส่งถูกต้อง
+            xhr.send('Username=' + encodeURIComponent(username)); // ส่งค่า username
         });
-
     </script>
 </body>
 

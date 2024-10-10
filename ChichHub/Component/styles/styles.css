@@ -37,10 +37,12 @@ body {
 /* ส่วนหัว (Header) */
 header {
   position: fixed;
+  z-index: 999;
   background: var(--white);
   padding: 20px 0;
   border-bottom: 1px solid #ddd;
   display: flex;
+  width: 100%;
   justify-content: center; /* จัด header ให้อยู่ตรงกลาง */
 }
 
@@ -91,6 +93,7 @@ nav ul li a:hover {
 .banner {
   position: relative;
   margin: 20px 0;
+  padding-top: 5rem;
 }
 
 .banner img {
@@ -101,7 +104,7 @@ nav ul li a:hover {
 
 .banner-text {
   position: absolute;
-  top: 50%;
+  top: 60%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: var(--white);
@@ -319,6 +322,7 @@ footer p {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  margin-top: 5rem;
 }
 
 .shop-content {
@@ -394,7 +398,7 @@ footer p {
 .sign-in-section {
   background-color: var(--light-color);
   padding: 60px 0;
-  min-height: 80vh;
+  min-height: 85vh;
 }
 
 .sign-in-form {
@@ -404,6 +408,7 @@ footer p {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 400px;
   margin: 0 auto;
+  margin-top: 7rem;
   text-align: center;
 }
 
@@ -484,6 +489,7 @@ footer p {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 400px;
   margin: 0 auto;
+  margin-top: 6rem;
   text-align: center;
 }
 
@@ -572,7 +578,7 @@ footer p {
 /* ส่วนของระบบรถเข็น */
 .cart-section {
   background-color: var(--light-color);
-  padding: 40px 0;
+  padding: 7rem 0 3rem 0;
 }
 
 .cart-items {
@@ -856,8 +862,11 @@ footer p {
 @media (max-width: 600px) {
   /* ปรับขนาดแบนเนอร์ */
   .banner-text h2 {
-    font-size: 1.8rem;
+    font-size: 1rem;
   }
+  .banner-text {
+    top: 66%;
+}
 
   .banner-text .btn {
     padding: 8px 14px;
@@ -941,3 +950,5 @@ footer p {
     width: 100%;
   }
 }
+
+

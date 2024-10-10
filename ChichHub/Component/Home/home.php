@@ -24,7 +24,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
     <link rel="stylesheet" href="../styles/styles.css">
     <script src="script.js"></script>
     <style>
-        header{
+        header {
             position: fixed;
             top: 0;
             left: 0;
@@ -34,8 +34,35 @@ $username = htmlspecialchars($_SESSION["Username"]);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             z-index: 999;
         }
-        .banner{
-            margin-top: 10%;
+
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
         }
     </style>
 </head>
@@ -51,12 +78,17 @@ $username = htmlspecialchars($_SESSION["Username"]);
             <nav>
                 <ul class="nav-links">
                     <li><a href="./home.php">หน้าหลัก</a></li>
-                    <li><a href="../Shop/shop.html">ร้านค้า</a></li>
+                    <li><a href="../Shop/shop.php">ร้านค้า</a></li>
                     <li><a href="#">โปรโมชั่น</a></li>
-                    <li><a href="../Contact-us/contact-us.html">ติดต่อเรา</a></li>
-                    <li><a href="../User/userpage.php"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a></li>
-                    <li><a href="logout.php"> ออกจากระบบ</a></li>
-                    <li><a href="../Cart/cart.html"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
+                    <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
+                    <li class="dropdown">
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+                        <div class="dropdown-content">
+                            <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+                            <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+                        </div>
+                    </li>
+                    <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
                 </ul>
                 <!-- ปุ่ม Hamburger สำหรับมือถือ -->
                 <div class="hamburger">
@@ -103,7 +135,6 @@ $username = htmlspecialchars($_SESSION["Username"]);
                     <p>฿1200</p>
                     <a href="#" class="btn">เพิ่มในรถเข็น</a>
                 </div>
-                <!-- เพิ่มสินค้าเพิ่มเติมได้ที่นี่ -->
             </div>
         </div>
     </section>
@@ -134,7 +165,6 @@ $username = htmlspecialchars($_SESSION["Username"]);
         </div>
     </section>
 
-    <!-- ส่วนฟุตเตอร์ (Footer) -->
     <footer>
         <div class="container">
             <div class="footer-links">
@@ -147,26 +177,31 @@ $username = htmlspecialchars($_SESSION["Username"]);
                 <a href="#"><i class="fab fa-facebook-f"></i></a>
                 <a href="#"><i class="fab fa-instagram"></i></a>
                 <a href="#"><i class="fab fa-twitter"></i></a>
-                <!-- เพิ่มช่องทางโซเชียลเพิ่มเติมได้ที่นี่ -->
             </div>
             <p>&copy; 2024 Chic-hub. สงวนลิขสิทธิ์.</p>
         </div>
     </footer>
+
     <script>
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
         const blurBackground = document.querySelector('.blur-background');
-      
+
         hamburger.addEventListener('click', () => {
-          navLinks.classList.toggle('active');
-          blurBackground.classList.toggle('active'); // เบลอพื้นหลังเมื่อเมนูเปิด
+            navLinks.classList.toggle('active');
+            blurBackground.classList.toggle('active');
         });
-      
-        // ปิดเมนูเมื่อคลิกที่เบลอพื้นหลัง
+
         blurBackground.addEventListener('click', () => {
-          navLinks.classList.remove('active');
-          blurBackground.classList.remove('active');
+            navLinks.classList.remove('active');
+            blurBackground.classList.remove('active');
         });
+
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "./logout.php";
+            }
+        }
     </script>
 </body>
 

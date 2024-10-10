@@ -1,3 +1,18 @@
+<?php
+session_start();
+
+// ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
+if (!isset($_SESSION["Username"])) {
+    // หากยังไม่ได้เข้าสู่ระบบ เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
+
+// ดึงชื่อผู้ใช้จาก session
+$username = htmlspecialchars($_SESSION["Username"]);
+?>
+
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -11,41 +26,77 @@
   <link rel="stylesheet" href="../styles/styles.css">
   <style>
     header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 80px;
-      background-color: #fff;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      z-index: 999;
-    }
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+        }
+
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
   </style>
 </head>
 
 <body>
   <!-- ส่วนหัว (Header) -->
   <header>
-    <div class="container-header">
-      <div class="logo">
-        <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
-      </div>
-      <nav>
-        <ul class="nav-links">
-          <li><a href="../Home/home.php">หน้าหลัก</a></li>
-          <li><a href="../Shop/shop.html">ร้านค้า</a></li>
-          <li><a href="#">โปรโมชั่น</a></li>
-          <li><a href="../Contact-us/contact-us.html">ติดต่อเรา</a></li>
-          <li><a href="../Sign-In/signin.html"><i class="fas fa-user"></i> เข้าสู่ระบบ</a></li>
-          <li><a href="../Cart/cart.html"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
-        </ul>
-        <!-- ปุ่ม Hamburger สำหรับมือถือ -->
-        <div class="hamburger">
-          <i class="fas fa-bars"></i>
+        <div class="container-header">
+            <div class="logo">
+                <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../Home/home.php">หน้าหลัก</a></li>
+                    <li><a href="../Shop/shop.php">ร้านค้า</a></li>
+                    <li><a href="#">โปรโมชั่น</a></li>
+                    <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
+                    <li class="dropdown">
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+                        <div class="dropdown-content">
+                            <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+                            <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+                        </div>
+                    </li>
+                    <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
+                </ul>
+                <!-- ปุ่ม Hamburger สำหรับมือถือ -->
+                <div class="hamburger">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
         </div>
-      </nav>
-    </div>
-  </header>
+    </header>
 
   <!-- Blur Background -->
   <div class="blur-background"></div>
@@ -136,19 +187,25 @@
   </footer>
 
   <script>
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
-    const blurBackground = document.querySelector('.blur-background');
-    
-    hamburger.addEventListener('click', () => {
-      navLinks.classList.toggle('active');
-      blurBackground.classList.toggle('active'); // เบลอพื้นหลังเมื่อเมนูเปิด
-    });
+     const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        const blurBackground = document.querySelector('.blur-background');
 
-    blurBackground.addEventListener('click', () => {
-      navLinks.classList.remove('active');
-      blurBackground.classList.remove('active');
-    });
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            blurBackground.classList.toggle('active');
+        });
+
+        blurBackground.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            blurBackground.classList.remove('active');
+        });
+
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "../Home/logout.php";
+            }
+        }
 
     // เพิ่มสินค้าลงในรถเข็น
     const addToCartButtons = document.querySelectorAll('.add-to-cart');

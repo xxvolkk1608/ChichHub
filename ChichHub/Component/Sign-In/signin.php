@@ -39,7 +39,7 @@
     <header>
         <div class="container-header">
             <div class="logo">
-                <h1 class="chic-hub"><a href="../Sign-In/signin.html">ChicHub</a></h1>
+                <h1 class="chic-hub"><a href="./signin.php">ChicHub</a></h1>
             </div>
             </nav>
         </div>

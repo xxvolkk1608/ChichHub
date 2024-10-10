@@ -18,7 +18,7 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
         $_SESSION["Username"] = $row["Username"]; // เก็บข้อมูลใน session
 
         // เปลี่ยนเส้นทางไปยังหน้า home
-        header("Location: ../Home/home.html");
+        header("Location: ../Home/home.php");
         exit();
     } else {
         // หาก username หรือ password ไม่ถูกต้อง
@@ -26,7 +26,7 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
     }
 } else {
     // กรณีที่ยังไม่ได้กรอก username หรือ password
-    header("Location: failedlogin.php");
+    echo "กรุณากรอก Username และ Password";
 }
 ?>
 

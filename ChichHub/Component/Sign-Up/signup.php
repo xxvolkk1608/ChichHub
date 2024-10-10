@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- ลิงก์ไปยังไฟล์ CSS -->
     <link rel="stylesheet" href="../styles/styles.css">
+    <script src="script.js"></script>
+
     <style>
         .toggle-password {
             position: absolute;
@@ -53,7 +55,6 @@
             outline: none;
             /* เอา outline ออกเมื่อคลิก */
         }
-
     </style>
 </head>
 
@@ -71,10 +72,13 @@
             <div class="sign-up-form">
                 <h2>สมัครสมาชิก</h2>
                 <form action="process-signup.php" method="POST" id="signup-form">
-                    <!-- ฟิลด์ต่างๆ ที่เคยมีอยู่แล้ว -->
                     <div class="input-group">
-                        <label for="username">ชื่อผู้ใช้</label>
-                        <input type="text" name="username" id="username" placeholder="กรอกชื่อผู้ใช้ของคุณ" required>
+                        <label for="username">Username</label>
+                        <input type="text" name="username" id="username" placeholder="กรอก Username ของคุณ" required>
+                        <!-- ปุ่มสำหรับตรวจสอบ Username -->
+                        <button type="button" id="check-username-btn">ตรวจสอบ Username</button>
+                        <!-- แสดงผลการตรวจสอบ -->
+                        <div id="username-feedback" style="font-size: 0.9em; color: red;"></div>
                     </div>
 
                     <!-- ฟิลด์สำหรับรหัสผ่าน -->
@@ -111,7 +115,7 @@
                     </div>
                     <div class="input-group">
                         <label for="email">อีเมล</label>
-                        <input type="email" name="email" id="email" placeholder="กรอกอีเมลของคุณ" required>
+                        <input type="email" name="email" id="email" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" placeholder="กรอกอีเมลของคุณ" required>
                     </div>
 
                     <!-- Dropdown จังหวัด -->
@@ -214,6 +218,52 @@
         document.getElementById('amphure').addEventListener('change', updateAddress);
         document.getElementById('tambon').addEventListener('change', updateAddress);
         document.getElementById('zipcode').addEventListener('change', updateAddress);
+    </script>
+    <script>
+        // ฟังก์ชันตรวจสอบ Username เมื่อคลิกปุ่ม
+        document.getElementById('check-username-btn').addEventListener('click', function () {
+            let username = document.getElementById('username').value; // ดึงค่าจาก input
+
+            // ตรวจสอบว่าได้กรอก Username หรือยัง
+            if (username === '') {
+                document.getElementById('username-feedback').textContent = 'กรุณากรอก Username ก่อนตรวจสอบ';
+                return; // หยุดการทำงานหากยังไม่ได้กรอก Username
+            }
+
+            // สร้าง AJAX Request
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', 'check-username.php', true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+            // ตรวจสอบการทำงานและแสดงผลลัพธ์ใน console
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    console.log(xhr.responseText); // แสดงผลลัพธ์ใน console เพื่อดูข้อมูลที่ได้รับ
+
+                    let response = xhr.responseText;
+                    let usernameFeedback = document.getElementById('username-feedback');
+
+                    // ถ้า Username ซ้ำ แสดงข้อความแจ้งเตือน
+                    if (response === 'taken') {
+                        usernameFeedback.textContent = 'Username นี้ถูกใช้แล้ว กรุณาเปลี่ยน';
+                        usernameFeedback.style.color = 'red';
+                    } else {
+                        usernameFeedback.textContent = 'Username นี้สามารถใช้ได้';
+                        usernameFeedback.style.color = 'green';
+                    }
+                } else {
+                    console.error('Error:', xhr.status, xhr.statusText); // แสดง error ใน console
+                }
+            };
+
+            // ตรวจสอบข้อผิดพลาด
+            xhr.onerror = function () {
+                console.error('Request failed');
+            };
+
+            xhr.send('Username=' + encodeURIComponent(username)); // ตรวจสอบว่าข้อมูลถูกส่งถูกต้อง
+        });
+
     </script>
 </body>
 

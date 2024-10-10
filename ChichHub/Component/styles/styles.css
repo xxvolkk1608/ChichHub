@@ -36,6 +36,7 @@ body {
 
 /* ส่วนหัว (Header) */
 header {
+  position: fixed;
   background: var(--white);
   padding: 20px 0;
   border-bottom: 1px solid #ddd;
@@ -811,6 +812,8 @@ footer p {
     z-index: 999;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
+
+  
 
   /* เมื่อเมนูถูกเปิด */
   .nav-links.active {

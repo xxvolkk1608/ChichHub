@@ -21,17 +21,20 @@ $category_stmt->execute();
 $categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // ตรวจสอบว่ามีการส่ง POST มาจริงหรือไม่
+// ตรวจสอบว่ามีการส่ง POST มาจริงหรือไม่
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $category = isset($_POST['category']) && $_POST['category'] != 'ทั้งหมด' ? $_POST['category'] : '';
   $min_price = isset($_POST['min_price']) && $_POST['min_price'] != '' ? (int) $_POST['min_price'] : 0;
   $max_price = isset($_POST['max_price']) && $_POST['max_price'] != '' ? (int) $_POST['max_price'] : 0;
   $color = isset($_POST['color']) && $_POST['color'] != '' ? strtolower($_POST['color']) : ''; // เปลี่ยนให้เป็นตัวพิมพ์เล็กทั้งหมด
+  $search_query = isset($_POST['search_query']) ? trim($_POST['search_query']) : ''; // ค้นหาจาก Search Bar
 
   // เก็บค่าการกรองใน session
   $_SESSION['category_filter'] = $category;
   $_SESSION['min_price_filter'] = $min_price;
   $_SESSION['max_price_filter'] = $max_price;
   $_SESSION['color_filter'] = $color;
+  $_SESSION['search_query'] = $search_query;
 
   // รีไดเรกต์ไปที่หน้า shop.php (เพื่อแก้ปัญหาการส่งฟอร์มซ้ำ)
   header("Location: shop.php");
@@ -43,13 +46,14 @@ $category = isset($_SESSION['category_filter']) ? $_SESSION['category_filter'] :
 $min_price = isset($_SESSION['min_price_filter']) ? (int) $_SESSION['min_price_filter'] : 0;
 $max_price = isset($_SESSION['max_price_filter']) ? (int) $_SESSION['max_price_filter'] : 0;
 $color = isset($_SESSION['color_filter']) ? $_SESSION['color_filter'] : '';
+$search_query = isset($_SESSION['search_query']) ? $_SESSION['search_query'] : '';
 
 // สร้างคำสั่ง SQL สำหรับแสดงสินค้าตามตัวกรอง
 $sql = "SELECT Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
-        FROM Product 
-        INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID";
+      FROM Product 
+      INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID";
 
-// เพิ่มเงื่อนไขในการกรองตามหมวดหมู่, ราคา และสี
+// เพิ่มเงื่อนไขในการกรองตามหมวดหมู่, ราคา, สี และคำค้นหา
 $conditions = [];
 $params = [];
 
@@ -66,8 +70,12 @@ if ($max_price > 0) {
   $params[] = $max_price;
 }
 if ($color) {
-  $conditions[] = "LOWER(Product.Color) = ?";  // ใช้ LOWER เพื่อไม่สนใจตัวพิมพ์เล็ก/ใหญ่
+  $conditions[] = "LOWER(Product.Color) = ?";
   $params[] = $color;
+}
+if ($search_query) {
+  $conditions[] = "Product.P_Name LIKE ?";
+  $params[] = "%" . $search_query . "%";  // ค้นหาด้วยคำค้นหาในชื่อสินค้า
 }
 
 // ถ้ามีเงื่อนไข ให้เพิ่ม WHERE ใน SQL query
@@ -83,6 +91,7 @@ if ($stmt->execute($params)) {
   // แสดงข้อผิดพลาดถ้า query ไม่สำเร็จ
   print_r($stmt->errorInfo());
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -145,7 +154,7 @@ if ($stmt->execute($params)) {
       gap: 2rem;
       width: 75%;
       padding: 20px;
-      translate: 30% -16rem;
+      translate: 30% -30rem;
     }
 
     .filter {
@@ -154,7 +163,17 @@ if ($stmt->execute($params)) {
       color: white;
       border: none;
       border-radius: 4px;
+      cursor: pointer;
     }
+
+    .search-section button {
+      padding: 15px 10px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 
@@ -194,15 +213,16 @@ if ($stmt->execute($params)) {
   <div class="blur-background"></div>
 
   <div class="shop-container">
-    <!-- ส่วนค้นหาสินค้า -->
-    <div class="search-section">
-      <input type="text" placeholder="ค้นหาสินค้า...">
-      <button>ค้นหา</button>
-    </div>
+
     <!-- ฟอร์มกรองสินค้า -->
     <aside class="filter-sidebar">
       <h3>กรองสินค้า</h3>
       <form action="shop.php" method="POST">
+      <br><br><h3>ค้นหาสินค้า</h3>
+        <div class="search-section">
+            <input type="text" name="search_query" placeholder="ค้นหาสินค้า...">
+            <button type="submit">ค้นหา</button>
+          </div>
         <div class="filter-category">
           <label for="category">หมวดหมู่</label>
           <select name="category" id="category">

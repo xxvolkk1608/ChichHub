@@ -19,8 +19,8 @@ $pants_category_id = 1002; // กำหนด C_ID ของหมวดหม�
 
 // ตรวจสอบว่ามีการส่ง POST มาจริงหรือไม่
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $min_price = isset($_POST['min_price']) && $_POST['min_price'] != '' ? (int)$_POST['min_price'] : 0;
-    $max_price = isset($_POST['max_price']) && $_POST['max_price'] != '' ? (int)$_POST['max_price'] : 0;
+    $min_price = isset($_POST['min_price']) && $_POST['min_price'] != '' ? (int) $_POST['min_price'] : 0;
+    $max_price = isset($_POST['max_price']) && $_POST['max_price'] != '' ? (int) $_POST['max_price'] : 0;
     $color = isset($_POST['color']) && $_POST['color'] != '' ? strtolower($_POST['color']) : ''; // เปลี่ยนให้เป็นตัวพิมพ์เล็กทั้งหมด
 
     // เก็บค่าการกรองใน session
@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // นำค่าจาก session มาใช้ (ถ้ามี)
-$min_price = isset($_SESSION['min_price_filter']) ? (int)$_SESSION['min_price_filter'] : 0;
-$max_price = isset($_SESSION['max_price_filter']) ? (int)$_SESSION['max_price_filter'] : 0;
+$min_price = isset($_SESSION['min_price_filter']) ? (int) $_SESSION['min_price_filter'] : 0;
+$max_price = isset($_SESSION['max_price_filter']) ? (int) $_SESSION['max_price_filter'] : 0;
 $color = isset($_SESSION['color_filter']) ? $_SESSION['color_filter'] : '';
 
 // สร้างคำสั่ง SQL สำหรับแสดงสินค้าหมวดกางเกงตามตัวกรอง
@@ -75,7 +75,7 @@ if ($stmt->execute($params)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChicHub - กางเกง</title>
+    <title>ChicHub - เสื้อ</title>
     <!-- ลิงก์ไปยัง Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- ลิงก์ไปยังไฟล์ CSS -->
@@ -129,7 +129,7 @@ if ($stmt->execute($params)) {
             gap: 2rem;
             width: 75%;
             padding: 20px;
-            translate: 30% -16rem;
+            translate: 30% -30rem;
         }
 
         .filter {
@@ -138,7 +138,9 @@ if ($stmt->execute($params)) {
             color: white;
             border: none;
             border-radius: 4px;
+            cursor: pointer;
         }
+        
     </style>
 </head>
 
@@ -156,7 +158,9 @@ if ($stmt->execute($params)) {
                     <li><a href="#">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
+                            <?php echo $username; ?>
+                        </a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
                             <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
@@ -176,15 +180,28 @@ if ($stmt->execute($params)) {
     <div class="blur-background"></div>
 
     <div class="shop-container">
-        <!-- ส่วนค้นหาสินค้า -->
-        <div class="search-section">
-            <input type="text" placeholder="ค้นหาสินค้า...">
-            <button>ค้นหา</button>
-        </div>
-        <!-- ฟอร์มกรองสินค้า -->
+
         <aside class="filter-sidebar">
             <h3>กรองสินค้า</h3>
             <form action="Pants.php" method="POST">
+                <br><br>
+                <h3>ค้นหาสินค้า</h3>
+                <div class="search-section">
+                    <input type="text" name="search_query" placeholder="ค้นหาสินค้า...">
+                    <button type="submit">ค้นหา</button>
+                </div>
+                <div class="filter-category">
+                    <label for="category">หมวดหมู่</label>
+                    <select name="category" id="category">
+                        <option value="ทั้งหมด">ทั้งหมด</option>
+                        <!-- ดึงหมวดหมู่จากฐานข้อมูล -->
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?php echo $cat['C_ID']; ?>">
+                                <?php echo $cat['C_Name']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 <div class="filter-price">
                     <label for="min_price">ราคาต่ำสุด (บาท)</label>
                     <input type="number" name="min_price" id="min_price" min="0">
@@ -204,10 +221,16 @@ if ($stmt->execute($params)) {
             <?php if (count($products) > 0): ?>
                 <?php foreach ($products as $product): ?>
                     <div class="product-item">
-                        <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
-                        <h4><?php echo htmlspecialchars($product['P_Name']); ?></h4>
-                        <p>฿<?php echo number_format($product['Price'], 2); ?></p>
-                        <button class="add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" data-price="<?php echo $product['Price']; ?>">เพิ่มในรถเข็น</button>
+                        <img src="<?php echo $product['IMG_path']; ?>"
+                            alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
+                        <h4>
+                            <?php echo htmlspecialchars($product['P_Name']); ?>
+                        </h4>
+                        <p>฿
+                            <?php echo number_format($product['Price'], 2); ?>
+                        </p>
+                        <button class="add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
+                            data-price="<?php echo $product['Price']; ?>">เพิ่มในรถเข็น</button>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>

@@ -41,8 +41,8 @@ header {
   background: var(--white);
   padding: 20px 0;
   border-bottom: 1px solid #ddd;
-  display: flex;
   width: 100%;
+  display: flex;
   justify-content: center; /* จัด header ให้อยู่ตรงกลาง */
 }
 
@@ -93,7 +93,6 @@ nav ul li a:hover {
 .banner {
   position: relative;
   margin: 20px 0;
-  padding-top: 5rem;
 }
 
 .banner img {
@@ -104,7 +103,7 @@ nav ul li a:hover {
 
 .banner-text {
   position: absolute;
-  top: 60%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: var(--white);
@@ -295,6 +294,10 @@ footer p {
 
 /*ของ Shop.html*/
 /* ส่วนค้นหาสินค้า */
+
+.search-section{
+  margin-top: 20%;
+}
 .search-section {
   display: flex;
   justify-content: center;
@@ -322,7 +325,6 @@ footer p {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  margin-top: 5rem;
 }
 
 .shop-content {
@@ -334,8 +336,9 @@ footer p {
 .filter-sidebar {
   width: 20%;
   padding: 20px;
-  border-right: 1px solid #c5c5c5;
+  border-right: 1px solid #ddd;
 }
+
 .filter-sidebar h3 {
   margin-bottom: 10px;
 }
@@ -352,6 +355,16 @@ footer p {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
+/* สินค้าทั้งหมด */
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  width: 75%;
+  padding: 20px;
+}
+
 
 .product-item {
   padding: 20px;
@@ -387,7 +400,7 @@ footer p {
 .sign-in-section {
   background-color: var(--light-color);
   padding: 60px 0;
-  min-height: 85vh;
+  min-height: 80vh;
 }
 
 .sign-in-form {
@@ -397,7 +410,6 @@ footer p {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 400px;
   margin: 0 auto;
-  margin-top: 7rem;
   text-align: center;
 }
 
@@ -478,7 +490,6 @@ footer p {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 400px;
   margin: 0 auto;
-  margin-top: 6rem;
   text-align: center;
 }
 
@@ -565,6 +576,10 @@ footer p {
 
 /*ของ Cart*/
 /* ส่วนของระบบรถเข็น */
+.cart-section {
+  background-color: var(--light-color);
+  padding: 40px 0;
+}
 
 .cart-items {
   display: flex;
@@ -778,8 +793,15 @@ footer p {
   z-index: 1000;
 }
 
+
+
 /* สำหรับหน้าจอเล็กเท่านั้น */
-@media (max-width: 680px) {
+@media (max-width: 430px) {
+
+  .search-section{
+    margin-top: 10%;
+  }
+
   .hamburger {
     display: block;
     position: absolute;
@@ -842,16 +864,17 @@ footer p {
   .nav-links li a:hover {
     color: var(--primary-color);
   }
+
+  
 }
 /* สำหรับหน้าจอขนาดเล็ก (เช่น iPhone) */
-@media (max-width: 600px) {
+@media (min-width: 834px) and (max-width: 1024px) {
+
+
   /* ปรับขนาดแบนเนอร์ */
   .banner-text h2 {
-    font-size: 1rem;
+    font-size: 1.8rem;
   }
-  .banner-text {
-    top: 66%;
-}
 
   .banner-text .btn {
     padding: 8px 14px;
@@ -896,15 +919,18 @@ footer p {
     width: 100%;
   }
 
-  .cart-section {
-    background-color: var(--light-color);
-    padding: 7rem 0 3rem 0;
+  .search-section{
+    margin-top: 10%;
   }
+
 }
 
+@media (min-width: 1025px) {
 
-/* สำหรับหน้าจอขนาด Tablet */
-@media (min-width: 600px) and (max-width: 992px) {
+  .search-section{
+    margin-top: 8%;
+  }
+  
   /* ปรับ navbar ให้แสดงตามปกติแต่มีช่องว่างระหว่างเมนูน้อยลง */
   nav ul {
     justify-content: center;
@@ -940,4 +966,5 @@ footer p {
     width: 100%;
   }
 }
+
 

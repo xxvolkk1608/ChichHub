@@ -1,85 +1,166 @@
 <?php
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
+include 'connect.php'; // เชื่อมต่อกับฐานข้อมูล
 
-// ตรวจสอบว่ามี session อยู่หรือไม่
-if (!isset($_SESSION["Username"])) {
-    // ถ้าไม่มี session ให้เช็คว่ามี cookies หรือไม่
-    if (isset($_COOKIE["Username"])) {
-        // ตั้งค่า session ใหม่จาก cookies
-        $_SESSION["Username"] = $_COOKIE["Username"];
-    }
-}
-
-// ถ้าไม่มีทั้ง session และ cookies ให้เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
+// ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
 if (!isset($_SESSION["Username"])) {
     header("Location: ../Sign-In/signin.php");
     exit();
 }
 
-// แสดงชื่อผู้ใช้
 $username = htmlspecialchars($_SESSION["Username"]);
-echo "สวัสดี, $username";
+
+// ดึงหมวดหมู่สินค้าจากฐานข้อมูล
+$category_sql = "SELECT C_ID, C_Name FROM Category";
+$category_stmt = $pdo->prepare($category_sql);
+$category_stmt->execute();
+$categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ตรวจสอบว่ามีการส่ง POST มาจริงหรือไม่
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $category = isset($_POST['category']) && $_POST['category'] != 'ทั้งหมด' ? $_POST['category'] : '';
+    $min_price = isset($_POST['min_price']) && $_POST['min_price'] != '' ? (int)$_POST['min_price'] : 0;
+    $max_price = isset($_POST['max_price']) && $_POST['max_price'] != '' ? (int)$_POST['max_price'] : 0;
+    $color = isset($_POST['color']) && $_POST['color'] != '' ? strtolower($_POST['color']) : ''; // เปลี่ยนให้เป็นตัวพิมพ์เล็กทั้งหมด
+
+    // เก็บค่าการกรองใน session
+    $_SESSION['category_filter'] = $category;
+    $_SESSION['min_price_filter'] = $min_price;
+    $_SESSION['max_price_filter'] = $max_price;
+    $_SESSION['color_filter'] = $color;
+
+    // รีไดเรกต์ไปที่หน้า shop.php (เพื่อแก้ปัญหาการส่งฟอร์มซ้ำ)
+    header("Location: shop.php");
+    exit();
+}
+
+// นำค่าจาก session มาใช้ (ถ้ามี)
+$category = isset($_SESSION['category_filter']) ? $_SESSION['category_filter'] : '';
+$min_price = isset($_SESSION['min_price_filter']) ? (int)$_SESSION['min_price_filter'] : 0;
+$max_price = isset($_SESSION['max_price_filter']) ? (int)$_SESSION['max_price_filter'] : 0;
+$color = isset($_SESSION['color_filter']) ? $_SESSION['color_filter'] : '';
+
+// สร้างคำสั่ง SQL สำหรับแสดงสินค้าตามตัวกรอง
+$sql = "SELECT Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
+        FROM Product 
+        INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID";
+
+// เพิ่มเงื่อนไขในการกรองตามหมวดหมู่, ราคา และสี
+$conditions = [];
+$params = [];
+
+if ($category) {
+    $conditions[] = "Product.C_ID = ?";
+    $params[] = $category;
+}
+if ($min_price > 0) {
+    $conditions[] = "Product.Price >= ?";
+    $params[] = $min_price;
+}
+if ($max_price > 0) {
+    $conditions[] = "Product.Price <= ?";
+    $params[] = $max_price;
+}
+if ($color) {
+    $conditions[] = "LOWER(Product.Color) = ?";  // ใช้ LOWER เพื่อไม่สนใจตัวพิมพ์เล็ก/ใหญ่
+    $params[] = $color;
+}
+
+// ถ้ามีเงื่อนไข ให้เพิ่ม WHERE ใน SQL query
+if (count($conditions) > 0) {
+    $sql .= " WHERE " . implode(" AND ", $conditions);
+}
+
+// เตรียมและรันคำสั่ง SQL
+$stmt = $pdo->prepare($sql);
+if ($stmt->execute($params)) {
+    $products = $stmt->fetchAll();
+} else {
+    // แสดงข้อผิดพลาดถ้า query ไม่สำเร็จ
+    print_r($stmt->errorInfo());
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="th">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChicHub - ร้านค้า</title>
-  <!-- ลิงก์ไปยัง Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- ลิงก์ไปยังไฟล์ CSS -->
-  <link rel="stylesheet" href="../styles/styles.css">
-  <style>
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 80px;
-      background-color: #fff;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      z-index: 999;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChicHub - ร้านค้า</title>
+    <!-- ลิงก์ไปยัง Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ลิงก์ไปยังไฟล์ CSS -->
+    <link rel="stylesheet" href="../styles/styles.css">
+    <style>
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+        }
 
-      /* Dropdown Menu */
-    .dropdown {
-        position: relative;
-        display: inline-block;
-    }
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #f9f9f9;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-    }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
 
-    .dropdown-content a {
-        color: black;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-    }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
 
-    .dropdown-content a:hover {
-        background-color: #f1f1f1;
-    }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
 
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
 
-  </style>
+        /* สินค้าทั้งหมด */
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            width: 75%;
+            padding: 20px;
+            translate: 30% -16rem;
+        }
+
+        .filter {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 
 <body>
-  <!-- ส่วนหัว (Header) -->
-  <header>
+    <!-- ส่วนหัว (Header) -->
+    <header>
         <div class="container-header">
             <div class="logo">
                 <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
@@ -107,141 +188,124 @@ echo "สวัสดี, $username";
         </div>
     </header>
 
-  <!-- Blur Background -->
-  <div class="blur-background"></div>
+    <!-- Blur Background -->
+    <div class="blur-background"></div>
 
-  <div class="shop-container">
-    <!-- ส่วนค้นหาสินค้า -->
-    <div class="search-section">
-      <input type="text" placeholder="ค้นหาสินค้า...">
-      <button>ค้นหา</button>
+    <div class="shop-container">
+        <!-- ส่วนค้นหาสินค้า -->
+        <div class="search-section">
+            <input type="text" placeholder="ค้นหาสินค้า...">
+            <button>ค้นหา</button>
+        </div>
+        <!-- ฟอร์มกรองสินค้า -->
+        <aside class="filter-sidebar">
+            <h3>กรองสินค้า</h3>
+            <form action="shop.php" method="POST">
+                <div class="filter-category">
+                    <label for="category">หมวดหมู่</label>
+                    <select name="category" id="category">
+                        <option value="ทั้งหมด">ทั้งหมด</option>
+                        <!-- ดึงหมวดหมู่จากฐานข้อมูล -->
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?php echo $cat['C_ID']; ?>"><?php echo $cat['C_Name']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="filter-price">
+                    <label for="min_price">ราคาต่ำสุด (บาท)</label>
+                    <input type="number" name="min_price" id="min_price" min="0">
+                    <label for="max_price">ราคาสูงสุด (บาท)</label>
+                    <input type="number" name="max_price" id="max_price" min="0">
+                </div>
+                <div class="filter-color">
+                    <label for="color">สี</label>
+                    <input type="text" name="color" id="color" placeholder="กรอกชื่อสี">
+                </div>
+                <button type="submit" class="filter">กรองสินค้า</button>
+            </form>
+        </aside>
+
+        <!-- แสดงรายการสินค้า -->
+        <section class="product-list">
+            <?php if (count($products) > 0): ?>
+                <?php foreach ($products as $product): ?>
+                    <div class="product-item">
+                        <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
+                        <h4><?php echo htmlspecialchars($product['P_Name']); ?></h4>
+                        <p>฿<?php echo number_format($product['Price'], 2); ?></p>
+                        <button class="add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" data-price="<?php echo $product['Price']; ?>">เพิ่มในรถเข็น</button>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p style="translate: 100%; ">ไม่พบสินค้าที่ตรงกับการกรองของคุณ</p>
+            <?php endif; ?>
+        </section>
     </div>
 
-    <div class="shop-content">
-      <!-- การกรองสินค้า -->
-      <aside class="filter-sidebar">
-        <h3>กรองสินค้า</h3>
-        <div class="filter-category">
-          <label>หมวดหมู่</label>
-          <select>
-            <option value="ทั้งหมด">ทั้งหมด</option>
-            <option value="เสื้อยืด">เสื้อยืด</option>
-            <option value="กางเกง">กางเกง</option>
-          </select>
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#">เกี่ยวกับเรา</a>
+                <a href="#">นโยบายความเป็นส่วนตัว</a>
+                <a href="#">เงื่อนไขการใช้งาน</a>
+                <a href="#">ติดต่อเรา</a>
+            </div>
+            <div class="social-media">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+            </div>
+            <p>&copy; 2024 ChicHub. สงวนลิขสิทธิ์.</p>
         </div>
-        <div class="filter-color">
-          <label>สี</label>
-          <select>
-            <option value="ทั้งหมด">ทั้งหมด</option>
-            <option value="แดง">แดง</option>
-            <option value="ดำ">ดำ</option>
-          </select>
-        </div>
-        <div class="filter-size">
-          <label>ขนาด</label>
-          <select>
-            <option value="select">-- size --</option>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-          </select>
-        </div>
-        <div class="filter-price">
-          <label>ราคา</label>
-          <input type="number" min="0">
-        </div>
-      </aside>
+    </footer>
 
-      <!-- แสดงสินค้าทั้งหมด -->
-      <section class="product-list">
-        <div class="product-item">
-          <img src="https://via.placeholder.com/300x400" alt="product">
-          <h4>เสื้อยืดคลาสสิค</h4>
-          <p>฿500</p>
-          <button class="add-to-cart" data-name="เสื้อยืดคลาสสิค" data-price="500">เพิ่มในรถเข็น</button>
-        </div>
-        <div class="product-item">
-          <img src="https://via.placeholder.com/300x400" alt="product">
-          <h4>กางเกงยีนส์</h4>
-          <p>฿1200</p>
-          <button class="add-to-cart" data-name="กางเกงยีนส์" data-price="1200">เพิ่มในรถเข็น</button>
-        </div>
-        <div class="product-item">
-          <img src="https://via.placeholder.com/300x400" alt="product">
-          <h4>เสื้อแจ็คเก็ต</h4>
-          <p>฿1500</p>
-          <button class="add-to-cart" data-name="เสื้อแจ็คเก็ต" data-price="1500">เพิ่มในรถเข็น</button>
-        </div>
-      </section>
-    </div>
-  </div>
+    <script>
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        const blurBackground = document.querySelector('.blur-background');
 
-  <!-- ฟุตเตอร์ (Footer) -->
-  <footer>
-    <div class="container">
-      <div class="footer-links">
-        <a href="#">เกี่ยวกับเรา</a>
-        <a href="#">นโยบายความเป็นส่วนตัว</a>
-        <a href="#">เงื่อนไขการใช้งาน</a>
-        <a href="#">ติดต่อเรา</a>
-      </div>
-      <div class="social-media">
-        <a href="#"><i class="fab fa-facebook-f"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-        <a href="#"><i class="fab fa-twitter"></i></a>
-      </div>
-      <p>&copy; 2024 ChicHub. สงวนลิขสิทธิ์.</p>
-    </div>
-  </footer>
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            blurBackground.classList.toggle('active');
+        });
 
-  <script>
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
-    const blurBackground = document.querySelector('.blur-background');
-    
-    hamburger.addEventListener('click', () => {
-      navLinks.classList.toggle('active');
-      blurBackground.classList.toggle('active'); // เบลอพื้นหลังเมื่อเมนูเปิด
-    });
-
-    blurBackground.addEventListener('click', () => {
-      navLinks.classList.remove('active');
-      blurBackground.classList.remove('active');
-    });
-
-    // เพิ่มสินค้าลงในรถเข็น
-    const addToCartButtons = document.querySelectorAll('.add-to-cart');
-    addToCartButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const productName = button.dataset.name;
-        const productPrice = button.dataset.price;
-        
-        const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-        
-        // ตรวจสอบว่ามีสินค้าในรถเข็นแล้วหรือยัง
-        const existingItem = cartItems.find(item => item.name === productName);
-        if (existingItem) {
-          existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
-        } else {
-          cartItems.push({
-            name: productName,
-            price: productPrice,
-            quantity: 1
-          });
-        }
-
-        localStorage.setItem('cartItems', JSON.stringify(cartItems));
-        alert(`${productName} ถูกเพิ่มในรถเข็น`);
-      });
-    });
+        blurBackground.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            blurBackground.classList.remove('active');
+        });
 
         function confirmLogout() {
             if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                window.location.href = "./logout.php";
+                window.location.href = "../Home/logout.php";
             }
         }
-  </script>
+
+        // เพิ่มสินค้าลงในรถเข็น
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const productName = button.dataset.name;
+                const productPrice = button.dataset.price;
+
+                const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+
+                // ตรวจสอบว่ามีสินค้าในรถเข็นแล้วหรือยัง
+                const existingItem = cartItems.find(item => item.name === productName);
+                if (existingItem) {
+                    existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
+                } else {
+                    cartItems.push({
+                        name: productName,
+                        price: productPrice,
+                        quantity: 1
+                    });
+                }
+
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                alert(`${productName} ถูกเพิ่มในรถเข็น`);
+            });
+        });
+    </script>
 </body>
 
 </html>

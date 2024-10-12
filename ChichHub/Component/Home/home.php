@@ -85,6 +85,19 @@ echo "สวัสดี, $username";
 </head>
 
 <body>
+<?php
+    include 'connect.php'; // เชื่อมต่อฐานข้อมูล
+
+    // ดึงข้อมูลสินค้ายอดนิยมและรูปภาพจากฐานข้อมูล
+    $stmt = $pdo->prepare("SELECT Product.P_Name, Product.Price, Images.IMG_path 
+                                  FROM Product 
+                                  INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
+                                  WHERE Product.P_Name LIKE 'Pant%' 
+                                  OR Product.P_Name LIKE 'Shirt%';
+    ");
+    $stmt->execute();
+    $products = $stmt->fetchAll();
+    ?>
 
     <!-- ส่วนหัว (Header) -->
     <header>
@@ -94,7 +107,7 @@ echo "สวัสดี, $username";
             </div>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="../home.php">หน้าหลัก</a></li>
+                    <li><a href="../Home/home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
                     <li><a href="#">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
@@ -137,24 +150,14 @@ echo "สวัสดี, $username";
         <div class="container">
             <h2>สินค้ายอดนิยม</h2>
             <div class="products">
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/300x400" alt="สินค้า 1">
-                    <h3>เสื้อยืดคลาสสิก</h3>
-                    <p>฿500</p>
-                    <a href="#" class="btn">เพิ่มในรถเข็น</a>
-                </div>
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/300x400" alt="สินค้า 2">
-                    <h3>กางเกงยีนส์</h3>
-                    <p>฿800</p>
-                    <a href="#" class="btn">เพิ่มในรถเข็น</a>
-                </div>
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/300x400" alt="สินค้า 3">
-                    <h3>เสื้อแจ็คเก็ตสตรีท</h3>
-                    <p>฿1200</p>
-                    <a href="#" class="btn">เพิ่มในรถเข็น</a>
-                </div>
+                <?php foreach ($products as $product): ?>
+                    <div class="product-card">
+                        <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
+                        <h3><?php echo htmlspecialchars($product['P_Name']); ?></h3>
+                        <p>฿<?php echo number_format($product['Price'], 2); ?></p>
+                        <a href="#" class="btn">เพิ่มในรถเข็น</a>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </section>
@@ -165,22 +168,18 @@ echo "สวัสดี, $username";
             <h2>หมวดหมู่สินค้า</h2>
             <div class="category-list">
                 <div class="category-item">
-                    <img class="tshirt" src="../../img/tshirt.png" alt="">
+                    <img class="tshirt" src="../cat_img/tshirt.png" alt="">
                     <a href="#">เสื้อยืด</a>
                 </div>
                 <div class="category-item">
-                    <img class="shirt" src="../../img/shirt.png" alt="">
-                    <a href="#">เสื้อเชิ้ต</a>
-                </div>
-                <div class="category-item">
-                    <img class="pant" src="../../img/pant.png" alt="">
+                    <img class="pant" src="../cat_img/pant.png" alt="">
                     <a href="#">กางเกง</a>
                 </div>
                 <div class="category-item">
-                    <img class="jacket" src="../../img/jacket.png" alt="">
-                    <a href="#">เสื้อแจ็คเก็ต</a>
+                    <img class="jacket" src="../cat_img/promo.jpeg" alt="">
+                    <a href="#">Promotion</a>
                 </div>
-                <!-- เพิ่มหมวดหมู่เพิ่มเติมได้ที่นี่ -->
+                
             </div>
         </div>
     </section>

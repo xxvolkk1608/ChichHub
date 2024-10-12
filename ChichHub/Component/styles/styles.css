@@ -195,7 +195,7 @@ nav ul li a:hover {
 
 /* หมวดหมู่สินค้า */
 .categories {
-  padding: 40px 0;
+  padding: 40px ;
 }
 
 .pant{
@@ -789,12 +789,7 @@ footer p {
 
 
 /* สำหรับหน้าจอเล็กเท่านั้น */
-@media (max-width: 430px) {
-
-  .search-section{
-    margin-top: 10%;
-  }
-
+@media (max-width: 680px) {
   .hamburger {
     display: block;
     position: absolute;
@@ -857,17 +852,16 @@ footer p {
   .nav-links li a:hover {
     color: var(--primary-color);
   }
-
-  
 }
 /* สำหรับหน้าจอขนาดเล็ก (เช่น iPhone) */
-@media (min-width: 834px) and (max-width: 1024px) {
-
-
+@media (max-width: 600px) {
   /* ปรับขนาดแบนเนอร์ */
   .banner-text h2 {
-    font-size: 1.8rem;
+    font-size: 1rem;
   }
+  .banner-text {
+    top: 66%;
+}
 
   .banner-text .btn {
     padding: 8px 14px;
@@ -912,18 +906,15 @@ footer p {
     width: 100%;
   }
 
-  .search-section{
-    margin-top: 10%;
+  .cart-section {
+    background-color: var(--light-color);
+    padding: 7rem 0 3rem 0;
   }
-
 }
 
-@media (min-width: 1025px) {
 
-  .search-section{
-    margin-top: 8%;
-  }
-  
+/* สำหรับหน้าจอขนาด Tablet */
+@media (min-width: 600px) and (max-width: 992px) {
   /* ปรับ navbar ให้แสดงตามปกติแต่มีช่องว่างระหว่างเมนูน้อยลง */
   nav ul {
     justify-content: center;
@@ -959,5 +950,3 @@ footer p {
     width: 100%;
   }
 }
-
-

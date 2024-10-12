@@ -1,7 +1,8 @@
 <?php
-// Enable error reporting
-error_reporting(E_ALL);
+
 ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 session_start();
 include 'connect.php'; // เชื่อมต่อกับฐานข้อมูล
@@ -49,7 +50,7 @@ $color = isset($_SESSION['color_filter']) ? $_SESSION['color_filter'] : '';
 $search_query = isset($_SESSION['search_query']) ? $_SESSION['search_query'] : '';
 
 // สร้างคำสั่ง SQL สำหรับแสดงสินค้าตามตัวกรอง
-$sql = "SELECT Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
+$sql = "SELECT Product.P_ID, Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
       FROM Product 
       INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID";
 
@@ -178,36 +179,42 @@ if ($stmt->execute($params)) {
 </head>
 
 <body>
+<?php
+  // รีเซตการกรองสินค้าเมื่อผู้ใช้เข้ามาหน้าร้านค้าใหม่
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    unset($_SESSION['category_filter']);
+    unset($_SESSION['price_filter']);
+  }
+
+  ?>
   <!-- ส่วนหัว (Header) -->
   <header>
-    <div class="container-header">
-      <div class="logo">
-        <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
-      </div>
-      <nav>
-        <ul class="nav-links">
-          <li><a href="../Home/home.php">หน้าหลัก</a></li>
-          <li><a href="../Shop/shop.php">ร้านค้า</a></li>
-          <li><a href="#">โปรโมชั่น</a></li>
-          <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
-          <li class="dropdown">
-            <a href="#"><i class="fas fa-user"></i> สวัสดี,
-              <?php echo $username; ?>
-            </a>
-            <div class="dropdown-content">
-              <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-              <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+        <div class="container-header">
+            <div class="logo">
+                <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
             </div>
-          </li>
-          <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
-        </ul>
-        <!-- ปุ่ม Hamburger สำหรับมือถือ -->
-        <div class="hamburger">
-          <i class="fas fa-bars"></i>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../Home/home.php">หน้าหลัก</a></li>
+                    <li><a href="../Shop/shop.php">ร้านค้า</a></li>
+                    <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
+                    <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
+                    <li class="dropdown">
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+                        <div class="dropdown-content">
+                            <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+                            <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
+                        </div>
+                    </li>
+                    <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
+                </ul>
+                <!-- ปุ่ม Hamburger สำหรับมือถือ -->
+                <div class="hamburger">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
         </div>
-      </nav>
-    </div>
-  </header>
+    </header>
 
   <!-- Blur Background -->
   <div class="blur-background"></div>
@@ -260,8 +267,11 @@ if ($stmt->execute($params)) {
             <p>฿
               <?php echo number_format($product['Price'], 2); ?>
             </p>
-            <button class="add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
-              data-price="<?php echo $product['Price']; ?>">เพิ่มในรถเข็น</button>
+            <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>" class="info">ดูรายละเอียด</a>
+            <a href="#" class="btn add-to-cart" 
+                           data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" 
+                           data-price="<?php echo number_format($product['Price'], 2); ?>">
+                           เพิ่มในรถเข็น</a>
           </div>
         <?php endforeach; ?>
       <?php else: ?>

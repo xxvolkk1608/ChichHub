@@ -25,8 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $amount = $_POST['amount'];
         $color = $_POST['color'];
         $category_id = $_POST['category'];
+        $detail = $_POST['detail'];
 
-        if (empty($pname) || empty($price) || empty($amount) || empty($color) || empty($category_id)) {
+        if (empty($pname) || empty($price) || empty($amount) || empty($color) || empty($category_id) || empty($detail)) {
             throw new Exception("กรุณากรอกข้อมูลทุกช่อง");
         }
 
@@ -51,8 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $img_id = $pdo->lastInsertId();
 
                     // รวม pname ในคำสั่ง INSERT INTO Product
-                    $stmt = $pdo->prepare("INSERT INTO Product (P_Name, Price, Amount, C_ID, Color, IMG_ID) VALUES (?, ?, ?, ?, ?, ?)");
-                    if ($stmt->execute([$pname, $price, $amount, $category_id, $color, $img_id])) {
+                    $stmt = $pdo->prepare("INSERT INTO Product (P_Name, Price, Amount, C_ID, Color, IMG_ID, Detail ) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    if ($stmt->execute([$pname, $price, $amount, $category_id, $color, $img_id , $detail])) {
                         // เปลี่ยนเส้นทางหลังจากเพิ่มสินค้าเสร็จแล้ว เพื่อป้องกันการทำรายการซ้ำ
                         header("Location: add-product.php?status=success");
                         exit();
@@ -205,7 +206,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-                            <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+                            <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -256,6 +257,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="input-group">
                 <label for="product_image">เลือกรูปภาพสินค้า:</label>
                 <input type="file" id="product_image" name="product_image" required><br>
+            </div>
+
+            <div class="input-group">
+                <label for="pname">รายละเอียดสินค้า:</label>
+                <input type="textarea" name="detail" id="detail" required>
             </div>
             <button type="submit" class="btn">เพิ่มสินค้า</button>
         </form>

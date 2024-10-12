@@ -4,7 +4,6 @@ include 'connect.php'; // เชื่อมต่อฐานข้อมูล
 
 // ตรวจสอบว่ามี session อยู่หรือไม่
 if (!isset($_SESSION["Username"])) {
-    // ถ้าไม่มี session ให้เช็คว่ามี cookies หรือไม่
     if (isset($_COOKIE["Username"])) {
         // ตั้งค่า session ใหม่จาก cookies
         $_SESSION["Username"] = $_COOKIE["Username"];
@@ -25,8 +24,9 @@ $user = $stmt->fetch();
 
 // แสดงชื่อผู้ใช้
 echo "สวัสดี, $username";
-?>
 
+
+?>
 
 <!DOCTYPE html>
 <html lang="th">
@@ -35,9 +35,7 @@ echo "สวัสดี, $username";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chic-hub - ร้านขายเสื้อผ้าออนไลน์</title>
-    <!-- ลิงก์ไปยัง Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- ลิงก์ไปยังไฟล์ CSS -->
     <link rel="stylesheet" href="../styles/styles.css">
     <script src="script.js"></script>
     <style>
@@ -52,7 +50,6 @@ echo "สวัสดี, $username";
             z-index: 999;
         }
 
-        /* Dropdown Menu */
         .dropdown {
             position: relative;
             display: inline-block;
@@ -97,6 +94,10 @@ echo "สวัสดี, $username";
     ");
     $stmt->execute();
     $products = $stmt->fetchAll();
+
+    $stmt = $pdo->prepare("SELECT B_Name, B_img FROM Banner");
+    $stmt->execute();
+    $Banner = $stmt->fetch();
     ?>
 
     <!-- ส่วนหัว (Header) -->
@@ -116,9 +117,9 @@ echo "สวัสดี, $username";
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
                             <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
-                                <a href="../Admin/add-product.php">เพิ่มสินค้า</a> <!-- ลิงก์สำหรับเพิ่มสินค้า -->
+                                <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
                             <?php endif; ?>
-                            <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+                            <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -137,10 +138,12 @@ echo "สวัสดี, $username";
     <!-- ส่วนแบนเนอร์โปรโมชั่น -->
     <section class="banner">
         <div class="container">
-            <img src="https://via.placeholder.com/1200x400" alt="โปรโมชั่น">
-            <div class="banner-text">
-                <h2>โปรโมชั่นลดราคาสูงสุด 50%</h2>
-                <a href="#" class="btn">ช้อปเลย</a>
+            <div class="banner-image">
+                <img src="<?php echo $Banner['B_img']; ?>" alt="<?php echo $Banner['B_Name']; ?>">
+                <div class="banner-text">
+                    <h2><?php echo $Banner['B_Name']; ?></h2>
+                    <a href="../Shop/shop.php" class="btn">ช้อปเลย</a>
+                </div>
             </div>
         </div>
     </section>
@@ -155,7 +158,10 @@ echo "สวัสดี, $username";
                         <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
                         <h3><?php echo htmlspecialchars($product['P_Name']); ?></h3>
                         <p>฿<?php echo number_format($product['Price'], 2); ?></p>
-                        <a href="#" class="btn">เพิ่มในรถเข็น</a>
+                        <a href="#" class="btn add-to-cart" 
+                           data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" 
+                           data-price="<?php echo number_format($product['Price'], 2); ?>">
+                           เพิ่มในรถเข็น</a>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -179,7 +185,6 @@ echo "สวัสดี, $username";
                     <img class="jacket" src="../cat_img/promo.jpeg" alt="">
                     <a href="../Category/Promotion.php">Promotion</a>
                 </div>
-                
             </div>
         </div>
     </section>
@@ -202,6 +207,36 @@ echo "สวัสดี, $username";
     </footer>
 
     <script>
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const productName = button.getAttribute('data-name');
+                const productPrice = button.getAttribute('data-price');
+
+                const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+
+                const existingItem = cartItems.find(item => item.name === productName);
+                if (existingItem) {
+                    existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
+                } else {
+                    cartItems.push({
+                        name: productName,
+                        price: productPrice,
+                        quantity: 1
+                    });
+                }
+
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                alert(`${productName} ถูกเพิ่มในรถเข็น`);
+            });
+        });
+
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "./logout.php";
+            }
+        }
+
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
         const blurBackground = document.querySelector('.blur-background');
@@ -215,12 +250,6 @@ echo "สวัสดี, $username";
             navLinks.classList.remove('active');
             blurBackground.classList.remove('active');
         });
-
-        function confirmLogout() {
-            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                window.location.href = "./logout.php";
-            }
-        }
     </script>
 </body>
 

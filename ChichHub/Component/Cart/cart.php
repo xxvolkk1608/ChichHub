@@ -23,6 +23,7 @@ echo "สวัสดี, $username";
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,38 +41,40 @@ echo "สวัสดี, $username";
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             z-index: 999;
         }
+
         .dropdown {
-        position: relative;
-        display: inline-block;
-    }
+            position: relative;
+            display: inline-block;
+        }
 
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #f9f9f9;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-    }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
 
-    .dropdown-content a {
-        color: black;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-    }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
 
-    .dropdown-content a:hover {
-        background-color: #f1f1f1;
-    }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
 
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
     </style>
 </head>
+
 <body>
-<header>
+    <header>
         <div class="container-header">
             <div class="logo">
                 <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
@@ -83,10 +86,12 @@ echo "สวัสดี, $username";
                     <li><a href="#">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
+                            <?php echo $username; ?>
+                        </a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-                            <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+                            <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -109,7 +114,7 @@ echo "สวัสดี, $username";
             <div class="cart-summary">
                 <h3>สรุปการสั่งซื้อ</h3>
                 <p>ราคารวม: <span class="total-price" id="total-price">฿0</span></p>
-                <button class="checkout-btn">ชำระเงิน</button>
+                <button class="checkout-btn" id="checkout-btn">ชำระเงิน</button>
             </div>
         </div>
     </section>
@@ -134,6 +139,7 @@ echo "สวัสดี, $username";
     <script>
         const cartItemsContainer = document.getElementById('cart-items');
         const totalPriceElement = document.getElementById('total-price');
+        const checkoutButton = document.getElementById('checkout-btn');
 
         // ดึงข้อมูลจาก LocalStorage
         const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
@@ -160,7 +166,31 @@ echo "สวัสดี, $username";
             totalPrice += item.price * item.quantity;
         });
 
-        totalPriceElement.textContent = `฿${totalPrice}`;
+        totalPriceElement.textContent = `฿${totalPrice.toFixed(2)}`;
+
+        // การอัปเดตจำนวนสินค้าและคำนวณราคารวมใหม่
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('change', function () {
+                const newQuantity = parseInt(this.value, 10);
+                const productName = this.dataset.name;
+
+                cartItems.forEach(item => {
+                    if (item.name === productName) {
+                        item.quantity = newQuantity;
+                    }
+                });
+
+                // อัปเดตข้อมูลใน LocalStorage
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+                // คำนวณราคารวมใหม่
+                totalPrice = 0;
+                cartItems.forEach(item => {
+                    totalPrice += item.price * item.quantity;
+                });
+                totalPriceElement.textContent = `฿${totalPrice.toFixed(2)}`;
+            });
+        });
 
         // การลบสินค้า
         const removeButtons = document.querySelectorAll('.remove-btn');
@@ -172,9 +202,41 @@ echo "สวัสดี, $username";
                 window.location.reload(); // รีเฟรชหน้า
             });
         });
+
+        // ฟังก์ชันสำหรับชำระเงิน
+        checkoutButton.addEventListener('click', () => {
+            if (cartItems.length === 0) {
+                alert("ตะกร้าของคุณว่างเปล่า");
+                return;
+            }
+
+            // ส่งข้อมูลตะกร้าสินค้าไปยังเซิร์ฟเวอร์เพื่อสร้างคำสั่งซื้อ
+            fetch('process-checkout.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cartItems),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // เปลี่ยนเส้นทางไปยังหน้า pay.php พร้อม order_id
+                        window.location.href = `../Pay/pay.php?Ord_id=${data.Ord_id}`;
+                    } else {
+                        alert('เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('เกิดข้อผิดพลาด');
+                });
+        });
+
+
     </script>
 
-<script>
+    <script>
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
         const blurBackground = document.querySelector('.blur-background');
@@ -196,4 +258,5 @@ echo "สวัสดี, $username";
         }
     </script>
 </body>
+
 </html>

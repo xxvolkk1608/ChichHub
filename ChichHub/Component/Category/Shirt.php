@@ -155,15 +155,13 @@ if ($stmt->execute($params)) {
                 <ul class="nav-links">
                     <li><a href="../Home/home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
-                    <li><a href="#">โปรโมชั่น</a></li>
+                    <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
-                            <?php echo $username; ?>
-                        </a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-                            <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+                            <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -217,8 +215,10 @@ if ($stmt->execute($params)) {
                         <p>฿
                             <?php echo number_format($product['Price'], 2); ?>
                         </p>
-                        <button class="add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
-                            data-price="<?php echo $product['Price']; ?>">เพิ่มในรถเข็น</button>
+                        <a href="#" class="btn add-to-cart" 
+                           data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" 
+                           data-price="<?php echo number_format($product['Price'], 2); ?>">
+                           เพิ่มในรถเข็น</a>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>

@@ -220,8 +220,7 @@ if ($stmt->execute($params)) {
       <form action="shop.php" method="POST">
       <br><br><h3>ค้นหาสินค้า</h3>
         <div class="search-section">
-            <input type="text" name="search_query" placeholder="ค้นหาสินค้า...">
-            <button type="submit">ค้นหา</button>
+            <input type="text" name="search_query" placeholder="ค้นหาชื่อสินค้า...">
           </div>
         <div class="filter-category">
           <label for="category">หมวดหมู่</label>

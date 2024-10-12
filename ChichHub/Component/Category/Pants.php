@@ -129,7 +129,7 @@ if ($stmt->execute($params)) {
             gap: 2rem;
             width: 75%;
             padding: 20px;
-            translate: 30% -30rem;
+            translate: 30% -25rem;
         }
 
         .filter {
@@ -187,21 +187,9 @@ if ($stmt->execute($params)) {
                 <br><br>
                 <h3>ค้นหาสินค้า</h3>
                 <div class="search-section">
-                    <input type="text" name="search_query" placeholder="ค้นหาสินค้า...">
-                    <button type="submit">ค้นหา</button>
+                    <input type="text" name="search_query" placeholder="ค้นหาชื่อสินค้า...">
                 </div>
-                <div class="filter-category">
-                    <label for="category">หมวดหมู่</label>
-                    <select name="category" id="category">
-                        <option value="ทั้งหมด">ทั้งหมด</option>
-                        <!-- ดึงหมวดหมู่จากฐานข้อมูล -->
-                        <?php foreach ($categories as $cat): ?>
-                            <option value="<?php echo $cat['C_ID']; ?>">
-                                <?php echo $cat['C_Name']; ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                
                 <div class="filter-price">
                     <label for="min_price">ราคาต่ำสุด (บาท)</label>
                     <input type="number" name="min_price" id="min_price" min="0">

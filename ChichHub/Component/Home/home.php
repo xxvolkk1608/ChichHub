@@ -109,7 +109,7 @@ echo "สวัสดี, $username";
                 <ul class="nav-links">
                     <li><a href="../Home/home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
-                    <li><a href="#">โปรโมชั่น</a></li>
+                    <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>

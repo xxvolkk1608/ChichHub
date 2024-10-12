@@ -18,7 +18,6 @@ $stmt = $pdo->prepare("SELECT * FROM Category");
 $stmt->execute();
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// หากมีการส่งฟอร์มเพิ่มสินค้า
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         $pname = $_POST['pname'];
@@ -27,58 +26,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $color = $_POST['color'];
         $category_id = $_POST['category'];
 
-        // ตรวจสอบว่ามีข้อมูลทั้งหมดหรือไม่
         if (empty($pname) || empty($price) || empty($amount) || empty($color) || empty($category_id)) {
             throw new Exception("กรุณากรอกข้อมูลทุกช่อง");
         }
 
-        // ดึงชื่อ Category
         $category_stmt = $pdo->prepare("SELECT C_Name FROM Category WHERE C_ID = ?");
         $category_stmt->execute([$category_id]);
         $category = $category_stmt->fetchColumn();
 
-        // การอัปโหลดรูปภาพ
         if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] == UPLOAD_ERR_OK) {
             $file_name = $_FILES['product_image']['name'];
             $file_tmp = $_FILES['product_image']['tmp_name'];
 
-            // กำหนดพาธที่ใช้เก็บรูปภาพ
             $upload_dir = "/Applications/XAMPP/xamppfiles/htdocs/project/ChichHub/Component/img/$category/";
             if (!file_exists($upload_dir)) {
                 mkdir($upload_dir, 0777, true);  
             }
 
-            // กำหนด URL สำหรับ IMG_path
             $img_path = "http://localhost/project/ChichHub/Component/img/$category/$file_name";
 
-            // ย้ายไฟล์รูปภาพไปยังพาธที่กำหนด
             if (move_uploaded_file($file_tmp, $upload_dir . $file_name)) {
-                // เพิ่มข้อมูลรูปภาพเข้าในตาราง Images
                 $stmt = $pdo->prepare("INSERT INTO Images (File_name, Upload_date, IMG_path) VALUES (?, NOW(), ?)");
                 if ($stmt->execute([$file_name, $img_path])) {
-                    // ดึง IMG_ID ของรูปภาพที่เพิ่มล่าสุด
                     $img_id = $pdo->lastInsertId();
 
-                    // เพิ่มข้อมูลสินค้าเข้าในตาราง Product
                     $stmt = $pdo->prepare("INSERT INTO Product (Price, Amount, C_ID, Color, IMG_ID) VALUES (?, ?, ?, ?, ?)");
                     if ($stmt->execute([$price, $amount, $category_id, $color, $img_id])) {
-                        echo "เพิ่มสินค้าสำเร็จ!";
+                        // เปลี่ยนเส้นทางหลังจากเพิ่มสินค้าเสร็จแล้ว เพื่อป้องกันการทำรายการซ้ำ
+                        header("Location: add-product.php?status=success");
+                        exit();
                     } else {
-                        echo "เกิดข้อผิดพลาดในการเพิ่มสินค้า: " . implode(" ", $stmt->errorInfo());
+                        $message = "เกิดข้อผิดพลาดในการเพิ่มสินค้า: " . implode(" ", $stmt->errorInfo());
                     }
                 } else {
-                    echo "เกิดข้อผิดพลาดในการเพิ่มข้อมูลรูปภาพ: " . implode(" ", $stmt->errorInfo());
+                    $message = "เกิดข้อผิดพลาดในการเพิ่มข้อมูลรูปภาพ: " . implode(" ", $stmt->errorInfo());
                 }
             } else {
-                echo "เกิดข้อผิดพลาดในการย้ายไฟล์รูปภาพ";
+                $message = "เกิดข้อผิดพลาดในการย้ายไฟล์รูปภาพ";
             }
         } else {
-            echo "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: " . $_FILES['product_image']['error'];
+            $message = "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: " . $_FILES['product_image']['error'];
         }
     } catch (PDOException $e) {
-        echo "เกิดข้อผิดพลาด: " . $e->getMessage();
+        $message = "เกิดข้อผิดพลาด: " . $e->getMessage();
     } catch (Exception $e) {
-        echo $e->getMessage();
+        $message = $e->getMessage();
     }
 }
 ?>
@@ -307,6 +299,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 window.location.href = "../Home/logout.php";
             }
         }
+
+        <?php if (isset($_GET['status']) && $_GET['status'] == 'success'): ?>
+            alert('เพิ่มสินค้าสำเร็จ!');
+            // ลบ status=success จาก URL เพื่อไม่ให้แสดง alert ซ้ำเมื่อรีเฟรชหน้า
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.pathname);
+            }
+        <?php elseif (!empty($message)): ?>
+            alert('<?= $message; ?>');
+        <?php endif; ?>
+
     </script>
 
 </body>

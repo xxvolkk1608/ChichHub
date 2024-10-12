@@ -15,10 +15,17 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
     if ($row && $_POST["Password"] === $row["Password"]) {
         // รหัสผ่านถูกต้อง
         session_regenerate_id(); // ป้องกัน session fixation attack
-        $_SESSION["Username"] = $row["Username"]; // เก็บข้อมูลใน session
+        $_SESSION["Username"] = $row["Username"]; // เก็บข้อมูล Username ใน session
+        $_SESSION["Role"] = $row["Role"]; // เก็บข้อมูล Role ใน session
 
-        // เปลี่ยนเส้นทางไปยังหน้า home
-        header("Location: ../Home/home.php");
+        // ตรวจสอบ Role ของผู้ใช้
+        if ($row["Role"] == 1) {
+            // ถ้าเป็น Role = 1 ให้ส่งไปหน้าที่สามารถเพิ่มสินค้าได้ (Admin)
+            header("Location: ../Home/home.php");
+        } else {
+            // ถ้าไม่ใช่ admin ให้ส่งไปยังหน้า Home
+            header("Location: ../Home/home.php");
+        }
         exit();
     } else {
         // หาก username หรือ password ไม่ถูกต้อง
@@ -29,4 +36,3 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
     echo "กรุณากรอก Username และ Password";
 }
 ?>
-

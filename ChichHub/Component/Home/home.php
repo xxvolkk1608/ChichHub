@@ -1,5 +1,6 @@
 <?php
 session_start();
+include 'connect.php'; // เชื่อมต่อฐานข้อมูล
 
 // ตรวจสอบว่ามี session อยู่หรือไม่
 if (!isset($_SESSION["Username"])) {
@@ -16,11 +17,15 @@ if (!isset($_SESSION["Username"])) {
     exit();
 }
 
-// แสดงชื่อผู้ใช้
+// ดึงข้อมูล Role ของผู้ใช้จากฐานข้อมูล
 $username = htmlspecialchars($_SESSION["Username"]);
+$stmt = $pdo->prepare("SELECT Role FROM Member WHERE Username = ?");
+$stmt->execute([$username]);
+$user = $stmt->fetch();
+
+// แสดงชื่อผู้ใช้
 echo "สวัสดี, $username";
 ?>
-
 
 
 <!DOCTYPE html>
@@ -97,6 +102,9 @@ echo "สวัสดี, $username";
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+                            <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
+                                <a href="../Admin/add-product.php">เพิ่มสินค้า</a> <!-- ลิงก์สำหรับเพิ่มสินค้า -->
+                            <?php endif; ?>
                             <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>
                     </li>

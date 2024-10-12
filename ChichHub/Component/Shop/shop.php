@@ -32,7 +32,7 @@ $category = isset($_SESSION['category_filter']) ? $_SESSION['category_filter'] :
 $price = isset($_SESSION['price_filter']) ? (int)$_SESSION['price_filter'] : 0;
 
 // สร้างคำสั่ง SQL สำหรับแสดงสินค้าตามตัวกรอง
-$sql = "SELECT Product.Name, Product.Price, Images.IMG_path, Category.C_Name 
+$sql = "SELECT Product.P_ID, Product.Name, Product.Price, Images.IMG_path, Category.C_Name 
         FROM Product 
         INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
         INNER JOIN Category ON Product.C_ID = Category.C_ID";
@@ -145,6 +145,21 @@ $products = $stmt->fetchAll();
       border: none;
       border-radius: 4px;
     }
+
+    .info {
+      padding: 10px 20px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+
+    .product-item p {
+      color: var(--primary-color);
+      font-weight: bold;
+      min-height: 3rem;
+    }
   </style>
 </head>
 
@@ -225,7 +240,8 @@ $products = $stmt->fetchAll();
             <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['Name']); ?>">
             <h4><?php echo htmlspecialchars($product['Name']); ?></h4>
             <p>฿<?php echo number_format($product['Price'], 2); ?></p>
-            <button class="add-to-cart" data-name="<?php echo htmlspecialchars($product['Name']); ?>" data-price="<?php echo $product['Price']; ?>">เพิ่มในรถเข็น</button>
+            <!-- เปลี่ยนปุ่มเพิ่มในรถเข็นเป็นลิงค์ไปยังหน้า product-detail.php -->
+            <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>" class="info">ดูรายละเอียด</a>
           </div>
         <?php endforeach; ?>
       <?php else: ?>
@@ -276,23 +292,32 @@ $products = $stmt->fetchAll();
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
     addToCartButtons.forEach(button => {
       button.addEventListener('click', () => {
+        const productId = button.dataset.id;
         const productName = button.dataset.name;
         const productPrice = button.dataset.price;
+
+        if (!productId || !productName || !productPrice) {
+          console.error('ข้อมูลสินค้าบางส่วนไม่สมบูรณ์:', productId, productName, productPrice);
+          alert('ไม่สามารถเพิ่มสินค้านี้ได้ กรุณาลองใหม่อีกครั้ง');
+          return;
+        }
 
         const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 
         // ตรวจสอบว่ามีสินค้าในรถเข็นแล้วหรือยัง
-        const existingItem = cartItems.find(item => item.name === productName);
+        const existingItem = cartItems.find(item => item.id === productId);
         if (existingItem) {
           existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
         } else {
           cartItems.push({
+            id: productId,
             name: productName,
             price: productPrice,
             quantity: 1
           });
         }
 
+        // บันทึกข้อมูลสินค้าใน localStorage
         localStorage.setItem('cartItems', JSON.stringify(cartItems));
         alert(`${productName} ถูกเพิ่มในรถเข็น`);
       });

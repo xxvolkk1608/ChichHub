@@ -154,9 +154,24 @@ $userData = $stmt->fetch();
     }
 
     @media (max-width: 600px) {
-        .btn{
+        .btn {
             margin-left: 4.5rem;
         }
+
+        footer {
+            background: var(--secondary-color);
+            color: var(--white);
+            padding: 20px 0;
+            text-align: center;
+        }
+    }
+
+    footer {
+        background: var(--secondary-color);
+        color: var(--white);
+        padding: 20px 0;
+        text-align: center;
+        translate: 0 37vh;
     }
 </style>
 

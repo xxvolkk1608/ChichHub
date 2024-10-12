@@ -265,7 +265,7 @@ footer {
   color: var(--white);
   padding: 20px 0;
   text-align: center;
-  translate: 0 37vh;
+  /* translate: 0 37vh; */
 }
 
 .footer-links a {

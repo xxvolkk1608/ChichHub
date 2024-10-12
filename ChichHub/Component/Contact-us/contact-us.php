@@ -38,6 +38,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
 
         .contact-section {
             margin-top: 7rem;
+            min-height: 71rem;
         }
 
         .name1 {
@@ -190,20 +191,25 @@ $username = htmlspecialchars($_SESSION["Username"]);
     </footer>
 
     <script>
-        const hamburger = document.querySelector('.hamburger');
+       const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
         const blurBackground = document.querySelector('.blur-background');
 
         hamburger.addEventListener('click', () => {
             navLinks.classList.toggle('active');
-            blurBackground.classList.toggle('active'); // เบลอพื้นหลังเมื่อเมนูเปิด
+            blurBackground.classList.toggle('active');
         });
 
-        // ปิดเมนูเมื่อคลิกที่เบลอพื้นหลัง
         blurBackground.addEventListener('click', () => {
             navLinks.classList.remove('active');
             blurBackground.classList.remove('active');
         });
+
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "../Home/logout.php";
+            }
+        }
     </script>
 </body>
 

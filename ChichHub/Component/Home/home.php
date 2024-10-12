@@ -23,6 +23,7 @@ echo "สวัสดี, $username";
 
 
 
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -34,7 +35,6 @@ echo "สวัสดี, $username";
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- ลิงก์ไปยังไฟล์ CSS -->
     <link rel="stylesheet" href="../styles/styles.css">
-    <script src="script.js"></script>
     <style>
         header {
             position: fixed;
@@ -80,6 +80,20 @@ echo "สวัสดี, $username";
 </head>
 
 <body>
+    <?php
+    include 'connect.php'; // เชื่อมต่อฐานข้อมูล
+
+    // ดึงข้อมูลสินค้ายอดนิยมและรูปภาพจากฐานข้อมูล
+    $stmt = $pdo->prepare("SELECT Product.Name, Product.Price, Images.IMG_path 
+                                  FROM Product 
+                                  INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
+                                  WHERE Product.Name LIKE 'Jacket%' 
+                                  OR Product.Name LIKE 'Pant%' 
+                                  OR Product.Name LIKE 'Shirt%';
+    ");
+    $stmt->execute();
+    $products = $stmt->fetchAll();
+    ?>
 
     <!-- ส่วนหัว (Header) -->
     <header>
@@ -129,24 +143,14 @@ echo "สวัสดี, $username";
         <div class="container">
             <h2>สินค้ายอดนิยม</h2>
             <div class="products">
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/300x400" alt="สินค้า 1">
-                    <h3>เสื้อยืดคลาสสิก</h3>
-                    <p>฿500</p>
-                    <a href="#" class="btn">เพิ่มในรถเข็น</a>
-                </div>
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/300x400" alt="สินค้า 2">
-                    <h3>กางเกงยีนส์</h3>
-                    <p>฿800</p>
-                    <a href="#" class="btn">เพิ่มในรถเข็น</a>
-                </div>
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/300x400" alt="สินค้า 3">
-                    <h3>เสื้อแจ็คเก็ตสตรีท</h3>
-                    <p>฿1200</p>
-                    <a href="#" class="btn">เพิ่มในรถเข็น</a>
-                </div>
+                <?php foreach ($products as $product): ?>
+                    <div class="product-card">
+                        <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['Name']); ?>">
+                        <h3><?php echo htmlspecialchars($product['Name']); ?></h3>
+                        <p>฿<?php echo number_format($product['Price'], 2); ?></p>
+                        <a href="#" class="btn">เพิ่มในรถเข็น</a>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </section>
@@ -211,7 +215,7 @@ echo "สวัสดี, $username";
 
         function confirmLogout() {
             if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                window.location.href = "./logout.php";
+                window.location.href = "../Home/logout.php";
             }
         }
     </script>

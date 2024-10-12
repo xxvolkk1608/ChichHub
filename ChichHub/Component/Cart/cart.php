@@ -15,6 +15,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -62,8 +63,15 @@ $username = htmlspecialchars($_SESSION["Username"]);
         .dropdown:hover .dropdown-content {
             display: block;
         }
+
+        .cart-section {
+            background-color: var(--light-color);
+            padding: 7rem 0 3rem 0;
+            min-height: 78rem;
+        }
     </style>
 </head>
+
 <body>
     <!-- ส่วนหัว (Header) -->
     <header>
@@ -188,4 +196,5 @@ $username = htmlspecialchars($_SESSION["Username"]);
         });
     </script>
 </body>
+
 </html>

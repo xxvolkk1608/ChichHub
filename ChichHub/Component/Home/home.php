@@ -169,15 +169,15 @@ echo "สวัสดี, $username";
             <div class="category-list">
                 <div class="category-item">
                     <img class="tshirt" src="../cat_img/tshirt.png" alt="">
-                    <a href="#">เสื้อยืด</a>
+                    <a href="../Category/Shirt.php">เสื้อยืด</a>
                 </div>
                 <div class="category-item">
                     <img class="pant" src="../cat_img/pant.png" alt="">
-                    <a href="#">กางเกง</a>
+                    <a href="../Category/Pants.php">กางเกง</a>
                 </div>
                 <div class="category-item">
                     <img class="jacket" src="../cat_img/promo.jpeg" alt="">
-                    <a href="#">Promotion</a>
+                    <a href="../Category/Promotion.php">Promotion</a>
                 </div>
                 
             </div>

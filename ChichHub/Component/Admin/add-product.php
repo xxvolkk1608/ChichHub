@@ -5,6 +5,8 @@ ini_set('display_errors', 1);
 session_start();
 include 'connect.php';  // เชื่อมต่อกับฐานข้อมูล
 
+$username = $_SESSION['Username'];
+
 // ตรวจสอบว่ามีการล็อกอินและเป็น Admin หรือไม่
 if (!isset($_SESSION["Role"]) || $_SESSION["Role"] != 1) {
     header("Location: ../Sign-In/signin.php");
@@ -41,54 +43,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $file_tmp = $_FILES['product_image']['tmp_name'];
 
             // กำหนดพาธที่ใช้เก็บรูปภาพ
-            $upload_dir = "/Applications/XAMPP/xamppfiles/htdocs/project/ChichHub/Component/img/$category/";  
+            $upload_dir = "/Applications/XAMPP/xamppfiles/htdocs/project/ChichHub/Component/img/$category/";
             if (!file_exists($upload_dir)) {
-                if (!mkdir($upload_dir, 0777, true)) {
-                    throw new Exception("ไม่สามารถสร้างโฟลเดอร์สำหรับเก็บรูปภาพได้");
-                }
+                mkdir($upload_dir, 0777, true);  
             }
 
             // กำหนด URL สำหรับ IMG_path
             $img_path = "http://localhost/project/ChichHub/Component/img/$category/$file_name";
 
             // ย้ายไฟล์รูปภาพไปยังพาธที่กำหนด
-            if (!move_uploaded_file($file_tmp, $upload_dir . $file_name)) {
-                throw new Exception("เกิดข้อผิดพลาดในการย้ายไฟล์รูปภาพ");
+            if (move_uploaded_file($file_tmp, $upload_dir . $file_name)) {
+                // เพิ่มข้อมูลรูปภาพเข้าในตาราง Images
+                $stmt = $pdo->prepare("INSERT INTO Images (File_name, Upload_date, IMG_path) VALUES (?, NOW(), ?)");
+                if ($stmt->execute([$file_name, $img_path])) {
+                    // ดึง IMG_ID ของรูปภาพที่เพิ่มล่าสุด
+                    $img_id = $pdo->lastInsertId();
+
+                    // เพิ่มข้อมูลสินค้าเข้าในตาราง Product
+                    $stmt = $pdo->prepare("INSERT INTO Product (Price, Amount, C_ID, Color, IMG_ID) VALUES (?, ?, ?, ?, ?)");
+                    if ($stmt->execute([$price, $amount, $category_id, $color, $img_id])) {
+                        echo "เพิ่มสินค้าสำเร็จ!";
+                    } else {
+                        echo "เกิดข้อผิดพลาดในการเพิ่มสินค้า: " . implode(" ", $stmt->errorInfo());
+                    }
+                } else {
+                    echo "เกิดข้อผิดพลาดในการเพิ่มข้อมูลรูปภาพ: " . implode(" ", $stmt->errorInfo());
+                }
+            } else {
+                echo "เกิดข้อผิดพลาดในการย้ายไฟล์รูปภาพ";
             }
-
-            // เพิ่มข้อมูลสินค้าเข้าในตาราง Product
-            $stmt = $pdo->prepare("INSERT INTO Product (P_Name, Price, Amount, C_ID, Color, IMG_ID) VALUES (?, ?, ?, ?, ?, ?)");
-            if (!$stmt->execute([$pname, $price, $amount, $category_id, $color, null])) {
-                throw new Exception("เกิดข้อผิดพลาดในการเพิ่มสินค้า: " . implode(" ", $stmt->errorInfo()));
-            }
-
-            // ดึง P_ID ของสินค้าที่เพิ่มล่าสุด
-            $product_id = $pdo->lastInsertId();
-
-            // เพิ่มข้อมูลรูปภาพเข้าในตาราง Images
-            $stmt = $pdo->prepare("INSERT INTO Images (File_name, Upload_date, IMG_path) VALUES (?, NOW(), ?)");
-            if (!$stmt->execute([$file_name, $img_path])) {
-                throw new Exception("เกิดข้อผิดพลาดในการเพิ่มข้อมูลรูปภาพ: " . implode(" ", $stmt->errorInfo()));
-            }
-
-            // ดึง IMG_ID ของรูปภาพที่เพิ่มล่าสุด
-            $img_id = $pdo->lastInsertId();
-
-            // อัปเดต Product ให้มี IMG_ID ที่เชื่อมกับรูปภาพ
-            $stmt = $pdo->prepare("UPDATE Product SET IMG_ID = ? WHERE P_ID = ?");
-            if (!$stmt->execute([$img_id, $product_id])) {
-                throw new Exception("เกิดข้อผิดพลาดในการอัปเดต Product: " . implode(" ", $stmt->errorInfo()));
-            }
-
-            echo "เพิ่มสินค้าสำเร็จ!";
         } else {
             echo "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: " . $_FILES['product_image']['error'];
         }
+    } catch (PDOException $e) {
+        echo "เกิดข้อผิดพลาด: " . $e->getMessage();
     } catch (Exception $e) {
-        echo "Error: " . $e->getMessage();
+        echo $e->getMessage();
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="th">

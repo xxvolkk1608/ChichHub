@@ -297,6 +297,7 @@ footer p {
 .search-section {
   display: flex;
   justify-content: center;
+  margin-top: 8%;
   margin: 20px 0;
 }
 
@@ -789,8 +790,15 @@ footer p {
   z-index: 1000;
 }
 
+
+
 /* สำหรับหน้าจอเล็กเท่านั้น */
 @media (max-width: 680px) {
+
+  .search-section{
+    margin-top: 10%;
+  }
+
   .hamburger {
     display: block;
     position: absolute;
@@ -853,9 +861,13 @@ footer p {
   .nav-links li a:hover {
     color: var(--primary-color);
   }
+
+  
 }
 /* สำหรับหน้าจอขนาดเล็ก (เช่น iPhone) */
 @media (max-width: 600px) {
+
+
   /* ปรับขนาดแบนเนอร์ */
   .banner-text h2 {
     font-size: 1.8rem;
@@ -903,11 +915,21 @@ footer p {
     grid-template-columns: repeat(2, 1fr); /* แสดง 2 คอลัมน์ในหน้าจอเล็ก */
     width: 100%;
   }
+
+  .search-section{
+    margin-top: 10%;
+  }
+
 }
 
 
 /* สำหรับหน้าจอขนาด Tablet */
 @media (min-width: 600px) and (max-width: 992px) {
+  
+  .search-section{
+    margin-top: 20%;
+  }
+  
   /* ปรับ navbar ให้แสดงตามปกติแต่มีช่องว่างระหว่างเมนูน้อยลง */
   nav ul {
     justify-content: center;
@@ -943,3 +965,5 @@ footer p {
     width: 100%;
   }
 }
+
+

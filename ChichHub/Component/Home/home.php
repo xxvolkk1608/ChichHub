@@ -85,14 +85,14 @@ echo "สวัสดี, $username";
     <header>
         <div class="container-header">
             <div class="logo">
-                <h1 class="chic-hub"><a href="./home.php">ChicHub</a></h1>
+                <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
             </div>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="./home.php">หน้าหลัก</a></li>
+                    <li><a href="../home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
                     <li><a href="#">โปรโมชั่น</a></li>
-                    <li><a href="../Contact-us/contact-us.html">ติดต่อเรา</a></li>
+                    <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">

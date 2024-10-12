@@ -1,3 +1,26 @@
+<?php
+session_start();
+
+// ตรวจสอบว่ามี session อยู่หรือไม่
+if (!isset($_SESSION["Username"])) {
+    // ถ้าไม่มี session ให้เช็คว่ามี cookies หรือไม่
+    if (isset($_COOKIE["Username"])) {
+        // ตั้งค่า session ใหม่จาก cookies
+        $_SESSION["Username"] = $_COOKIE["Username"];
+    }
+}
+
+// ถ้าไม่มีทั้ง session และ cookies ให้เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
+if (!isset($_SESSION["Username"])) {
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
+
+// แสดงชื่อผู้ใช้
+$username = htmlspecialchars($_SESSION["Username"]);
+echo "สวัสดี, $username";
+?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -20,17 +43,17 @@
     </style>
 </head>
 <body>
-    <<header>
+<header>
         <div class="container-header">
             <div class="logo">
-                <h1 class="chic-hub"><a href="./home.php">ChicHub</a></h1>
+                <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
             </div>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="./home.php">หน้าหลัก</a></li>
+                    <li><a href="../Home/home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
                     <li><a href="#">โปรโมชั่น</a></li>
-                    <li><a href="../Contact-us/contact-us.html">ติดต่อเรา</a></li>
+                    <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
@@ -121,6 +144,28 @@
                 window.location.reload(); // รีเฟรชหน้า
             });
         });
+    </script>
+
+<script>
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        const blurBackground = document.querySelector('.blur-background');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            blurBackground.classList.toggle('active');
+        });
+
+        blurBackground.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            blurBackground.classList.remove('active');
+        });
+
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "./logout.php";
+            }
+        }
     </script>
 </body>
 </html>

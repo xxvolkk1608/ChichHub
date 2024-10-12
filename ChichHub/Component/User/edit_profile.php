@@ -187,9 +187,7 @@ $userData = $stmt->fetch();
                     <li><a href="#">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
-                            <?php echo $username; ?>
-                        </a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
                             <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>

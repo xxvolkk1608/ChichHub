@@ -20,7 +20,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
-        $pname = $_POST['pname'];
+        $pname = $_POST['pname']; // รับค่าจากฟอร์มสำหรับชื่อสินค้า
         $price = $_POST['price'];
         $amount = $_POST['amount'];
         $color = $_POST['color'];
@@ -50,8 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($stmt->execute([$file_name, $img_path])) {
                     $img_id = $pdo->lastInsertId();
 
-                    $stmt = $pdo->prepare("INSERT INTO Product (Price, Amount, C_ID, Color, IMG_ID) VALUES (?, ?, ?, ?, ?)");
-                    if ($stmt->execute([$price, $amount, $category_id, $color, $img_id])) {
+                    // รวม pname ในคำสั่ง INSERT INTO Product
+                    $stmt = $pdo->prepare("INSERT INTO Product (P_Name, Price, Amount, C_ID, Color, IMG_ID) VALUES (?, ?, ?, ?, ?, ?)");
+                    if ($stmt->execute([$pname, $price, $amount, $category_id, $color, $img_id])) {
                         // เปลี่ยนเส้นทางหลังจากเพิ่มสินค้าเสร็จแล้ว เพื่อป้องกันการทำรายการซ้ำ
                         header("Location: add-product.php?status=success");
                         exit();
@@ -74,8 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="th">
 

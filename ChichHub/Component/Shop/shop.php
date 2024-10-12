@@ -1,5 +1,8 @@
 <?php
 session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 include 'connect.php'; // เชื่อมต่อฐานข้อมูล
 
 // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
@@ -29,16 +32,17 @@ $category = isset($_SESSION['category_filter']) ? $_SESSION['category_filter'] :
 $price = isset($_SESSION['price_filter']) ? (int)$_SESSION['price_filter'] : 0;
 
 // สร้างคำสั่ง SQL สำหรับแสดงสินค้าตามตัวกรอง
-$sql = "SELECT Product.Name, Product.Price, Images.IMG_path 
+$sql = "SELECT Product.Name, Product.Price, Images.IMG_path, Category.C_Name 
         FROM Product 
-        INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID";
+        INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
+        INNER JOIN Category ON Product.C_ID = Category.C_ID";
 
 // เพิ่มเงื่อนไขในการกรองตามหมวดหมู่และราคา
 $conditions = [];
 $params = [];
 
 if ($category) {
-  $conditions[] = "Product.Category = ?";
+  $conditions[] = "Category.C_Name = ?";
   $params[] = $category;
 }
 if ($price > 0) {
@@ -50,6 +54,11 @@ if (count($conditions) > 0) {
   $sql .= " WHERE " . implode(" AND ", $conditions);
 }
 
+// Debugging: แสดงค่า SQL query ที่สร้างขึ้น
+// echo "<pre>";
+// echo "SQL: " . $sql . "\n";
+// echo "Params: " . print_r($params, true) . "\n";
+// echo "</pre>";
 // เตรียมและรันคำสั่ง SQL
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
@@ -128,10 +137,26 @@ $products = $stmt->fetchAll();
       border: none;
       border-radius: 4px;
     }
+
+    .add-to-cart {
+      padding: 10px 20px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
   </style>
 </head>
 
 <body>
+  <?php
+  // รีเซตการกรองสินค้าเมื่อผู้ใช้เข้ามาหน้าร้านค้าใหม่
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    unset($_SESSION['category_filter']);
+    unset($_SESSION['price_filter']);
+  }
+
+  ?>
   <!-- ส่วนหัว (Header) -->
   <header>
     <div class="container-header">
@@ -148,7 +173,7 @@ $products = $stmt->fetchAll();
             <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
             <div class="dropdown-content">
               <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-              <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+              <a style="color: red;" href="#" onclick="confirmLogout()">ออกจากระบบ</a>
             </div>
           </li>
           <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -177,16 +202,16 @@ $products = $stmt->fetchAll();
         <div class="filter-category">
           <label for="category">หมวดหมู่</label>
           <select name="category" id="category">
-            <option value="ทั้งหมด">ทั้งหมด</option>
-            <option value="เสื้อยืด">เสื้อยืด</option>
-            <option value="เสื้อเชิ้ต">เสื้อเชิ้ต</option>
-            <option value="กางเกง">กางเกง</option>
-            <option value="เสื้อแจ็คเก็ต">เสื้อแจ็คเก็ต</option>
+            <option value="ทั้งหมด" <?php if ($category == 'ทั้งหมด') echo 'selected'; ?>>ทั้งหมด</option>
+            <option value="เสื้อยืด" <?php if ($category == 'เสื้อยืด') echo 'selected'; ?>>เสื้อยืด</option>
+            <option value="เสื้อเชิ้ต" <?php if ($category == 'เสื้อเชิ้ต') echo 'selected'; ?>>เสื้อเชิ้ต</option>
+            <option value="กางเกง" <?php if ($category == 'กางเกง') echo 'selected'; ?>>กางเกง</option>
+            <option value="เสื้อแจ็คเก็ต" <?php if ($category == 'เสื้อแจ็คเก็ต') echo 'selected'; ?>>เสื้อแจ็คเก็ต</option>
           </select>
         </div>
         <div class="filter-price">
           <label for="price">ราคา (บาท)</label>
-          <input type="number" name="price" id="price" min="0">
+          <input type="number" name="price" id="price" min="0" value="<?php echo $price; ?>">
         </div>
         <button type="submit" class="filter">กรองสินค้า</button>
       </form>

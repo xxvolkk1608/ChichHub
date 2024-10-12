@@ -101,7 +101,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-                            <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+                            <a style="color: red;" href="#" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>

@@ -15,10 +15,7 @@ if (!isset($_SESSION["Username"])) {
     header("Location: ../Sign-In/signin.php");
     exit();
 }
-
-// แสดงชื่อผู้ใช้
 $username = htmlspecialchars($_SESSION["Username"]);
-echo "สวัสดี, $username";
 ?>
 
 
@@ -76,6 +73,8 @@ echo "สวัสดี, $username";
         .dropdown:hover .dropdown-content {
             display: block;
         }
+
+        
     </style>
 </head>
 
@@ -87,12 +86,17 @@ echo "สวัสดี, $username";
     $stmt = $pdo->prepare("SELECT Product.Name, Product.Price, Images.IMG_path 
                                   FROM Product 
                                   INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
-                                  WHERE Product.Name LIKE 'Jacket%' 
-                                  OR Product.Name LIKE 'Pant%' 
-                                  OR Product.Name LIKE 'Shirt%';
-    ");
+                                  WHERE Product.Name LIKE '1983 heritage Barn Jacket' 
+                                  OR Product.Name LIKE 'Stretchy Low Rise Pants' 
+                                  OR Product.Name LIKE 'Roll Tab Knit Shirt';");
     $stmt->execute();
     $products = $stmt->fetchAll();
+    ?>
+    <?php
+    // ดึงข้อมูลแบนเนอร์จากฐานข้อมูล
+    $stmt = $pdo->prepare("SELECT B_Name, B_img FROM Banner");
+    $stmt->execute();
+    $banner = $stmt->fetch();
     ?>
 
     <!-- ส่วนหัว (Header) -->
@@ -111,7 +115,7 @@ echo "สวัสดี, $username";
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-                            <a href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+                            <a style="color: red;" href="#" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -130,10 +134,12 @@ echo "สวัสดี, $username";
     <!-- ส่วนแบนเนอร์โปรโมชั่น -->
     <section class="banner">
         <div class="container">
-            <img src="https://via.placeholder.com/1200x400" alt="โปรโมชั่น">
-            <div class="banner-text">
-                <h2>โปรโมชั่นลดราคาสูงสุด 50%</h2>
-                <a href="#" class="btn">ช้อปเลย</a>
+            <div class="banner-image">
+                <img src="<?php echo $banner['B_img']; ?>" alt="<?php echo $banner['B_Name']; ?>">
+                <div class="banner-text">
+                    <h2><?php echo $banner['B_Name']; ?></h2>
+                    <a href="#" class="btn">ช้อปเลย</a>
+                </div>
             </div>
         </div>
     </section>

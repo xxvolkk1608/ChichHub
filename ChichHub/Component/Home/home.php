@@ -87,11 +87,10 @@ echo "สวัสดี, $username";
     
     // ดึงข้อมูลสินค้ายอดนิยมและรูปภาพจากฐานข้อมูล
     $stmt = $pdo->prepare("SELECT Product.P_ID, Product.P_Name, Product.Price, Images.IMG_path 
-                                  FROM Product 
-                                  INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
-                                  WHERE Product.P_Name LIKE 'Pant%' 
-                                  OR Product.P_Name LIKE 'Shirt%';
-    ");
+                       FROM Product 
+                       INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
+                       ORDER BY RAND() 
+                       LIMIT 3;"); // จำนวนสินค้าที่ต้องการแสดง (ในที่นี้กำหนดเป็น 10)
     $stmt->execute();
     $products = $stmt->fetchAll();
 
@@ -158,7 +157,7 @@ echo "สวัสดี, $username";
     <!-- ส่วนแสดงสินค้า -->
     <section class="featured-products">
         <div class="container">
-            <h2>สินค้ายอดนิยม</h2>
+            <h2>สินค้าแนะนำ</h2>
             <div class="products">
                 <?php foreach ($products as $product): ?>
                     <div class="product-card">
@@ -173,8 +172,7 @@ echo "สวัสดี, $username";
                         <a href="#" class="btn add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
                             data-price="<?php echo number_format($product['Price'], 2); ?>"
                             data-img="<?php echo $product['IMG_path']; ?>"
-                            data-id="<?php echo $product['P_ID']; ?>"
-                            >เพิ่มในรถเข็น</a>
+                            data-id="<?php echo $product['P_ID']; ?>">เพิ่มในรถเข็น</a>
                     </div>
                 <?php endforeach; ?>
             </div>

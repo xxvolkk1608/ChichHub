@@ -116,6 +116,8 @@ echo "สวัสดี, $username";
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+                            <!-- ประวัติการสั่งซื้อ -->
+                            <a href="../Order/order_history.php">ประวัติการสั่งซื้อ</a>
                             <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
                                 <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
                             <?php endif; ?>
@@ -142,7 +144,7 @@ echo "สวัสดี, $username";
                 <img src="<?php echo $Banner['B_img']; ?>" alt="<?php echo $Banner['B_Name']; ?>">
                 <div class="banner-text">
                     <h2><?php echo $Banner['B_Name']; ?></h2>
-                    <a href="../Shop/shop.php" class="btn">ช้อปเลย</a>
+                    <a href="../Category/Promotion.php" class="btn">ช้อปเลย</a>
                 </div>
             </div>
         </div>
@@ -193,9 +195,9 @@ echo "สวัสดี, $username";
         <div class="container">
             <div class="footer-links">
                 <a href="#">เกี่ยวกับเรา</a>
-                <a href="#">นโยบายความเป็นส่วนตัว</a>
+                <a href="../Policy/privacy_policy.html">นโยบายความเป็นส่วนตัว</a>
                 <a href="#">เงื่อนไขการใช้งาน</a>
-                <a href="Contact-us/contact-us.html">ติดต่อเรา</a>
+                <a href="../Contact-us/contact-us.php">ติดต่อเรา</a>
             </div>
             <div class="social-media">
                 <a href="#"><i class="fab fa-facebook-f"></i></a>

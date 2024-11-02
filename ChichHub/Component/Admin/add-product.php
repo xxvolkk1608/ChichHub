@@ -20,7 +20,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
-        $pname = $_POST['pname']; // รับค่าจากฟอร์มสำหรับชื่อสินค้า
+        $pname = $_POST['pname'];
         $price = $_POST['price'];
         $amount = $_POST['amount'];
         $color = $_POST['color'];
@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $category_stmt->execute([$category_id]);
         $category = $category_stmt->fetchColumn();
 
+        // ตรวจสอบการอัพโหลดรูปภาพ
         if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] == UPLOAD_ERR_OK) {
             $file_name = $_FILES['product_image']['name'];
             $file_tmp = $_FILES['product_image']['tmp_name'];
@@ -46,28 +47,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $img_path = "http://localhost/project/ChichHub/Component/img/$category/$file_name";
 
+            // ย้ายไฟล์ที่อัพโหลด
             if (move_uploaded_file($file_tmp, $upload_dir . $file_name)) {
                 $stmt = $pdo->prepare("INSERT INTO Images (File_name, Upload_date, IMG_path) VALUES (?, NOW(), ?)");
                 if ($stmt->execute([$file_name, $img_path])) {
                     $img_id = $pdo->lastInsertId();
 
-                    // รวม pname ในคำสั่ง INSERT INTO Product
-                    $stmt = $pdo->prepare("INSERT INTO Product (P_Name, Price, Amount, C_ID, Color, IMG_ID, Detail ) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                    if ($stmt->execute([$pname, $price, $amount, $category_id, $color, $img_id , $detail])) {
-                        // เปลี่ยนเส้นทางหลังจากเพิ่มสินค้าเสร็จแล้ว เพื่อป้องกันการทำรายการซ้ำ
+                    // เพิ่มข้อมูลสินค้า
+                    $stmt = $pdo->prepare("INSERT INTO Product (P_Name, Price, Amount, C_ID, Color, IMG_ID, Detail) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    if ($stmt->execute([$pname, $price, $amount, $category_id, $color, $img_id, $detail])) {
                         header("Location: add-product.php?status=success");
                         exit();
                     } else {
-                        $message = "เกิดข้อผิดพลาดในการเพิ่มสินค้า: " . implode(" ", $stmt->errorInfo());
+                        throw new Exception("เกิดข้อผิดพลาดในการเพิ่มสินค้า: " . implode(" ", $stmt->errorInfo()));
                     }
                 } else {
-                    $message = "เกิดข้อผิดพลาดในการเพิ่มข้อมูลรูปภาพ: " . implode(" ", $stmt->errorInfo());
+                    throw new Exception("เกิดข้อผิดพลาดในการเพิ่มข้อมูลรูปภาพ: " . implode(" ", $stmt->errorInfo()));
                 }
             } else {
-                $message = "เกิดข้อผิดพลาดในการย้ายไฟล์รูปภาพ";
+                throw new Exception("เกิดข้อผิดพลาดในการย้ายไฟล์รูปภาพ");
             }
         } else {
-            $message = "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: " . $_FILES['product_image']['error'];
+            throw new Exception("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: " . $_FILES['product_image']['error']);
         }
     } catch (PDOException $e) {
         $message = "เกิดข้อผิดพลาด: " . $e->getMessage();

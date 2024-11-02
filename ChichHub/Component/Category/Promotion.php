@@ -21,14 +21,14 @@ $promo_category_id = 1003; // กำหนด C_ID ของหมวดหม�
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $min_price = isset($_POST['min_price']) && $_POST['min_price'] != '' ? (int) $_POST['min_price'] : 0;
     $max_price = isset($_POST['max_price']) && $_POST['max_price'] != '' ? (int) $_POST['max_price'] : 0;
-    $color = isset($_POST['color']) && $_POST['color'] != '' ? strtolower($_POST['color']) : ''; // เปลี่ยนให้เป็นตัวพิมพ์เล็กทั้งหมด
+    $color = isset($_POST['color']) && $_POST['color'] != '' ? strtolower($_POST['color']) : '';
 
     // เก็บค่าการกรองใน session
     $_SESSION['min_price_filter'] = $min_price;
     $_SESSION['max_price_filter'] = $max_price;
     $_SESSION['color_filter'] = $color;
 
-    // รีไดเรกต์ไปที่หน้า Pants.php (เพื่อแก้ปัญหาการส่งฟอร์มซ้ำ)
+    // รีไดเรกต์ไปที่หน้า Promotion.php (เพื่อแก้ปัญหาการส่งฟอร์มซ้ำ)
     header("Location: Promotion.php");
     exit();
 }
@@ -39,13 +39,13 @@ $max_price = isset($_SESSION['max_price_filter']) ? (int) $_SESSION['max_price_f
 $color = isset($_SESSION['color_filter']) ? $_SESSION['color_filter'] : '';
 
 // สร้างคำสั่ง SQL สำหรับแสดงสินค้าหมวดกางเกงตามตัวกรอง
-$sql = "SELECT Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
+$sql = "SELECT Product.P_ID, Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
         FROM Product 
         INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
         WHERE Product.C_ID = ?"; // กรองสินค้าตามหมวดหมู่กางเกง
 
 // เพิ่มเงื่อนไขในการกรองตามราคาและสี
-$params = [$promo_category_id]; // ค่าเริ่มต้นคือหมวดหมู่กางเกง
+$params = [$promo_category_id];
 if ($min_price > 0) {
     $sql .= " AND Product.Price >= ?";
     $params[] = $min_price;
@@ -55,7 +55,7 @@ if ($max_price > 0) {
     $params[] = $max_price;
 }
 if ($color) {
-    $sql .= " AND LOWER(Product.Color) = ?";  // ใช้ LOWER เพื่อไม่สนใจตัวพิมพ์เล็ก/ใหญ่
+    $sql .= " AND LOWER(Product.Color) = ?";
     $params[] = $color;
 }
 
@@ -68,6 +68,7 @@ if ($stmt->execute($params)) {
     print_r($stmt->errorInfo());
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="th">
@@ -204,17 +205,14 @@ if ($stmt->execute($params)) {
 
         <!-- แสดงรายการสินค้า -->
         <section class="product-list">
-            <?php if (count($products) > 0): ?>
+        <?php if (count($products) > 0): ?>
                 <?php foreach ($products as $product): ?>
                     <div class="product-item">
                         <img src="<?php echo $product['IMG_path']; ?>"
                             alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
-                        <h4>
-                            <?php echo htmlspecialchars($product['P_Name']); ?>
-                        </h4>
-                        <p>฿
-                            <?php echo number_format($product['Price'], 2); ?>
-                        </p>
+                        <h4><?php echo htmlspecialchars($product['P_Name']); ?></h4>
+                        <p>฿<?php echo number_format($product['Price'], 2); ?></p>
+                        <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>" class="info">ดูรายละเอียด</a>
                         <a href="#" class="btn add-to-cart" 
                            data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" 
                            data-price="<?php echo number_format($product['Price'], 2); ?>">
@@ -222,7 +220,7 @@ if ($stmt->execute($params)) {
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <p style="translate: 100%; ">ไม่พบสินค้าที่ตรงกับการกรองของคุณ</p>
+                <p>ไม่พบสินค้าที่ตรงกับการกรองของคุณ</p>
             <?php endif; ?>
         </section>
     </div>

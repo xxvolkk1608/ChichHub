@@ -82,11 +82,11 @@ echo "สวัสดี, $username";
 </head>
 
 <body>
-<?php
+    <?php
     include 'connect.php'; // เชื่อมต่อฐานข้อมูล
-
+    
     // ดึงข้อมูลสินค้ายอดนิยมและรูปภาพจากฐานข้อมูล
-    $stmt = $pdo->prepare("SELECT Product.P_Name, Product.Price, Images.IMG_path 
+    $stmt = $pdo->prepare("SELECT Product.P_ID, Product.P_Name, Product.Price, Images.IMG_path 
                                   FROM Product 
                                   INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
                                   WHERE Product.P_Name LIKE 'Pant%' 
@@ -113,12 +113,15 @@ echo "สวัสดี, $username";
                     <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
+                            <?php echo $username; ?>
+                        </a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
                             <!-- ประวัติการสั่งซื้อ -->
                             <a href="../Order/order_history.php">ประวัติการสั่งซื้อ</a>
-                            <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
+                            <?php if ($user['Role'] == 1): ?>
+                                <!-- เฉพาะ Admin ที่มี Role = 1 -->
                                 <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
                             <?php endif; ?>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
@@ -143,7 +146,9 @@ echo "สวัสดี, $username";
             <div class="banner-image">
                 <img src="<?php echo $Banner['B_img']; ?>" alt="<?php echo $Banner['B_Name']; ?>">
                 <div class="banner-text">
-                    <h2><?php echo $Banner['B_Name']; ?></h2>
+                    <h2>
+                        <?php echo $Banner['B_Name']; ?>
+                    </h2>
                     <a href="../Category/Promotion.php" class="btn">ช้อปเลย</a>
                 </div>
             </div>
@@ -157,13 +162,19 @@ echo "สวัสดี, $username";
             <div class="products">
                 <?php foreach ($products as $product): ?>
                     <div class="product-card">
-                        <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
-                        <h3><?php echo htmlspecialchars($product['P_Name']); ?></h3>
-                        <p>฿<?php echo number_format($product['Price'], 2); ?></p>
-                        <a href="#" class="btn add-to-cart" 
-                           data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" 
-                           data-price="<?php echo number_format($product['Price'], 2); ?>">
-                           เพิ่มในรถเข็น</a>
+                        <img src="<?php echo $product['IMG_path']; ?>"
+                            alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
+                        <h3>
+                            <?php echo htmlspecialchars($product['P_Name']); ?>
+                        </h3>
+                        <p>฿
+                            <?php echo number_format($product['Price'], 2); ?>
+                        </p>
+                        <a href="#" class="btn add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
+                            data-price="<?php echo number_format($product['Price'], 2); ?>"
+                            data-img="<?php echo $product['IMG_path']; ?>"
+                            data-id="<?php echo $product['P_ID']; ?>"
+                            >เพิ่มในรถเข็น</a>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -212,8 +223,10 @@ echo "สวัสดี, $username";
         const addToCartButtons = document.querySelectorAll('.add-to-cart');
         addToCartButtons.forEach(button => {
             button.addEventListener('click', () => {
+                const productId = button.getAttribute('data-id'); // ดึงค่า id จาก attribute
                 const productName = button.getAttribute('data-name');
                 const productPrice = button.getAttribute('data-price');
+                const productImage = button.getAttribute('data-img'); // ดึงค่า img จาก attribute
 
                 const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 
@@ -222,8 +235,10 @@ echo "สวัสดี, $username";
                     existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
                 } else {
                     cartItems.push({
+                        id: productId,        // บันทึก id
                         name: productName,
                         price: productPrice,
+                        img: productImage,    // บันทึก img
                         quantity: 1
                     });
                 }

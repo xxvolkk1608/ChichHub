@@ -25,6 +25,11 @@ if (!empty($data)) {
         $stmt = $pdo->prepare("SELECT ID FROM Member WHERE Username = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            throw new Exception("ไม่พบผู้ใช้ในระบบ");
+        }
+
         $userId = $user['ID'];
 
         // เพิ่มข้อมูลคำสั่งซื้อในตาราง Orders
@@ -36,9 +41,18 @@ if (!empty($data)) {
 
         // เพิ่มข้อมูลสินค้าในตาราง Ord_detail
         foreach ($data as $item) {
-            $stmt = $pdo->prepare("INSERT INTO Ord_detail (P_ID, Ord_id, Amount, Payment_status) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$item['id'], $Ord_id, $item['quantity'], 'waiting']);
+            // ตรวจสอบว่าสินค้าที่มี P_ID นี้มีสถานะ waiting อยู่หรือไม่
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM Ord_detail WHERE P_ID = ? AND Payment_status = 'waiting'");
+            $stmt->execute([$item['id']]);
+            $count = $stmt->fetchColumn();
+
+            // ถ้าไม่มีสถานะ waiting ให้เพิ่มข้อมูลใหม่ลงฐานข้อมูล
+            if ($count == 0) {
+                $stmt = $pdo->prepare("INSERT INTO Ord_detail (P_ID, Ord_id, Amount, Payment_status) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$item['id'], $Ord_id, $item['quantity'], 'waiting']);
+            }
         }
+
 
         // ยืนยันการทำธุรกรรม
         $pdo->commit();
@@ -49,7 +63,7 @@ if (!empty($data)) {
     } catch (Exception $e) {
         // ยกเลิกการทำธุรกรรมหากมีข้อผิดพลาด
         $pdo->rollBack();
-        echo json_encode(['success' => false, 'message' => 'เกิดข้อผิดพลาดในการสั่งซื้อ']);
+        echo json_encode(['success' => false, 'message' => 'เกิดข้อผิดพลาดในการสั่งซื้อ: ' . $e->getMessage()]);
     }
 } else {
     echo json_encode(['success' => false, 'message' => 'ไม่มีสินค้าในตะกร้า']);

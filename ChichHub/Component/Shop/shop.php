@@ -270,7 +270,9 @@ if ($stmt->execute($params)) {
             <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>" class="info">ดูรายละเอียด</a>
             <a href="#" class="btn add-to-cart" 
                            data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" 
-                           data-price="<?php echo number_format($product['Price'], 2); ?>">
+                           data-price="<?php echo number_format($product['Price'], 2); ?>"
+                           data-img="<?php echo $product['IMG_path']; ?>"
+                            data-id="<?php echo $product['P_ID']; ?>">
                            เพิ่มในรถเข็น</a>
           </div>
         <?php endforeach; ?>
@@ -320,29 +322,32 @@ if ($stmt->execute($params)) {
 
     // เพิ่มสินค้าลงในรถเข็น
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
-    addToCartButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const productName = button.dataset.name;
-        const productPrice = button.dataset.price;
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const productId = button.getAttribute('data-id'); // ดึงค่า id จาก attribute
+                const productName = button.getAttribute('data-name');
+                const productPrice = button.getAttribute('data-price');
+                const productImage = button.getAttribute('data-img'); // ดึงค่า img จาก attribute
 
-        const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+                const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 
-        // ตรวจสอบว่ามีสินค้าในรถเข็นแล้วหรือยัง
-        const existingItem = cartItems.find(item => item.name === productName);
-        if (existingItem) {
-          existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
-        } else {
-          cartItems.push({
-            name: productName,
-            price: productPrice,
-            quantity: 1
-          });
-        }
+                const existingItem = cartItems.find(item => item.name === productName);
+                if (existingItem) {
+                    existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
+                } else {
+                    cartItems.push({
+                        id: productId,        // บันทึก id
+                        name: productName,
+                        price: productPrice,
+                        img: productImage,    // บันทึก img
+                        quantity: 1
+                    });
+                }
 
-        localStorage.setItem('cartItems', JSON.stringify(cartItems));
-        alert(`${productName} ถูกเพิ่มในรถเข็น`);
-      });
-    });
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                alert(`${productName} ถูกเพิ่มในรถเข็น`);
+            });
+        });
   </script>
 </body>
 

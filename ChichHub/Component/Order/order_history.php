@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 session_start();
 include 'connect.php'; // เชื่อมต่อฐานข้อมูล
@@ -13,13 +16,14 @@ $username = $_SESSION['Username'];
 
 // ดึงข้อมูล order ของผู้ใช้ปัจจุบัน
 $stmt = $pdo->prepare("
-    SELECT Orders.Ord_id, Orders.Date, Ord_detail.Amount
-    FROM Member
-    JOIN Orders ON Member.ID = Orders.ID
-    JOIN Ord_detail ON Orders.Ord_id = Ord_detail.Ord_id
+    SELECT Orders.Ord_id, Orders.Date, Ord_detail.Payment_status, Product.P_name, Ord_detail.Amount, Product.Price 
+    FROM `Orders`
+    INNER JOIN `Ord_detail` ON Orders.Ord_id = Ord_detail.Ord_id
+    INNER JOIN `Product` ON Ord_detail.P_ID = Product.P_ID
+    INNER JOIN `Member` ON Orders.ID = Member.ID
     WHERE Member.Username = ?
     ORDER BY Orders.Date DESC
-    ");
+");
 $stmt->execute([$username]);
 $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -112,7 +116,7 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- ส่วนแสดงประวัติการสั่งซื้อ -->
     <section class="contact-section">
-        <h1 style="text-align: center;">ประวัติการสั่งซื้อของคุณ</h1>
+        <h1 style="text-align: center;">ประวัติการสั่งซื้อ</h1>
         <?php
         if (!empty($Orders)) {
             $currentOrder = null;

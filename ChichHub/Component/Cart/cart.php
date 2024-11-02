@@ -83,14 +83,17 @@ echo "สวัสดี, $username";
                 <ul class="nav-links">
                     <li><a href="../Home/home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
-                    <li><a href="#">โปรโมชั่น</a></li>
+                    <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
-                            <?php echo $username; ?>
-                        </a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+                            <!-- ประวัติการสั่งซื้อ -->
+                            <a href="../Order/order_history.php">ประวัติการสั่งซื้อ</a>
+                            <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
+                                <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
+                            <?php endif; ?>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>
                     </li>
@@ -150,7 +153,7 @@ echo "สวัสดี, $username";
             const itemElement = document.createElement('div');
             itemElement.classList.add('cart-item');
             itemElement.innerHTML = `
-                <img src="https://via.placeholder.com/100x150" alt="สินค้า">
+                <img src="${item.img}" alt="${item.name}" width="100" height="150"> <!-- ใช้ item.img เพื่อแสดงรูปสินค้า -->
                 <div class="item-details">
                     <h3>${item.name}</h3>
                     <p>฿${item.price}</p>
@@ -204,35 +207,42 @@ echo "สวัสดี, $username";
         });
 
         // ฟังก์ชันสำหรับชำระเงิน
-        checkoutButton.addEventListener('click', () => {
-            if (cartItems.length === 0) {
-                alert("ตะกร้าของคุณว่างเปล่า");
-                return;
-            }
+       checkoutButton.addEventListener('click', () => {
+    if (cartItems.length === 0) {
+        alert("ตะกร้าของคุณว่างเปล่า");
+        return;
+    }
 
-            // ส่งข้อมูลตะกร้าสินค้าไปยังเซิร์ฟเวอร์เพื่อสร้างคำสั่งซื้อ
-            fetch('process-checkout.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(cartItems),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // เปลี่ยนเส้นทางไปยังหน้า pay.php พร้อม order_id
-                        window.location.href = `../Pay/pay.php?Ord_id=${data.Ord_id}`;
-                    } else {
-                        alert('เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('เกิดข้อผิดพลาด');
-                });
-        });
+    // ตรวจสอบความถูกต้องของข้อมูลก่อนส่ง
+    const validCartItems = cartItems.every(item => item.id && item.quantity);
 
+    if (!validCartItems) {
+        alert("ข้อมูลสินค้าบางอย่างไม่ครบถ้วนในตะกร้า กรุณาลองใหม่อีกครั้ง");
+        return;
+    }
+
+    // ส่งข้อมูลตะกร้าสินค้าไปยังเซิร์ฟเวอร์เพื่อสร้างคำสั่งซื้อ
+    fetch('process-checkout.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cartItems),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // เปลี่ยนเส้นทางไปยังหน้า pay.php พร้อม order_id
+            window.location.href = `../Pay/pay.php?Ord_id=${data.Ord_id}`;
+        } else {
+            alert(`เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาด');
+    });
+});
 
     </script>
 

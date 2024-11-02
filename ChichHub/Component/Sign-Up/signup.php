@@ -55,6 +55,22 @@
             outline: none;
             /* เอา outline ออกเมื่อคลิก */
         }
+
+        header {
+            position: fixed;
+            z-index: 999;
+            background: var(--white);
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            /* จัด header ให้อยู่ตรงกลาง */
+        }
+        .sign-up-form{
+            margin-top: 5%;
+        }
+
     </style>
 </head>
 
@@ -82,7 +98,8 @@
                     <!-- ฟิลด์สำหรับรหัสผ่าน -->
                     <div class="input-group">
                         <label for="password">รหัสผ่าน</label>
-                        <input type="password" name="password" id="password" placeholder="กรอกรหัสผ่านของคุณ" required>
+                        <input type="password" name="password" id="password" placeholder="กรอกรหัสผ่านของคุณ"
+                            pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" required>
                         <button type="button" class="toggle-password" id="togglePassword">แสดงรหัสผ่าน</button>
                         <label style="color: red; font-size: 0.7em; font-weight: bold;">
                             รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร ประกอบด้วยตัวพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษ
@@ -93,7 +110,8 @@
                     <div class="input-group">
                         <label for="confirm-password">ยืนยันรหัสผ่าน</label>
                         <input type="password" name="confirm-password" id="confirm-password"
-                            placeholder="ยืนยันรหัสผ่านของคุณ" required>
+                            placeholder="ยืนยันรหัสผ่านของคุณ"
+                            pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" required>
                         <button type="button" class="toggle-password2" id="toggleConfirmPassword">แสดงรหัสผ่าน</button>
                     </div>
 
@@ -113,7 +131,9 @@
                     </div>
                     <div class="input-group">
                         <label for="email">อีเมล</label>
-                        <input type="email" name="email" id="email" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" placeholder="กรอกอีเมลของคุณ" required>
+                        <input type="email" name="email" id="email"
+                            pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" placeholder="กรอกอีเมลของคุณ"
+                            required>
                     </div>
 
                     <!-- Dropdown จังหวัด -->
@@ -223,7 +243,11 @@
     </script>
     <script>
         // ตรวจสอบ Username ทุกครั้งที่มีการพิมพ์
+<<<<<<< HEAD
         document.getElementById('username').addEventListener('input', function() {
+=======
+        document.getElementById('username').addEventListener('input', function () {
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
             let username = this.value; // รับค่าจาก input
 
             if (username === '') {
@@ -237,7 +261,11 @@
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
             // ตรวจสอบการทำงานและแสดงผลลัพธ์ในฟิลด์
+<<<<<<< HEAD
             xhr.onload = function() {
+=======
+            xhr.onload = function () {
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                 if (xhr.status === 200) {
                     let response = xhr.responseText;
                     let usernameFeedback = document.getElementById('username-feedback');

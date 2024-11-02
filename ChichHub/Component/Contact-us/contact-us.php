@@ -1,15 +1,35 @@
 <?php
 session_start();
 
+<<<<<<< HEAD
 // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
 if (!isset($_SESSION["Username"])) {
     // หากยังไม่ได้เข้าสู่ระบบ เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
+=======
+// ตรวจสอบว่ามี session อยู่หรือไม่
+if (!isset($_SESSION["Username"])) {
+    // ถ้าไม่มี session ให้เช็คว่ามี cookies หรือไม่
+    if (isset($_COOKIE["Username"])) {
+        // ตั้งค่า session ใหม่จาก cookies
+        $_SESSION["Username"] = $_COOKIE["Username"];
+    }
+}
+
+// ถ้าไม่มีทั้ง session และ cookies ให้เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
+if (!isset($_SESSION["Username"])) {
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     header("Location: ../Sign-In/signin.php");
     exit();
 }
 
+<<<<<<< HEAD
 // ดึงชื่อผู้ใช้จาก session
 $username = htmlspecialchars($_SESSION["Username"]);
+=======
+// แสดงชื่อผู้ใช้
+$username = htmlspecialchars($_SESSION["Username"]);
+echo "สวัสดี, $username";
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
 ?>
 
 <!DOCTYPE html>
@@ -46,6 +66,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
         }
 
         /* Dropdown Menu */
+<<<<<<< HEAD
         .dropdown {
             position: relative;
             display: inline-block;
@@ -81,6 +102,37 @@ $username = htmlspecialchars($_SESSION["Username"]);
                 display: block;
             }
         }
+=======
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     </style>
 </head>
 
@@ -95,13 +147,25 @@ $username = htmlspecialchars($_SESSION["Username"]);
                 <ul class="nav-links">
                     <li><a href="../Home/home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
+<<<<<<< HEAD
                     <li><a href="#">โปรโมชั่น</a></li>
                     <li><a href="./contact-us.php">ติดต่อเรา</a></li>
+=======
+                    <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
+                    <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                     <li class="dropdown">
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+<<<<<<< HEAD
                             <a style="color: red;" href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+=======
+                            <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
+                                <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
+                            <?php endif; ?>
+                            <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -207,7 +271,11 @@ $username = htmlspecialchars($_SESSION["Username"]);
 
         function confirmLogout() {
             if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+<<<<<<< HEAD
                 window.location.href = "../Home/logout.php";
+=======
+                window.location.href = "./logout.php";
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
             }
         }
     </script>

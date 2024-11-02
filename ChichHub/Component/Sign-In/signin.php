@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -30,6 +31,22 @@
         .toggle-password:focus {
             outline: none;
             /* เอา outline ออกเมื่อคลิก */
+        }
+
+        header {
+            position: fixed;
+            z-index: 999;
+            background: var(--white);
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            /* จัด header ให้อยู่ตรงกลาง */
+        }
+
+        .sign-in-form {
+            margin-top: 5%;
         }
     </style>
 </head>
@@ -87,7 +104,11 @@
     </footer>
 
     <script>
+<<<<<<< HEAD
         document.querySelector("#togglePassword").addEventListener("click", function() {
+=======
+        document.querySelector("#togglePassword").addEventListener("click", function () {
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
             const password = document.querySelector("#password");
             const type = password.getAttribute("type") === "password" ? "text" : "password";
             password.setAttribute("type", type);

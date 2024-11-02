@@ -1,9 +1,13 @@
 <?php
 session_start();
+include 'connect.php'; // เชื่อมต่อฐานข้อมูล
 
 // ตรวจสอบว่ามี session อยู่หรือไม่
 if (!isset($_SESSION["Username"])) {
+<<<<<<< HEAD
     // ถ้าไม่มี session ให้เช็คว่ามี cookies หรือไม่
+=======
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     if (isset($_COOKIE["Username"])) {
         // ตั้งค่า session ใหม่จาก cookies
         $_SESSION["Username"] = $_COOKIE["Username"];
@@ -15,12 +19,28 @@ if (!isset($_SESSION["Username"])) {
     header("Location: ../Sign-In/signin.php");
     exit();
 }
+<<<<<<< HEAD
+=======
+
+// ดึงข้อมูล Role ของผู้ใช้จากฐานข้อมูล
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
 $username = htmlspecialchars($_SESSION["Username"]);
+$stmt = $pdo->prepare("SELECT Role FROM Member WHERE Username = ?");
+$stmt->execute([$username]);
+$user = $stmt->fetch();
+
+// แสดงชื่อผู้ใช้
+echo "สวัสดี, $username";
+
+
 ?>
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
 <!DOCTYPE html>
 <html lang="th">
 
@@ -28,9 +48,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chic-hub - ร้านขายเสื้อผ้าออนไลน์</title>
-    <!-- ลิงก์ไปยัง Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- ลิงก์ไปยังไฟล์ CSS -->
     <link rel="stylesheet" href="../styles/styles.css">
     <style>
         header {
@@ -44,10 +62,40 @@ $username = htmlspecialchars($_SESSION["Username"]);
             z-index: 999;
         }
 
+<<<<<<< HEAD
         /* Dropdown Menu */
         .dropdown {
             position: relative;
             display: inline-block;
+=======
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
         }
 
         .dropdown-content {
@@ -81,6 +129,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
 <body>
     <?php
     include 'connect.php'; // เชื่อมต่อฐานข้อมูล
+<<<<<<< HEAD
 
     // ดึงข้อมูลสินค้ายอดนิยมและรูปภาพจากฐานข้อมูล
     $stmt = $pdo->prepare("SELECT Product.Name, Product.Price, Images.IMG_path 
@@ -97,16 +146,32 @@ $username = htmlspecialchars($_SESSION["Username"]);
     $stmt = $pdo->prepare("SELECT B_Name, B_img FROM Banner");
     $stmt->execute();
     $banner = $stmt->fetch();
+=======
+    
+    // ดึงข้อมูลสินค้ายอดนิยมและรูปภาพจากฐานข้อมูล
+    $stmt = $pdo->prepare("SELECT Product.P_ID, Product.P_Name, Product.Price, Images.IMG_path 
+                       FROM Product 
+                       INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
+                       ORDER BY RAND() 
+                       LIMIT 3;"); // จำนวนสินค้าที่ต้องการแสดง (ในที่นี้กำหนดเป็น 10)
+    $stmt->execute();
+    $products = $stmt->fetchAll();
+
+    $stmt = $pdo->prepare("SELECT B_Name, B_img FROM Banner");
+    $stmt->execute();
+    $Banner = $stmt->fetch();
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     ?>
 
     <!-- ส่วนหัว (Header) -->
     <header>
         <div class="container-header">
             <div class="logo">
-                <h1 class="chic-hub"><a href="./home.php">ChicHub</a></h1>
+                <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
             </div>
             <nav>
                 <ul class="nav-links">
+<<<<<<< HEAD
                     <li><a href="./home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
                     <li><a href="#">โปรโมชั่น</a></li>
@@ -116,6 +181,25 @@ $username = htmlspecialchars($_SESSION["Username"]);
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
                             <a style="color: red;" href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+=======
+                    <li><a href="../Home/home.php">หน้าหลัก</a></li>
+                    <li><a href="../Shop/shop.php">ร้านค้า</a></li>
+                    <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
+                    <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
+                    <li class="dropdown">
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
+                            <?php echo $username; ?>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+                            <!-- ประวัติการสั่งซื้อ -->
+                            <a href="../Order/order_history.php">ประวัติการสั่งซื้อ</a>
+                            <?php if ($user['Role'] == 1): ?>
+                                <!-- เฉพาะ Admin ที่มี Role = 1 -->
+                                <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
+                            <?php endif; ?>
+                            <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -135,10 +219,19 @@ $username = htmlspecialchars($_SESSION["Username"]);
     <section class="banner">
         <div class="container">
             <div class="banner-image">
+<<<<<<< HEAD
                 <img src="<?php echo $banner['B_img']; ?>" alt="<?php echo $banner['B_Name']; ?>">
                 <div class="banner-text">
                     <h2><?php echo $banner['B_Name']; ?></h2>
                     <a href="#" class="btn">ช้อปเลย</a>
+=======
+                <img src="<?php echo $Banner['B_img']; ?>" alt="<?php echo $Banner['B_Name']; ?>">
+                <div class="banner-text">
+                    <h2>
+                        <?php echo $Banner['B_Name']; ?>
+                    </h2>
+                    <a href="../Category/Promotion.php" class="btn">ช้อปเลย</a>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                 </div>
             </div>
         </div>
@@ -147,14 +240,29 @@ $username = htmlspecialchars($_SESSION["Username"]);
     <!-- ส่วนแสดงสินค้า -->
     <section class="featured-products">
         <div class="container">
-            <h2>สินค้ายอดนิยม</h2>
+            <h2>สินค้าแนะนำ</h2>
             <div class="products">
                 <?php foreach ($products as $product): ?>
                     <div class="product-card">
+<<<<<<< HEAD
                         <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['Name']); ?>">
                         <h3><?php echo htmlspecialchars($product['Name']); ?></h3>
                         <p>฿<?php echo number_format($product['Price'], 2); ?></p>
                         <a href="#" class="btn">เพิ่มในรถเข็น</a>
+=======
+                        <img src="<?php echo $product['IMG_path']; ?>"
+                            alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
+                        <h3>
+                            <?php echo htmlspecialchars($product['P_Name']); ?>
+                        </h3>
+                        <p>฿
+                            <?php echo number_format($product['Price'], 2); ?>
+                        </p>
+                        <a href="#" class="btn add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
+                            data-price="<?php echo number_format($product['Price'], 2); ?>"
+                            data-img="<?php echo $product['IMG_path']; ?>"
+                            data-id="<?php echo $product['P_ID']; ?>">เพิ่มในรถเข็น</a>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -167,22 +275,17 @@ $username = htmlspecialchars($_SESSION["Username"]);
             <h2>หมวดหมู่สินค้า</h2>
             <div class="category-list">
                 <div class="category-item">
-                    <img class="tshirt" src="../../img/tshirt.png" alt="">
-                    <a href="#">เสื้อยืด</a>
+                    <img class="tshirt" src="../cat_img/tshirt.png" alt="">
+                    <a href="../Category/Shirt.php">เสื้อยืด</a>
                 </div>
                 <div class="category-item">
-                    <img class="shirt" src="../../img/shirt.png" alt="">
-                    <a href="#">เสื้อเชิ้ต</a>
+                    <img class="pant" src="../cat_img/pant.png" alt="">
+                    <a href="../Category/Pants.php">กางเกง</a>
                 </div>
                 <div class="category-item">
-                    <img class="pant" src="../../img/pant.png" alt="">
-                    <a href="#">กางเกง</a>
+                    <img class="jacket" src="../cat_img/promo.jpeg" alt="">
+                    <a href="../Category/Promotion.php">Promotion</a>
                 </div>
-                <div class="category-item">
-                    <img class="jacket" src="../../img/jacket.png" alt="">
-                    <a href="#">เสื้อแจ็คเก็ต</a>
-                </div>
-                <!-- เพิ่มหมวดหมู่เพิ่มเติมได้ที่นี่ -->
             </div>
         </div>
     </section>
@@ -191,9 +294,9 @@ $username = htmlspecialchars($_SESSION["Username"]);
         <div class="container">
             <div class="footer-links">
                 <a href="#">เกี่ยวกับเรา</a>
-                <a href="#">นโยบายความเป็นส่วนตัว</a>
+                <a href="../Policy/privacy_policy.html">นโยบายความเป็นส่วนตัว</a>
                 <a href="#">เงื่อนไขการใช้งาน</a>
-                <a href="Contact-us/contact-us.html">ติดต่อเรา</a>
+                <a href="../Contact-us/contact-us.php">ติดต่อเรา</a>
             </div>
             <div class="social-media">
                 <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -205,6 +308,40 @@ $username = htmlspecialchars($_SESSION["Username"]);
     </footer>
 
     <script>
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const productId = button.getAttribute('data-id'); // ดึงค่า id จาก attribute
+                const productName = button.getAttribute('data-name');
+                const productPrice = button.getAttribute('data-price');
+                const productImage = button.getAttribute('data-img'); // ดึงค่า img จาก attribute
+
+                const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+
+                const existingItem = cartItems.find(item => item.name === productName);
+                if (existingItem) {
+                    existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
+                } else {
+                    cartItems.push({
+                        id: productId,        // บันทึก id
+                        name: productName,
+                        price: productPrice,
+                        img: productImage,    // บันทึก img
+                        quantity: 1
+                    });
+                }
+
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                alert(`${productName} ถูกเพิ่มในรถเข็น`);
+            });
+        });
+
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "./logout.php";
+            }
+        }
+
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
         const blurBackground = document.querySelector('.blur-background');

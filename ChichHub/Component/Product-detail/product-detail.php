@@ -23,7 +23,11 @@ if ($product_id <= 0) {
 $username = htmlspecialchars($_SESSION["Username"]);
 
 // ดึงข้อมูลสินค้าจากฐานข้อมูล
+<<<<<<< HEAD
 $stmt = $pdo->prepare("SELECT Product.P_ID, Product.Name, Product.Price, Product.Color, Product.Details, Images.IMG_path 
+=======
+$stmt = $pdo->prepare("SELECT Product.P_ID, Product.P_name, Product.Price, Product.Color, Product.Detail, Images.IMG_path 
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                        FROM Product 
                        INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
                        WHERE Product.P_ID = ?");
@@ -148,13 +152,26 @@ if (!$product) {
                 <ul class="nav-links">
                     <li><a href="../Home/home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
+<<<<<<< HEAD
                     <li><a href="#">โปรโมชั่น</a></li>
+=======
+                    <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+<<<<<<< HEAD
                             <a style="color: red;" href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+=======
+                            <!-- ประวัติการสั่งซื้อ -->
+                            <a href="../Order/order_history.php">ประวัติการสั่งซื้อ</a>
+                            <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
+                                <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
+                            <?php endif; ?>
+                            <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -174,6 +191,7 @@ if (!$product) {
     <!-- แสดงรายละเอียดสินค้า -->
     <section class="product-detail">
         <div class="product-image">
+<<<<<<< HEAD
             <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['Name']); ?>">
         </div>
         <div class="product-info">
@@ -184,6 +202,18 @@ if (!$product) {
 
             <!-- ปุ่มเพิ่มในรถเข็น -->
             <button class="add-to-cart" data-id="<?php echo $product['P_ID']; ?>" data-name="<?php echo htmlspecialchars($product['Name']); ?>" data-price="<?php echo $product['Price']; ?>">
+=======
+            <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['P_name']); ?>">
+        </div>
+        <div class="product-info">
+            <h2><?php echo htmlspecialchars($product['P_name']); ?></h2>
+            <p>ราคา: ฿<?php echo number_format($product['Price'], 2); ?></p>
+            <p>สี: <?php echo htmlspecialchars($product['Color']); ?></p>
+            <p>รายละเอียดสินค้า: <?php echo htmlspecialchars($product['Detail']); ?></p>
+
+            <!-- ปุ่มเพิ่มในรถเข็น -->
+            <button class="add-to-cart" data-id="<?php echo $product['P_ID']; ?>" data-name="<?php echo htmlspecialchars($product['P_name']); ?>" data-price="<?php echo $product['Price']; ?>">
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                 เพิ่มในรถเข็น
             </button>
         </div>
@@ -255,4 +285,8 @@ if (!$product) {
         });
     </script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c

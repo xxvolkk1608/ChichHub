@@ -18,13 +18,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newEmail = $_POST['email'];
     $newAddress = $_POST['address'];
     $newPhone = $_POST['phone'];
+    $newPassword = $_POST['password']; // รหัสผ่านใหม่
 
     // อัปเดตข้อมูลในตาราง Member_detail (ตาม MD_ID ที่เชื่อมกับ Username)
+<<<<<<< HEAD
     $stmt = $pdo->prepare("UPDATE Member_detail AS md 
                             JOIN Member AS m ON m.MD_ID = md.MD_ID
                             SET md.Email = ?, md.Address = ?, md.Tel = ?
                             WHERE m.Username = ?");
     $stmt->execute([$newEmail, $newAddress, $newPhone, $username]);
+=======
+    if (!empty($newPassword)) {
+        // ถ้ามีการกรอกรหัสผ่านใหม่ให้อัปเดตด้วย
+        $stmt = $pdo->prepare("UPDATE Member_detail AS md 
+                                JOIN Member AS m ON m.MD_ID = md.MD_ID
+                                SET md.Email = ?, md.Address = ?, md.Tel = ?, m.Password = ?
+                                WHERE m.Username = ?");
+        $stmt->execute([$newEmail, $newAddress, $newPhone, $newPassword, $username]);
+    } else {
+        // ถ้าไม่มีการเปลี่ยนรหัสผ่าน
+        $stmt = $pdo->prepare("UPDATE Member_detail AS md 
+                                JOIN Member AS m ON m.MD_ID = md.MD_ID
+                                SET md.Email = ?, md.Address = ?, md.Tel = ?
+                                WHERE m.Username = ?");
+        $stmt->execute([$newEmail, $newAddress, $newPhone, $username]);
+    }
+
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     echo "<script>
             alert('เปลี่ยนข้อมูลสำเร็จ');
             window.location.href = 'edit_profile.php';
@@ -157,6 +177,7 @@ $userData = $stmt->fetch();
         .btn {
             margin-left: 4.5rem;
         }
+<<<<<<< HEAD
 
         footer {
             background: var(--secondary-color);
@@ -172,6 +193,8 @@ $userData = $stmt->fetch();
         padding: 20px 0;
         text-align: center;
         translate: 0 37vh;
+=======
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     }
 </style>
 
@@ -187,13 +210,21 @@ $userData = $stmt->fetch();
                 <ul class="nav-links">
                     <li><a href="../Home/home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
+<<<<<<< HEAD
                     <li><a href="#">โปรโมชั่น</a></li>
+=======
+                    <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+<<<<<<< HEAD
                             <a style="color: red;" href="#" onclick="confirmLogout()">ออกจากระบบ</a>
+=======
+                            <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -215,7 +246,12 @@ $userData = $stmt->fetch();
         <form action="edit_profile.php" method="POST">
             <div class="input-group">
                 <label for="username">ชื่อผู้ใช้</label>
+<<<<<<< HEAD
                 <input type="text" name="username" id="username" value="<?php echo htmlspecialchars($username); ?>" readonly>
+=======
+                <input type="text" name="username" id="username" value="<?php echo htmlspecialchars($username); ?>"
+                    readonly>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
             </div>
 
             <div class="input-group">
@@ -232,12 +268,31 @@ $userData = $stmt->fetch();
 
             <div class="input-group">
                 <label for="address">ที่อยู่</label>
+<<<<<<< HEAD
                 <textarea name="address" id="address" rows="4"><?php echo htmlspecialchars($userData['Address']); ?></textarea>
+=======
+                <textarea name="address" id="address"
+                    rows="4"><?php echo htmlspecialchars($userData['Address']); ?></textarea>
+            </div>
+
+            <!-- ฟิลด์สำหรับเปลี่ยนรหัสผ่าน -->
+            <div class="input-group">
+                <label for="password">รหัสผ่านใหม่ (หากไม่ต้องการเปลี่ยนให้เว้นว่างไว้)</label>
+                <input type="password" name="password" id="password" placeholder="กรอกรหัสผ่านใหม่"
+                    pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}"
+                    title="รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร ประกอบด้วยตัวพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษ">
+                <span id="passwordError"
+                    style="color: red; display: none;">กรุณากรอกรหัสผ่านให้ถูกต้องตามเงื่อนไข</span>
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
             </div>
 
             <button type="submit" class="btn">บันทึกการเปลี่ยนแปลง</button>
         </form>
     </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     <footer>
         <div class="container">
             <div class="footer-links">

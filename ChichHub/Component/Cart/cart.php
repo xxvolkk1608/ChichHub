@@ -1,11 +1,6 @@
 <?php
 session_start();
 
-<<<<<<< HEAD
-// ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
-if (!isset($_SESSION["Username"])) {
-    // หากยังไม่ได้เข้าสู่ระบบ เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
-=======
 // ตรวจสอบว่ามี session อยู่หรือไม่
 if (!isset($_SESSION["Username"])) {
     // ถ้าไม่มี session ให้เช็คว่ามี cookies หรือไม่
@@ -17,24 +12,15 @@ if (!isset($_SESSION["Username"])) {
 
 // ถ้าไม่มีทั้ง session และ cookies ให้เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
 if (!isset($_SESSION["Username"])) {
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     header("Location: ../Sign-In/signin.php");
     exit();
 }
 
-<<<<<<< HEAD
-// ดึงชื่อผู้ใช้จาก session
-$username = htmlspecialchars($_SESSION["Username"]);
-?>
-
-
-=======
 // แสดงชื่อผู้ใช้
 $username = htmlspecialchars($_SESSION["Username"]);
-echo "สวัสดี, $username";
+// echo "สวัสดี, $username";
 ?>
 
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
 <!DOCTYPE html>
 <html lang="th">
 
@@ -56,10 +42,6 @@ echo "สวัสดี, $username";
             z-index: 999;
         }
 
-<<<<<<< HEAD
-        /* Dropdown Menu */
-=======
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
         .dropdown {
             position: relative;
             display: inline-block;
@@ -88,23 +70,10 @@ echo "สวัสดี, $username";
         .dropdown:hover .dropdown-content {
             display: block;
         }
-<<<<<<< HEAD
-
-        .cart-section {
-            background-color: var(--light-color);
-            padding: 7rem 0 3rem 0;
-            min-height: 78rem;
-        }
-=======
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     </style>
 </head>
 
 <body>
-<<<<<<< HEAD
-    <!-- ส่วนหัว (Header) -->
-=======
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     <header>
         <div class="container-header">
             <div class="logo">
@@ -114,26 +83,18 @@ echo "สวัสดี, $username";
                 <ul class="nav-links">
                     <li><a href="../Home/home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
-<<<<<<< HEAD
-                    <li><a href="#">โปรโมชั่น</a></li>
-=======
                     <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-<<<<<<< HEAD
-                            <a style="color: red;" href="#" onclick="confirmLogout()">ออกจากระบบ</a>
-=======
                             <!-- ประวัติการสั่งซื้อ -->
                             <a href="../Order/order_history.php">ประวัติการสั่งซื้อ</a>
                             <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
                                 <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
                             <?php endif; ?>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -150,17 +111,13 @@ echo "สวัสดี, $username";
 
     <section class="cart-section">
         <div class="container">
-            <h2>ตะกร้าสินค้าของคุณ</h2>
+            <h2 style="padding-top: 7rem; text-align:center">ตะกร้าสินค้าของคุณ</h2>
             <div class="cart-items" id="cart-items"></div>
 
             <div class="cart-summary">
                 <h3>สรุปการสั่งซื้อ</h3>
                 <p>ราคารวม: <span class="total-price" id="total-price">฿0</span></p>
-<<<<<<< HEAD
-                <button class="checkout-btn">ชำระเงิน</button>
-=======
                 <button class="checkout-btn" id="checkout-btn">ชำระเงิน</button>
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
             </div>
         </div>
     </section>
@@ -183,8 +140,6 @@ echo "สวัสดี, $username";
     </footer>
 
     <script>
-<<<<<<< HEAD
-=======
         const cartItemsContainer = document.getElementById('cart-items');
         const totalPriceElement = document.getElementById('total-price');
         const checkoutButton = document.getElementById('checkout-btn');
@@ -218,7 +173,7 @@ echo "สวัสดี, $username";
 
         // การอัปเดตจำนวนสินค้าและคำนวณราคารวมใหม่
         document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('change', function () {
+            input.addEventListener('change', function() {
                 const newQuantity = parseInt(this.value, 10);
                 const productName = this.dataset.name;
 
@@ -252,47 +207,45 @@ echo "สวัสดี, $username";
         });
 
         // ฟังก์ชันสำหรับชำระเงิน
-       checkoutButton.addEventListener('click', () => {
-    if (cartItems.length === 0) {
-        alert("ตะกร้าของคุณว่างเปล่า");
-        return;
-    }
+        checkoutButton.addEventListener('click', () => {
+            if (cartItems.length === 0) {
+                alert("ตะกร้าของคุณว่างเปล่า");
+                return;
+            }
 
-    // ตรวจสอบความถูกต้องของข้อมูลก่อนส่ง
-    const validCartItems = cartItems.every(item => item.id && item.quantity);
+            // ตรวจสอบความถูกต้องของข้อมูลก่อนส่ง
+            const validCartItems = cartItems.every(item => item.id && item.quantity);
 
-    if (!validCartItems) {
-        alert("ข้อมูลสินค้าบางอย่างไม่ครบถ้วนในตะกร้า กรุณาลองใหม่อีกครั้ง");
-        return;
-    }
+            if (!validCartItems) {
+                alert("ข้อมูลสินค้าบางอย่างไม่ครบถ้วนในตะกร้า กรุณาลองใหม่อีกครั้ง");
+                return;
+            }
 
-    // ส่งข้อมูลตะกร้าสินค้าไปยังเซิร์ฟเวอร์เพื่อสร้างคำสั่งซื้อ
-    fetch('process-checkout.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(cartItems),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // เปลี่ยนเส้นทางไปยังหน้า pay.php พร้อม order_id
-            window.location.href = `../Pay/pay.php?Ord_id=${data.Ord_id}`;
-        } else {
-            alert(`เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ: ${data.message}`);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('เกิดข้อผิดพลาด');
-    });
-});
-
+            // ส่งข้อมูลตะกร้าสินค้าไปยังเซิร์ฟเวอร์เพื่อสร้างคำสั่งซื้อ
+            fetch('process-checkout.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(cartItems),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // เปลี่ยนเส้นทางไปยังหน้า pay.php พร้อม order_id
+                        window.location.href = `../Pay/pay.php?Ord_id=${data.Ord_id}`;
+                    } else {
+                        alert(`เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('เกิดข้อผิดพลาด');
+                });
+        });
     </script>
 
     <script>
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
         const blurBackground = document.querySelector('.blur-background');
@@ -309,55 +262,9 @@ echo "สวัสดี, $username";
 
         function confirmLogout() {
             if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-<<<<<<< HEAD
-                window.location.href = "../Home/logout.php";
-            }
-        }
-        const cartItemsContainer = document.getElementById('cart-items');
-        const totalPriceElement = document.getElementById('total-price');
-
-        // ดึงข้อมูลจาก LocalStorage
-        const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-
-        let totalPrice = 0;
-
-        cartItems.forEach(item => {
-            const itemElement = document.createElement('div');
-            itemElement.classList.add('cart-item');
-            itemElement.innerHTML = `
-                <img src="https://via.placeholder.com/100x150" alt="สินค้า">
-                <div class="item-details">
-                    <h3>${item.name}</h3>
-                    <p>฿${item.price}</p>
-                    <label>จำนวน:</label>
-                    <input type="number" value="${item.quantity}" min="1" data-name="${item.name}">
-                </div>
-                <div class="remove-item">
-                    <button class="remove-btn" data-name="${item.name}">ลบ</button>
-                </div>
-            `;
-            cartItemsContainer.appendChild(itemElement);
-
-            totalPrice += item.price * item.quantity;
-        });
-
-        totalPriceElement.textContent = `฿${totalPrice}`;
-
-        // การลบสินค้า
-        const removeButtons = document.querySelectorAll('.remove-btn');
-        removeButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const productName = button.dataset.name;
-                const updatedCartItems = cartItems.filter(item => item.name !== productName);
-                localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-                window.location.reload(); // รีเฟรชหน้า
-            });
-        });
-=======
                 window.location.href = "./logout.php";
             }
         }
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     </script>
 </body>
 

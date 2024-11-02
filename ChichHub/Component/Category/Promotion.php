@@ -141,7 +141,38 @@ if ($stmt->execute($params)) {
             border-radius: 4px;
             cursor: pointer;
         }
-        
+
+        .add-to-cart {
+            padding: 10px 20px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+
+        .add-to-cart:hover {
+            background: #e65b50;
+        }
+
+        .info {
+            padding: 10px 20px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+
+        .info:hover {
+            background: #e65b50;
+        }
     </style>
 </head>
 
@@ -188,7 +219,7 @@ if ($stmt->execute($params)) {
                 <div class="search-section">
                     <input type="text" name="search_query" placeholder="ค้นหาชื่อสินค้า...">
                 </div>
-                
+
                 <div class="filter-price">
                     <label for="min_price">ราคาต่ำสุด (บาท)</label>
                     <input type="number" name="min_price" id="min_price" min="0">
@@ -205,20 +236,20 @@ if ($stmt->execute($params)) {
 
         <!-- แสดงรายการสินค้า -->
         <section class="product-list">
-        <?php if (count($products) > 0): ?>
+            <?php if (count($products) > 0): ?>
                 <?php foreach ($products as $product): ?>
-                    <div class="product-item">
+                    <div class="product-item2">
                         <img src="<?php echo $product['IMG_path']; ?>"
                             alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
                         <h4><?php echo htmlspecialchars($product['P_Name']); ?></h4>
-                        <p>฿<?php echo number_format($product['Price'], 2); ?></p>
+                        <p style="color:#ff6f61; margin-bottom: 2vh;">฿<?php echo number_format($product['Price'], 2); ?></p>
                         <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>" class="info">ดูรายละเอียด</a>
-                        <a href="#" class="btn add-to-cart" 
-                           data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" 
-                           data-price="<?php echo number_format($product['Price'], 2); ?>"
-                           data-img="<?php echo $product['IMG_path']; ?>"
+                        <a href="#" class="add-to-cart"
+                            data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
+                            data-price="<?php echo number_format($product['Price'], 2); ?>"
+                            data-img="<?php echo $product['IMG_path']; ?>"
                             data-id="<?php echo $product['P_ID']; ?>">
-                           เพิ่มในรถเข็น</a>
+                            เพิ่มในรถเข็น</a>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -281,10 +312,10 @@ if ($stmt->execute($params)) {
                     existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
                 } else {
                     cartItems.push({
-                        id: productId,        // บันทึก id
+                        id: productId, // บันทึก id
                         name: productName,
                         price: productPrice,
-                        img: productImage,    // บันทึก img
+                        img: productImage, // บันทึก img
                         quantity: 1
                     });
                 }

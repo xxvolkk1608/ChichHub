@@ -4,10 +4,6 @@ include 'connect.php'; // เชื่อมต่อฐานข้อมูล
 
 // ตรวจสอบว่ามี session อยู่หรือไม่
 if (!isset($_SESSION["Username"])) {
-<<<<<<< HEAD
-    // ถ้าไม่มี session ให้เช็คว่ามี cookies หรือไม่
-=======
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     if (isset($_COOKIE["Username"])) {
         // ตั้งค่า session ใหม่จาก cookies
         $_SESSION["Username"] = $_COOKIE["Username"];
@@ -19,28 +15,19 @@ if (!isset($_SESSION["Username"])) {
     header("Location: ../Sign-In/signin.php");
     exit();
 }
-<<<<<<< HEAD
-=======
 
 // ดึงข้อมูล Role ของผู้ใช้จากฐานข้อมูล
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
 $username = htmlspecialchars($_SESSION["Username"]);
 $stmt = $pdo->prepare("SELECT Role FROM Member WHERE Username = ?");
 $stmt->execute([$username]);
 $user = $stmt->fetch();
 
 // แสดงชื่อผู้ใช้
-echo "สวัสดี, $username";
+// echo "สวัสดี, $username";
 
 
 ?>
 
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
 <!DOCTYPE html>
 <html lang="th">
 
@@ -62,12 +49,6 @@ echo "สวัสดี, $username";
             z-index: 999;
         }
 
-<<<<<<< HEAD
-        /* Dropdown Menu */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-=======
         .dropdown {
             position: relative;
             display: inline-block;
@@ -95,7 +76,6 @@ echo "สวัสดี, $username";
 
         .dropdown:hover .dropdown-content {
             display: block;
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
         }
 
         .dropdown-content {
@@ -129,24 +109,6 @@ echo "สวัสดี, $username";
 <body>
     <?php
     include 'connect.php'; // เชื่อมต่อฐานข้อมูล
-<<<<<<< HEAD
-
-    // ดึงข้อมูลสินค้ายอดนิยมและรูปภาพจากฐานข้อมูล
-    $stmt = $pdo->prepare("SELECT Product.Name, Product.Price, Images.IMG_path 
-                                  FROM Product 
-                                  INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
-                                  WHERE Product.Name LIKE '1983 heritage Barn Jacket' 
-                                  OR Product.Name LIKE 'Stretchy Low Rise Pants' 
-                                  OR Product.Name LIKE 'Roll Tab Knit Shirt';");
-    $stmt->execute();
-    $products = $stmt->fetchAll();
-    ?>
-    <?php
-    // ดึงข้อมูลแบนเนอร์จากฐานข้อมูล
-    $stmt = $pdo->prepare("SELECT B_Name, B_img FROM Banner");
-    $stmt->execute();
-    $banner = $stmt->fetch();
-=======
     
     // ดึงข้อมูลสินค้ายอดนิยมและรูปภาพจากฐานข้อมูล
     $stmt = $pdo->prepare("SELECT Product.P_ID, Product.P_Name, Product.Price, Images.IMG_path 
@@ -160,7 +122,6 @@ echo "สวัสดี, $username";
     $stmt = $pdo->prepare("SELECT B_Name, B_img FROM Banner");
     $stmt->execute();
     $Banner = $stmt->fetch();
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
     ?>
 
     <!-- ส่วนหัว (Header) -->
@@ -171,17 +132,6 @@ echo "สวัสดี, $username";
             </div>
             <nav>
                 <ul class="nav-links">
-<<<<<<< HEAD
-                    <li><a href="./home.php">หน้าหลัก</a></li>
-                    <li><a href="../Shop/shop.php">ร้านค้า</a></li>
-                    <li><a href="#">โปรโมชั่น</a></li>
-                    <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
-                    <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
-                        <div class="dropdown-content">
-                            <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-                            <a style="color: red;" href="#" onclick="confirmLogout()">ออกจากระบบ</a>
-=======
                     <li><a href="../Home/home.php">หน้าหลัก</a></li>
                     <li><a href="../Shop/shop.php">ร้านค้า</a></li>
                     <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
@@ -199,7 +149,6 @@ echo "สวัสดี, $username";
                                 <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
                             <?php endif; ?>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                         </div>
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
@@ -219,19 +168,12 @@ echo "สวัสดี, $username";
     <section class="banner">
         <div class="container">
             <div class="banner-image">
-<<<<<<< HEAD
-                <img src="<?php echo $banner['B_img']; ?>" alt="<?php echo $banner['B_Name']; ?>">
-                <div class="banner-text">
-                    <h2><?php echo $banner['B_Name']; ?></h2>
-                    <a href="#" class="btn">ช้อปเลย</a>
-=======
                 <img src="<?php echo $Banner['B_img']; ?>" alt="<?php echo $Banner['B_Name']; ?>">
                 <div class="banner-text">
                     <h2>
                         <?php echo $Banner['B_Name']; ?>
                     </h2>
                     <a href="../Category/Promotion.php" class="btn">ช้อปเลย</a>
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                 </div>
             </div>
         </div>
@@ -244,12 +186,6 @@ echo "สวัสดี, $username";
             <div class="products">
                 <?php foreach ($products as $product): ?>
                     <div class="product-card">
-<<<<<<< HEAD
-                        <img src="<?php echo $product['IMG_path']; ?>" alt="<?php echo htmlspecialchars($product['Name']); ?>">
-                        <h3><?php echo htmlspecialchars($product['Name']); ?></h3>
-                        <p>฿<?php echo number_format($product['Price'], 2); ?></p>
-                        <a href="#" class="btn">เพิ่มในรถเข็น</a>
-=======
                         <img src="<?php echo $product['IMG_path']; ?>"
                             alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
                         <h3>
@@ -262,7 +198,6 @@ echo "สวัสดี, $username";
                             data-price="<?php echo number_format($product['Price'], 2); ?>"
                             data-img="<?php echo $product['IMG_path']; ?>"
                             data-id="<?php echo $product['P_ID']; ?>">เพิ่มในรถเข็น</a>
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -283,7 +218,7 @@ echo "สวัสดี, $username";
                     <a href="../Category/Pants.php">กางเกง</a>
                 </div>
                 <div class="category-item">
-                    <img class="jacket" src="../cat_img/promo.jpeg" alt="">
+                    <img class="jacket" src="../cat_img/promo2.png" alt="">
                     <a href="../Category/Promotion.php">Promotion</a>
                 </div>
             </div>
@@ -335,12 +270,6 @@ echo "สวัสดี, $username";
                 alert(`${productName} ถูกเพิ่มในรถเข็น`);
             });
         });
-
-        function confirmLogout() {
-            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                window.location.href = "./logout.php";
-            }
-        }
 
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');

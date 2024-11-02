@@ -266,7 +266,7 @@ footer {
   color: var(--white);
   padding: 20px 0;
   text-align: center;
-  /* translate: 0 37vh; */
+  /* margin-top: 21rem; */
 }
 
 .footer-links a {
@@ -356,10 +356,12 @@ footer p {
 
 .product-item {
   padding: 20px;
-  border: 1px solid #eee;
-  text-align: center;
-  border-radius: 8px;
-  transition: transform 0.3s ease;
+    border: 1px solid #eee;
+    text-align: center;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    translate: 0 -28%;
+    /* margin-top: 1rem; */
 }
 
 .product-item:hover {
@@ -377,6 +379,30 @@ footer p {
   margin-bottom: 10px;
 }
 
+.product-item2 {
+  padding: 20px;
+    border: 1px solid #eee;
+    text-align: center;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    translate: 0 -28%;
+    margin-top: 2.5rem;
+}
+
+.product-item2:hover {
+  transform: scale(1.05);
+}
+
+.product-item2 img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 15px;
+}
+
+.product-item2 h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
 
 /*ของ Sign In*/
 /* ส่วนของการเข้าสู่ระบบ */
@@ -623,6 +649,7 @@ footer p {
   margin-top: 30px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
+  margin-bottom: 21rem;
 }
 
 .cart-summary h3 {
@@ -893,11 +920,6 @@ footer p {
     grid-template-columns: repeat(2, 1fr); /* แสดง 2 คอลัมน์ในหน้าจอเล็ก */
     width: 100%;
   }
-
-  .cart-section {
-    background-color: var(--light-color);
-    padding: 7rem 0 3rem 0;
-  }
 }
 
 
@@ -937,10 +959,5 @@ footer p {
     grid-template-columns: 1fr; /* แสดง 1 คอลัมน์ในหน้าจอมือถือ */
     width: 100%;
   }
-<<<<<<< HEAD
-}
 
-
-=======
 }
->>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c

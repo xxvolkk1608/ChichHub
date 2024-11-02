@@ -39,6 +39,41 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../styles/styles.css">
     <style>
+        /* Style หลัก */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .order-container {
+            width: 90%;
+            margin: 2rem auto;
+        }
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 1.5rem;
+            background-color: #f9f9f9;
+        }
+        .order-header {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .order-details {
+            margin-left: 1rem;
+            color: #555;
+        }
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+        .product-item span {
+            font-size: 0.9rem;
+            color: #444;
+        }
+
         header {
             position: fixed;
             top: 0;
@@ -79,11 +114,11 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .dropdown:hover .dropdown-content {
             display: block;
         }
+        
     </style>
 </head>
 
 <body>
-    <!-- ส่วนหัว (Header) -->
     <header>
         <div class="container-header">
             <div class="logo">
@@ -104,49 +139,46 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
                 </ul>
-                <div class="hamburger">
+                 <!-- ปุ่ม Hamburger สำหรับมือถือ -->
+                 <div class="hamburger">
                     <i class="fas fa-bars"></i>
                 </div>
             </nav>
         </div>
-    </header><br>
-
+    </header><br><br>
+    
     <!-- Blur Background -->
     <div class="blur-background"></div>
+    
 
     <!-- ส่วนแสดงประวัติการสั่งซื้อ -->
-    <section class="contact-section">
-        <h1 style="text-align: center;">ประวัติการสั่งซื้อ</h1>
+    <section class="order-container">
+        <h1 style="text-align: center; padding-top: 2vh; margin-bottom: 2vh">ประวัติการสั่งซื้อ</h1>
         <?php
         if (!empty($Orders)) {
             $currentOrder = null;
             foreach ($Orders as $order) {
-                // หากเป็นคำสั่งซื้อใหม่ให้แสดงหัวข้อคำสั่งซื้อ
                 if ($currentOrder != $order['Ord_id']) {
                     if ($currentOrder !== null) {
-                        echo "</table><br>";
+                        echo "</div>"; // ปิดกล่องคำสั่งซื้อก่อนหน้า
                     }
                     $currentOrder = $order['Ord_id'];
-                    echo "<h2>คำสั่งซื้อ #{$order['Ord_id']}</h2>";
+                    echo "<div class='order-card'>";
+                    echo "<div class='order-header'>คำสั่งซื้อ #{$order['Ord_id']}</div>";
+                    echo "<div class='order-details'>";
                     echo "<p>วันที่สั่งซื้อ: {$order['Date']}</p>";
                     echo "<p>สถานะการชำระเงิน: {$order['Payment_status']}</p>";
-                    echo "<table border='1'>
-                            <tr>
-                                <th>สินค้า</th>
-                                <th>จำนวน</th>
-                                <th>ราคา</th>
-                            </tr>";
+                    echo "</div>";
                 }
-                // แสดงรายละเอียดสินค้าในคำสั่งซื้อนี้
-                echo "<tr>
-                        <td>{$order['P_name']}</td>
-                        <td>{$order['Amount']}</td>
-                        <td>฿" . number_format($order['Price'], 2) . "</td>
-                      </tr>";
+                echo "<div class='product-item'>";
+                echo "<span>สินค้า: {$order['P_name']}</span>";
+                echo "<span>จำนวน: {$order['Amount']}</span>";
+                echo "<span>ราคา: ฿" . number_format($order['Price'], 2) . "</span>";
+                echo "</div>";
             }
-            echo "</table>";
+            echo "</div>"; // ปิดกล่องคำสั่งซื้อสุดท้าย
         } else {
-            echo "<p>ไม่มีประวัติการสั่งซื้อ</p>";
+            echo "<p style='text-align: center;'>ไม่มีประวัติการสั่งซื้อ</p>";
         }
         ?>
     </section>
@@ -169,6 +201,12 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </footer>
 
     <script>
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "./logout.php";
+            }
+        }
+
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
         const blurBackground = document.querySelector('.blur-background');
@@ -182,13 +220,10 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             navLinks.classList.remove('active');
             blurBackground.classList.remove('active');
         });
-
-        function confirmLogout() {
-            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                window.location.href = "./logout.php";
-            }
-        }
     </script>
 </body>
-
 </html>
+
+
+
+

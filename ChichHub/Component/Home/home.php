@@ -23,7 +23,7 @@ $stmt->execute([$username]);
 $user = $stmt->fetch();
 
 // แสดงชื่อผู้ใช้
-echo "สวัสดี, $username";
+// echo "สวัสดี, $username";
 
 
 ?>
@@ -37,7 +37,6 @@ echo "สวัสดี, $username";
     <title>Chic-hub - ร้านขายเสื้อผ้าออนไลน์</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../styles/styles.css">
-    <script src="script.js"></script>
     <style>
         header {
             position: fixed;
@@ -77,6 +76,45 @@ echo "สวัสดี, $username";
 
         .dropdown:hover .dropdown-content {
             display: block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .info {
+            padding: 10px 20px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .info:hover {
+            background: #e65b50;
         }
     </style>
 </head>
@@ -166,11 +204,11 @@ echo "สวัสดี, $username";
                         <h3>
                             <?php echo htmlspecialchars($product['P_Name']); ?>
                         </h3>
-                        <p>฿
-                            <?php echo number_format($product['Price'], 2); ?>
-                        </p>
+                        <p>฿<?php echo number_format($product['Price'], 2); ?></p>
+                        <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>"
+                            class="info">ดูรายละเอียด</a>
                         <a href="#" class="btn add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
-                            data-price="<?php echo number_format($product['Price'], 2); ?>"
+                            data-price="<?php echo $product['Price']; ?>"
                             data-img="<?php echo $product['IMG_path']; ?>"
                             data-id="<?php echo $product['P_ID']; ?>">เพิ่มในรถเข็น</a>
                     </div>
@@ -193,7 +231,7 @@ echo "สวัสดี, $username";
                     <a href="../Category/Pants.php">กางเกง</a>
                 </div>
                 <div class="category-item">
-                    <img class="jacket" src="../cat_img/promo.jpeg" alt="">
+                    <img class="jacket" src="../cat_img/promo2.png" alt="">
                     <a href="../Category/Promotion.php">Promotion</a>
                 </div>
             </div>
@@ -246,12 +284,6 @@ echo "สวัสดี, $username";
             });
         });
 
-        function confirmLogout() {
-            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                window.location.href = "./logout.php";
-            }
-        }
-
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
         const blurBackground = document.querySelector('.blur-background');
@@ -265,6 +297,12 @@ echo "สวัสดี, $username";
             navLinks.classList.remove('active');
             blurBackground.classList.remove('active');
         });
+
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "../Home/logout.php";
+            }
+        }
     </script>
 </body>
 

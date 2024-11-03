@@ -1,3 +1,46 @@
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+session_start();
+include 'connect.php'; // เชื่อมต่อฐานข้อมูล
+
+// ตรวจสอบว่าผู้ใช้ล็อกอินหรือไม่
+if (!isset($_SESSION['Username'])) {
+    header('Location: signin.php');
+    exit();
+}
+
+$username = $_SESSION['Username'];
+
+// รับค่า Ord_id จาก URL
+$ord_id = isset($_GET['Ord_id']) ? $_GET['Ord_id'] : null;
+
+if ($ord_id) {
+    // ดึงข้อมูล order ของผู้ใช้ปัจจุบันที่มี Ord_id ตรงกัน
+    $stmt = $pdo->prepare("
+        SELECT Orders.Ord_id, Orders.Date, Ord_detail.Payment_status, Product.P_name, Ord_detail.Amount, Product.Price, Member_detail.Address 
+        FROM `Orders`
+        INNER JOIN `Ord_detail` ON Orders.Ord_id = Ord_detail.Ord_id
+        INNER JOIN `Product` ON Ord_detail.P_ID = Product.P_ID
+        INNER JOIN `Member` ON Orders.ID = Member.ID
+        INNER JOIN `Member_detail` ON Member.MD_ID = Member_detail.MD_ID
+        WHERE Orders.Ord_id = ?
+    ");
+    $stmt->execute([$ord_id]);
+    $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (empty($Orders)) {
+        echo "ไม่พบข้อมูลคำสั่งซื้อ";
+        exit();
+    }
+} else {
+    // ถ้าไม่มี Ord_id ให้เปลี่ยนเส้นทางกลับไปยังหน้าหลัก
+    header('Location: ../Home/home.php');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="th">
 
@@ -9,6 +52,45 @@
     <link rel="stylesheet" href="../styles/styles.css">
     <script src="script.js"></script>
     <style>
+        /* Style หลัก */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .order-container {
+            width: 90%;
+            margin: 4rem auto;
+            
+        }
+        .order-card:hover{
+            transform: scale(1.05);
+        }
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 1.5rem;
+            background-color: #f9f9f9;
+        }
+        .order-header {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .order-details {
+            margin-left: 1rem;
+            color: #555;
+        }
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+        .product-item span {
+            font-size: 0.9rem;
+            color: #444;
+        }
+
         header {
             position: fixed;
             top: 0;
@@ -19,12 +101,16 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             z-index: 999;
         }
-
+        .contact-section {
+            margin-top: 5%;
+        }
+        .name1 {
+            text-align: center;
+        }
         .dropdown {
             position: relative;
             display: inline-block;
         }
-
         .dropdown-content {
             display: none;
             position: absolute;
@@ -33,45 +119,24 @@
             box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
             z-index: 1;
         }
-
         .dropdown-content a {
             color: black;
             padding: 12px 16px;
             text-decoration: none;
             display: block;
         }
-
         .dropdown-content a:hover {
             background-color: #f1f1f1;
         }
-
         .dropdown:hover .dropdown-content {
             display: block;
         }
-        .container{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 30vh;
-
-        }
+        
     </style>
 </head>
 
 <body>
-    <?php
-    include 'connect.php'; // เชื่อมต่อฐานข้อมูล
     
-    // ดึงข้อมูลสินค้ายอดนิยมและรูปภาพจากฐานข้อมูล
-    $stmt = $pdo->prepare("SELECT Product.P_Name, Product.Price, Images.IMG_path 
-                                  FROM Product 
-                                  INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
-                                  WHERE Product.P_Name LIKE 'Pant%' 
-                                  OR Product.P_Name LIKE 'Shirt%';
-    ");
-    $stmt->execute();
-    $products = $stmt->fetchAll();
-    ?>
 
     <!-- ส่วนหัว (Header) -->
     <header>
@@ -111,15 +176,28 @@
     <!-- Blur Background -->
     <div class="blur-background"></div>
 
-
-    <section class="featured-products">
-        <div class="container">
-            <h2>ขอบคุณสำหรับการสั่งซื้อ</h2>
-            <div>คำสั่งซื้อของคุณได้รับการชำระเรียบร้อยแล้ว</div>
-            <a href="../Home/home.php">กลับไปยังหน้าหลัก</a>
+    <!-- ส่วนแสดงประวัติการสั่งซื้อ -->
+    <section class="order-container">
+        <h1 style="text-align: center; padding-top: 5vh;">ขอบคุณสำหรับการสั่งซื้อ</h1>
+        <p style="text-align: center; padding-top: 3vh; padding-bottom: 5vh;">คำสั่งซื้อของคุณได้รับการชำระเรียบร้อยแล้ว!</p>
+        <div class="order-card">
+            <div class="order-header">คำสั่งซื้อ #<?php echo htmlspecialchars($ord_id); ?></div>
+            <div class="order-details">
+                <p>วันที่สั่งซื้อ: <?php echo htmlspecialchars($Orders[0]['Date']); ?></p>
+                <p>สถานที่จัดส่ง: <?php echo htmlspecialchars($Orders[0]['Address']); ?></p>
+                <p>สถานะการชำระเงิน: <?php echo htmlspecialchars($Orders[0]['Payment_status']); ?></p>
+            </div>
+            <h3>รายละเอียดสินค้า</h3>
+            <?php foreach ($Orders as $order): ?>
+                <div class="product-item">
+                    <span>สินค้า: <?php echo htmlspecialchars($order['P_name']); ?></span>
+                    <span>จำนวน: <?php echo $order['Amount']; ?></span>
+                    <span>ราคา: ฿<?php echo number_format($order['Price'], 2); ?></span>
+                </div>
+            <?php endforeach; ?>
         </div>
+        <a href="../Home/home.php" class="btn" style="display: block; text-align: center; margin-top: 20px;">กลับไปยังหน้าหลัก</a>
     </section>
-
 
     <footer>
         <div class="container">
@@ -127,14 +205,14 @@
                 <a href="#">เกี่ยวกับเรา</a>
                 <a href="#">นโยบายความเป็นส่วนตัว</a>
                 <a href="#">เงื่อนไขการใช้งาน</a>
-                <a href="Contact-us/contact-us.html">ติดต่อเรา</a>
+                <a href="#">ติดต่อเรา</a>
             </div>
             <div class="social-media">
                 <a href="#"><i class="fab fa-facebook-f"></i></a>
                 <a href="#"><i class="fab fa-instagram"></i></a>
                 <a href="#"><i class="fab fa-twitter"></i></a>
             </div>
-            <p>&copy; 2024 Chic-hub. สงวนลิขสิทธิ์.</p>
+            <p>&copy; 2024 ChicHub. สงวนลิขสิทธิ์.</p>
         </div>
     </footer>
 

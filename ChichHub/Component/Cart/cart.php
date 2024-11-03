@@ -18,7 +18,7 @@ if (!isset($_SESSION["Username"])) {
 
 // แสดงชื่อผู้ใช้
 $username = htmlspecialchars($_SESSION["Username"]);
-echo "สวัสดี, $username";
+// echo "สวัสดี, $username";
 ?>
 
 <!DOCTYPE html>
@@ -86,12 +86,15 @@ echo "สวัสดี, $username";
                     <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
+                            <?php echo $username; ?>
+                        </a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
                             <!-- ประวัติการสั่งซื้อ -->
                             <a href="../Order/order_history.php">ประวัติการสั่งซื้อ</a>
-                            <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
+                            <?php if ($user['Role'] == 1): ?>
+                                <!-- เฉพาะ Admin ที่มี Role = 1 -->
                                 <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
                             <?php endif; ?>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
@@ -111,7 +114,7 @@ echo "สวัสดี, $username";
 
     <section class="cart-section">
         <div class="container">
-            <h2>ตะกร้าสินค้าของคุณ</h2>
+            <h2 style="padding-top: 7rem; text-align:center">ตะกร้าสินค้าของคุณ</h2>
             <div class="cart-items" id="cart-items"></div>
 
             <div class="cart-summary">
@@ -166,7 +169,8 @@ echo "สวัสดี, $username";
             `;
             cartItemsContainer.appendChild(itemElement);
 
-            totalPrice += item.price * item.quantity;
+            totalPrice += parseFloat(item.price) * item.quantity;
+
         });
 
         totalPriceElement.textContent = `฿${totalPrice.toFixed(2)}`;
@@ -187,12 +191,15 @@ echo "สวัสดี, $username";
                 localStorage.setItem('cartItems', JSON.stringify(cartItems));
 
                 // คำนวณราคารวมใหม่
-                totalPrice = 0;
+                let totalPrice = 0;
+
                 cartItems.forEach(item => {
-                    totalPrice += item.price * item.quantity;
+                const itemPrice = parseFloat(item.price); // แปลง price ให้เป็นตัวเลข
+                totalPrice += itemPrice * item.quantity;
                 });
+
                 totalPriceElement.textContent = `฿${totalPrice.toFixed(2)}`;
-            });
+                });
         });
 
         // การลบสินค้า
@@ -207,42 +214,45 @@ echo "สวัสดี, $username";
         });
 
         // ฟังก์ชันสำหรับชำระเงิน
-       checkoutButton.addEventListener('click', () => {
-    if (cartItems.length === 0) {
-        alert("ตะกร้าของคุณว่างเปล่า");
-        return;
-    }
+        checkoutButton.addEventListener('click', () => {
+            if (cartItems.length === 0) {
+                alert("ตะกร้าของคุณว่างเปล่า");
+                return;
+            }
 
-    // ตรวจสอบความถูกต้องของข้อมูลก่อนส่ง
-    const validCartItems = cartItems.every(item => item.id && item.quantity);
+            // ตรวจสอบความถูกต้องของข้อมูลก่อนส่ง
+            const validCartItems = cartItems.every(item => item.id && item.quantity);
 
-    if (!validCartItems) {
-        alert("ข้อมูลสินค้าบางอย่างไม่ครบถ้วนในตะกร้า กรุณาลองใหม่อีกครั้ง");
-        return;
-    }
+            if (!validCartItems) {
+                alert("ข้อมูลสินค้าบางอย่างไม่ครบถ้วนในตะกร้า กรุณาลองใหม่อีกครั้ง");
+                return;
+            }
 
-    // ส่งข้อมูลตะกร้าสินค้าไปยังเซิร์ฟเวอร์เพื่อสร้างคำสั่งซื้อ
-    fetch('process-checkout.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(cartItems),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // เปลี่ยนเส้นทางไปยังหน้า pay.php พร้อม order_id
-            window.location.href = `../Pay/pay.php?Ord_id=${data.Ord_id}`;
-        } else {
-            alert(`เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ: ${data.message}`);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('เกิดข้อผิดพลาด');
-    });
-});
+            // ส่งข้อมูลตะกร้าสินค้าไปยังเซิร์ฟเวอร์เพื่อสร้างคำสั่งซื้อ
+            fetch('process-checkout.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cartItems),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // ล้างข้อมูลตะกร้าสินค้าใน Local Storage
+                        localStorage.removeItem('cartItems');
+
+                        // เปลี่ยนเส้นทางไปยังหน้า pay.php พร้อม order_id
+                        window.location.href = `../Pay/pay.php?Ord_id=${data.Ord_id}`;
+                    } else {
+                        alert(`เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('เกิดข้อผิดพลาด');
+                });
+        });
 
     </script>
 

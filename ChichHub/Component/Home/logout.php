@@ -8,7 +8,10 @@ session_unset();
 // ทำลาย session
 session_destroy();
 
-// เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบหรือหน้าหลัก
+// ลบ cookies โดยการตั้งค่า expire เป็นเวลาในอดีต
+setcookie("Username", "", time() - 3600, "/");
+
+// เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
 header("Location: ../Sign-In/signin.php");
 exit();
 ?>

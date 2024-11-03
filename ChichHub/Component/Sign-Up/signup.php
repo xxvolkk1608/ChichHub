@@ -207,14 +207,14 @@
     <script src="script.js"></script>
     <script>
         // แสดงและซ่อนรหัสผ่าน
-        document.querySelector("#togglePassword").addEventListener("click", function () {
+        document.querySelector("#togglePassword").addEventListener("click", function() {
             const password = document.querySelector("#password");
             const type = password.getAttribute("type") === "password" ? "text" : "password";
             password.setAttribute("type", type);
             this.textContent = type === "password" ? "แสดงรหัสผ่าน" : "ซ่อนรหัสผ่าน";
         });
 
-        document.querySelector("#toggleConfirmPassword").addEventListener("click", function () {
+        document.querySelector("#toggleConfirmPassword").addEventListener("click", function() {
             const confirmPassword = document.querySelector("#confirm-password");
             const type = confirmPassword.getAttribute("type") === "password" ? "text" : "password";
             confirmPassword.setAttribute("type", type);
@@ -243,7 +243,11 @@
     </script>
     <script>
         // ตรวจสอบ Username ทุกครั้งที่มีการพิมพ์
+<<<<<<< HEAD
+        document.getElementById('username').addEventListener('input', function() {
+=======
         document.getElementById('username').addEventListener('input', function () {
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
             let username = this.value; // รับค่าจาก input
 
             if (username === '') {
@@ -257,7 +261,11 @@
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
             // ตรวจสอบการทำงานและแสดงผลลัพธ์ในฟิลด์
+<<<<<<< HEAD
+            xhr.onload = function() {
+=======
             xhr.onload = function () {
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
                 if (xhr.status === 200) {
                     let response = xhr.responseText;
                     let usernameFeedback = document.getElementById('username-feedback');
@@ -274,7 +282,7 @@
             };
 
             // ตรวจสอบข้อผิดพลาด
-            xhr.onerror = function () {
+            xhr.onerror = function() {
                 console.error('Request failed');
             };
 

@@ -35,10 +35,6 @@ $username = htmlspecialchars($_SESSION["Username"]);
 
 ?>
 
-
-
-
-
 <!DOCTYPE html>
 <html lang="th">
 
@@ -49,7 +45,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../styles/styles.css">
     <style>
-        header {
+       header {
             position: fixed;
             top: 0;
             left: 0;
@@ -60,6 +56,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
             z-index: 999;
         }
 
+        /* Dropdown Styles */
         .dropdown {
             position: relative;
             display: inline-block;
@@ -81,54 +78,55 @@ $username = htmlspecialchars($_SESSION["Username"]);
             display: block;
         }
 
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
-
         .dropdown:hover .dropdown-content {
             display: block;
         }
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-
+        /* สไตล์การชำระเงิน */
         .payment-container {
             max-width: 600px;
-            margin: 10% 30%;
-            padding: 20px;
-            bOrd_detail: 1px solid #ddd;
-            bOrd_detail-radius: 8px;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #ff5722;
+        }
+
+        .payment-method, .extra-fields {
+            margin-top: 20px;
+        }
+
+        select[name="payment_method"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
             background-color: #f9f9f9;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: #333;
+            width: 100%;
         }
 
-        h2 {
-            text-align: center;
-        }
-
-        .payment-method {
-            margin: 20px 0;
-        }
-
-        .payment-method label {
-            margin-right: 15px;
-        }
-
-        .payment-method input {
-            margin-right: 10px;
+        .extra-fields input {
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
         }
 
         .pay-button {
-            width: 100%;
-            padding: 10px;
+            margin-top: 20px;
+            padding: 12px;
             background-color: #ff5722;
-            bOrd_detail: none;
             color: white;
             font-size: 18px;
             cursor: pointer;
-            bOrd_detail-radius: 5px;
+            border-radius: 5px;
+            border: none;
             text-align: center;
+            transition: background-color 0.3s;
+            width: 100%;
         }
 
         .pay-button:hover {
@@ -173,19 +171,80 @@ $username = htmlspecialchars($_SESSION["Username"]);
 
     <div class="payment-container">
         <h2>เลือกวิธีการชำระเงิน</h2>
-
-        <form method="POST" action="process_payment.php">
+        <form method="POST" action="process_payment.php" id="payment-form">
             <input type="hidden" name="Ord_id" value="<?php echo $Ord_id; ?>">
-            <label for="payment_method">เลือกวิธีการชำระเงิน:</label>
-            <select name="payment_method">
-                <option value="cash">เงินสด</option>
-                <option value="credit_card">บัตรเครดิต</option>
-                <option value="mobile_banking">Mobile Banking</option>
-            </select>
-            <button type="submit">ยืนยันการชำระเงิน</button>
-        </form>
 
+            <div class="payment-method">
+                <label for="payment_method">เลือกวิธีการชำระเงิน:</label>
+                <select name="payment_method" id="payment_method">
+                    <option value="">-- เลือกวิธีการชำระเงิน --</option>
+                    <option value="cash">เงินสด</option>
+                    <option value="credit_card">บัตรเครดิต</option>
+                    <option value="mobile_banking">Mobile Banking</option>
+                </select>
+            </div>
+
+            <!-- ช่องข้อมูลเพิ่มเติม -->
+            <div class="extra-fields" id="extra-fields" style="display: none;">
+                <input type="text" name="credit_card_number" id="credit_card_number" placeholder="หมายเลขบัตรเครดิต" maxlength="19" style="display: none;">
+                <input type="text" name="expiry_date" id="expiry_date" placeholder="MM/YY" maxlength="5" style="display: none;">
+                <input type="text" name="cvv" id="cvv" placeholder="CVV" maxlength="3" style="display: none;">
+                <input type="text" name="mobile_banking_number" id="mobile_banking_number" placeholder="เบอร์โทร Mobile Banking" maxlength="10" style="display: none;">
+            </div>
+
+            <button type="submit" class="pay-button">ยืนยันการชำระเงิน</button>
+        </form>
     </div>
+
+    <script>
+        const paymentMethodSelect = document.getElementById("payment_method");
+        const extraFieldsContainer = document.getElementById("extra-fields");
+        const creditCardInput = document.getElementById("credit_card_number");
+        const expiryDateInput = document.getElementById("expiry_date");
+        const cvvInput = document.getElementById("cvv");
+        const mobileBankingInput = document.getElementById("mobile_banking_number");
+
+        paymentMethodSelect.addEventListener("change", function () {
+            // ซ่อนช่องข้อมูลเสริมทั้งหมดก่อน
+            creditCardInput.style.display = "none";
+            expiryDateInput.style.display = "none";
+            cvvInput.style.display = "none";
+            mobileBankingInput.style.display = "none";
+            extraFieldsContainer.style.display = "none";
+
+            // แสดงช่องข้อมูลตามวิธีการชำระเงินที่เลือก
+            if (this.value === "credit_card") {
+                creditCardInput.style.display = "block";
+                expiryDateInput.style.display = "inline-block";
+                cvvInput.style.display = "inline-block";
+                extraFieldsContainer.style.display = "block";
+            } else if (this.value === "mobile_banking") {
+                mobileBankingInput.style.display = "block";
+                extraFieldsContainer.style.display = "block";
+            }
+        });
+
+        // จัดรูปแบบหมายเลขบัตรเครดิตให้เป็นกลุ่มละ 4 หลัก
+        creditCardInput.addEventListener("input", function () {
+            let cardNumber = creditCardInput.value.replace(/\D/g, ''); // เอาตัวอักษรที่ไม่ใช่ตัวเลขออก
+            if (cardNumber.length > 16) {
+                cardNumber = cardNumber.slice(0, 16); // จำกัดไม่เกิน 16 หลัก
+            }
+            creditCardInput.value = cardNumber.replace(/(\d{4})(?=\d)/g, '$1 '); // แบ่งเป็นกลุ่มละ 4 หลัก
+        });
+
+        // จัดรูปแบบวันหมดอายุให้เป็น MM/YY
+        expiryDateInput.addEventListener("input", function () {
+            let dateValue = expiryDateInput.value.replace(/\D/g, ''); // เอาตัวอักษรที่ไม่ใช่ตัวเลขออก
+            if (dateValue.length > 4) {
+                dateValue = dateValue.slice(0, 4); // จำกัดไม่เกิน 4 หลัก
+            }
+            if (dateValue.length > 2) {
+                dateValue = dateValue.slice(0, 2) + '/' + dateValue.slice(2);
+            }
+            expiryDateInput.value = dateValue;
+        });
+    </script>
 
     <footer>
         <div class="container">
@@ -205,48 +264,64 @@ $username = htmlspecialchars($_SESSION["Username"]);
     </footer>
 
     <script>
-        const paymentForm = document.getElementById('payment-form');
+    const paymentForm = document.getElementById('payment-form');
+    const paymentMethodSelect = document.getElementById("payment_method");
+    
+    paymentForm.addEventListener('submit', function (e) {
+        e.preventDefault(); // ป้องกันการรีเฟรชหน้า
 
-        // ฟังก์ชันจัดการการส่งฟอร์ม
-        paymentForm.addEventListener('submit', function (e) {
-            e.preventDefault();
+        // รับค่าการเลือกวิธีการชำระเงิน
+        const paymentMethod = paymentMethodSelect.value;
 
-            // รับค่าการเลือกวิธีการชำระเงิน
-            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+        if (paymentMethod === "credit_card") {
+            const creditCardNumber = document.getElementById("credit_card_number").value;
+            const expiryDate = document.getElementById("expiry_date").value;
+            const cvv = document.getElementById("cvv").value;
+            
+            // ตรวจสอบว่ากรอกข้อมูลครบ
+            if (!creditCardNumber || !expiryDate || !cvv) {
+                alert("กรุณากรอกข้อมูลบัตรเครดิตให้ครบ");
+                return;
+            }
+        } else if (paymentMethod === "mobile_banking") {
+            const mobileBankingNumber = document.getElementById("mobile_banking_number").value;
+            if (!mobileBankingNumber) {
+                alert("กรุณากรอกหมายเลขโทรศัพท์ Mobile Banking");
+                return;
+            }
+        }
 
-            // ส่งข้อมูลไปยัง process_payment.php
-            checkoutButton.addEventListener('click', () => {
-                if (cartItems.length === 0) {
-                    alert("ตะกร้าของคุณว่างเปล่า");
-                    return;
-                }
-
-                // ส่งข้อมูลตะกร้าสินค้าไปยังเซิร์ฟเวอร์เพื่อประมวลผลชำระเงิน
-                fetch('process_payment.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ method: document.querySelector('input[name="payment-method"]:checked').value }), // ส่งข้อมูลวิธีการชำระเงิน
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('การชำระเงินสำเร็จ');
-                            localStorage.removeItem('cartItems'); // ล้างตะกร้าหลังจากการชำระเงินสำเร็จเท่านั้น
-                            window.location.href = 'thankyou.php'; // ไปยังหน้าขอบคุณ
-                        } else {
-                            alert('เกิดข้อผิดพลาดในการชำระเงิน');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('เกิดข้อผิดพลาด');
-                    });
-            });
+        // ส่งข้อมูลไปยัง process_payment.php
+        fetch('process_payment.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                Ord_id: "<?php echo $Ord_id; ?>",
+                payment_method: paymentMethod,
+                credit_card_number: document.getElementById("credit_card_number").value,
+                expiry_date: document.getElementById("expiry_date").value,
+                cvv: document.getElementById("cvv").value,
+                mobile_banking_number: document.getElementById("mobile_banking_number").value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('การชำระเงินสำเร็จ');
+                localStorage.removeItem('cartItems'); // ล้างตะกร้าหลังจากการชำระเงินสำเร็จเท่านั้น
+                window.location.href = 'thankyou.php'; // ไปยังหน้าขอบคุณ
+            } else {
+                alert('เกิดข้อผิดพลาดในการชำระเงิน');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('เกิดข้อผิดพลาด');
         });
-
-    </script>
+    });
+</script>
 
 </body>
 

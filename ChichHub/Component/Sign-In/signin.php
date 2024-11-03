@@ -104,7 +104,11 @@
     </footer>
 
     <script>
+<<<<<<< HEAD
+        document.querySelector("#togglePassword").addEventListener("click", function() {
+=======
         document.querySelector("#togglePassword").addEventListener("click", function () {
+>>>>>>> 562cd5e6502bbb3721f66c79b1f316cdea1ae35c
             const password = document.querySelector("#password");
             const type = password.getAttribute("type") === "password" ? "text" : "password";
             password.setAttribute("type", type);

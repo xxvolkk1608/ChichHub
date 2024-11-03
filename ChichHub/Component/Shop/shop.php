@@ -156,6 +156,7 @@ if ($stmt->execute($params)) {
       width: 75%;
       padding: 20px;
       translate: 30% -30rem;
+      margin-bottom: -30rem;
     }
 
     .filter {
@@ -175,11 +176,42 @@ if ($stmt->execute($params)) {
       cursor: pointer;
     }
 
+    .add-to-cart {
+      padding: 10px 20px;
+      background-color: #ff6f61;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.3s ease;
+    }
+
+    .add-to-cart:hover {
+      background: #e65b50;
+    }
+
+    .info {
+      padding: 10px 20px;
+      background-color: #ff6f61;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.3s ease;
+    }
+
+    .info:hover {
+      background: #e65b50;
+    }
   </style>
 </head>
 
 <body>
-<?php
+  <?php
   // รีเซตการกรองสินค้าเมื่อผู้ใช้เข้ามาหน้าร้านค้าใหม่
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     unset($_SESSION['category_filter']);
@@ -189,46 +221,46 @@ if ($stmt->execute($params)) {
   ?>
   <!-- ส่วนหัว (Header) -->
   <header>
-        <div class="container-header">
-            <div class="logo">
-                <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
+    <div class="container-header">
+      <div class="logo">
+        <h1 class="chic-hub"><a href="../Home/home.php">ChicHub</a></h1>
+      </div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="../Home/home.php">หน้าหลัก</a></li>
+          <li><a href="../Shop/shop.php">ร้านค้า</a></li>
+          <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
+          <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
+          <li class="dropdown">
+            <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+            <div class="dropdown-content">
+              <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
+              <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
             </div>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="../Home/home.php">หน้าหลัก</a></li>
-                    <li><a href="../Shop/shop.php">ร้านค้า</a></li>
-                    <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
-                    <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
-                    <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
-                        <div class="dropdown-content">
-                            <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-                            <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
-                        </div>
-                    </li>
-                    <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
-                </ul>
-                <!-- ปุ่ม Hamburger สำหรับมือถือ -->
-                <div class="hamburger">
-                    <i class="fas fa-bars"></i>
-                </div>
-            </nav>
+          </li>
+          <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
+        </ul>
+        <!-- ปุ่ม Hamburger สำหรับมือถือ -->
+        <div class="hamburger">
+          <i class="fas fa-bars"></i>
         </div>
-    </header>
+      </nav>
+    </div>
+  </header>
 
   <!-- Blur Background -->
   <div class="blur-background"></div>
 
   <div class="shop-container">
-
     <!-- ฟอร์มกรองสินค้า -->
     <aside class="filter-sidebar">
       <h3>กรองสินค้า</h3>
       <form action="shop.php" method="POST">
-      <br><br><h3>ค้นหาสินค้า</h3>
+        <br><br>
+        <h3>ค้นหาสินค้า</h3>
         <div class="search-section">
-            <input type="text" name="search_query" placeholder="ค้นหาชื่อสินค้า...">
-          </div>
+          <input type="text" name="search_query" placeholder="ค้นหาชื่อสินค้า...">
+        </div>
         <div class="filter-category">
           <label for="category">หมวดหมู่</label>
           <select name="category" id="category">
@@ -264,16 +296,16 @@ if ($stmt->execute($params)) {
             <h4>
               <?php echo htmlspecialchars($product['P_Name']); ?>
             </h4>
-            <p>฿
+            <p style="color:#ff6f61; margin-bottom: 2vh;">฿
               <?php echo number_format($product['Price'], 2); ?>
             </p>
             <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>" class="info">ดูรายละเอียด</a>
-            <a href="#" class="btn add-to-cart" 
-                           data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" 
-                           data-price="<?php echo number_format($product['Price'], 2); ?>"
-                           data-img="<?php echo $product['IMG_path']; ?>"
-                            data-id="<?php echo $product['P_ID']; ?>">
-                           เพิ่มในรถเข็น</a>
+            <a href="#" class="add-to-cart"
+              data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
+              data-price="<?php echo $product['Price']; ?>"
+              data-img="<?php echo $product['IMG_path']; ?>"
+              data-id="<?php echo $product['P_ID']; ?>">
+              เพิ่มในรถเข็น</a>
           </div>
         <?php endforeach; ?>
       <?php else: ?>
@@ -322,32 +354,32 @@ if ($stmt->execute($params)) {
 
     // เพิ่มสินค้าลงในรถเข็น
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
-        addToCartButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const productId = button.getAttribute('data-id'); // ดึงค่า id จาก attribute
-                const productName = button.getAttribute('data-name');
-                const productPrice = button.getAttribute('data-price');
-                const productImage = button.getAttribute('data-img'); // ดึงค่า img จาก attribute
+    addToCartButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const productId = button.getAttribute('data-id'); // ดึงค่า id จาก attribute
+        const productName = button.getAttribute('data-name');
+        const productPrice = button.getAttribute('data-price');
+        const productImage = button.getAttribute('data-img'); // ดึงค่า img จาก attribute
 
-                const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 
-                const existingItem = cartItems.find(item => item.name === productName);
-                if (existingItem) {
-                    existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
-                } else {
-                    cartItems.push({
-                        id: productId,        // บันทึก id
-                        name: productName,
-                        price: productPrice,
-                        img: productImage,    // บันทึก img
-                        quantity: 1
-                    });
-                }
+        const existingItem = cartItems.find(item => item.name === productName);
+        if (existingItem) {
+          existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
+        } else {
+          cartItems.push({
+            id: productId, // บันทึก id
+            name: productName,
+            price: productPrice,
+            img: productImage, // บันทึก img
+            quantity: 1
+          });
+        }
 
-                localStorage.setItem('cartItems', JSON.stringify(cartItems));
-                alert(`${productName} ถูกเพิ่มในรถเข็น`);
-            });
-        });
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        alert(`${productName} ถูกเพิ่มในรถเข็น`);
+      });
+    });
   </script>
 </body>
 

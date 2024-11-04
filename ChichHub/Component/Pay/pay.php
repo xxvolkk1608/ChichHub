@@ -329,7 +329,7 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
 
     <script>
     const paymentForm = document.getElementById('payment-form');
-    const paymentMethodSelect = document.getElementById("payment_method");
+    paymentMethodSelect = document.getElementById("payment_method");
     
     paymentForm.addEventListener('submit', function (e) {
         e.preventDefault(); // ป้องกันการรีเฟรชหน้า

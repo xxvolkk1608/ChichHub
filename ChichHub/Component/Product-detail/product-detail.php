@@ -203,11 +203,7 @@ if (!$product) {
                         <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-                            <!-- ประวัติการสั่งซื้อ -->
-                            <a href="../Order/order_history.php">ประวัติการสั่งซื้อ</a>
-                            <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
-                                <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
-                            <?php endif; ?>
+                            
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>
                     </li>

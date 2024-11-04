@@ -106,132 +106,128 @@ if ($stmt->execute($params)) {
     <link rel="stylesheet" href="../styles/styles.css">
     <style>
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            z-index: 999;
-        }
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+    }
 
-        /* Dropdown Menu */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
+    /* Dropdown Menu */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
 
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-        }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
 
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
+    .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
 
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
 
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
 
-        /* สินค้าทั้งหมด */
-        .product-list {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            width: 75%;
-            padding: 20px;
-            translate: 30% -30rem;
-            margin-bottom: -30rem;
-        }
+    /* สินค้าทั้งหมด */
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      width: 75%;
+      padding: 20px;
+      translate: 30% -30rem;
+      margin-bottom: -30rem;
+    }
 
-        .filter {
-            padding: 10px 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    .filter {
+      padding: 10px 20px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
-        .search-section button {
-            padding: 15px 10px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+    .search-section button {
+      padding: 15px 10px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
 
-        .add-to-cart {
-            padding: 10px 20px;
-            background-color: #ff6f61;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.3s ease;
-        }
+    .add-to-cart {
+      padding: 10px 20px;
+      background-color: #ff6f61;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.3s ease;
+    }
 
-        .add-to-cart:hover {
-            background: #e65b50;
-        }
+    .add-to-cart:hover {
+      background: #e65b50;
+    }
 
-        .info {
-            padding: 10px 20px;
-            background-color: #ff6f61;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.3s ease;
-        }
+    .info {
+      padding: 10px 20px;
+      background-color: #ff6f61;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.3s ease;
+    }
 
-        .info:hover {
-            background: #e65b50;
-        }
+    .info:hover {
+      background: #e65b50;
+    }
 
-        .shop-container {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin-top: 10rem;
-        }
-        @media (max-width: 600px) {
-            .product-list {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 2rem;
-                width: 5%;
-                padding: 20px;
-                translate: 0% -32rem;
-                margin-bottom: -30rem;
-                margin-top: 40rem;
-            }
-            
-            .filter-sidebar {
-                width: 100%;
-                padding: 30px;
-                border-right: 0px solid #c5c5c5;
-            }
-            
-        }
-    </style>
+    @media (max-width: 600px) {
+      .product-list {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 2rem;
+        width: 100%;
+        padding: 20px;
+        translate: 0% -32rem;
+        margin-bottom: -30rem;
+        margin-top: 40rem;
+      }
+
+      .filter-sidebar {
+        width: 100%;
+        padding: 30px;
+        margin-top: 4rem;
+        border-right: 0px solid #c5c5c5;
+      }
+    }
+
+  
+  </style>
 </head>
 
 <body>

@@ -13,6 +13,17 @@ if (!isset($_SESSION["Username"])) {
   exit();
 }
 
+// ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
+if (!isset($_COOKIE['user_login'])) {
+  // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
+  session_unset(); // ล้าง session
+  session_destroy(); // ทำลาย session
+  setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
+  
+  // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+  header("Location: ../Sign-In/signin.php");
+  exit();
+}
 $username = htmlspecialchars($_SESSION["Username"]);
 
 // ดึงหมวดหมู่สินค้าจากฐานข้อมูล
@@ -21,7 +32,6 @@ $category_stmt = $pdo->prepare($category_sql);
 $category_stmt->execute();
 $categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ตรวจสอบว่ามีการส่ง POST มาจริงหรือไม่
 // ตรวจสอบว่ามีการส่ง POST มาจริงหรือไม่
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $category = isset($_POST['category']) && $_POST['category'] != 'ทั้งหมด' ? $_POST['category'] : '';
@@ -207,6 +217,26 @@ if ($stmt->execute($params)) {
     .info:hover {
       background: #e65b50;
     }
+    @media (max-width: 600px) {
+            .product-list {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2rem;
+                width: 5%;
+                padding: 20px;
+                translate: 0% -32rem;
+                margin-bottom: -30rem;
+                margin-top: 40rem;
+            }
+            
+            .filter-sidebar {
+                width: 100%;
+                padding: 30px;
+                border-right: 0px solid #c5c5c5;
+            }
+            
+        }
+    
   </style>
 </head>
 

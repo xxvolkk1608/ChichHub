@@ -11,6 +11,17 @@ if (!isset($_SESSION["Username"])) {
     header("Location: ../Sign-In/signin.php");
     exit();
 }
+// ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
+if (!isset($_COOKIE['user_login'])) {
+    // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
+    session_unset(); // ล้าง session
+    session_destroy(); // ทำลาย session
+    setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
+    
+    // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
 
 // รับค่า id ของสินค้า
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -94,34 +105,39 @@ if (!$product) {
             padding: 7rem 0 3rem 0;
             min-height: 78rem;
         }
-        .product-detail {
-            display: flex;
-            margin-top: 100px; /* เพื่อเลื่อนออกจาก header */
-            padding: 20px;
-            min-height: 84vh;
-        }
+        /* สไตล์ส่วนรายละเอียดสินค้า */
+    .product-detail {
+        display: flex;
+        align-items: center;
+        padding: 5rem 0;
+        margin-top: 90px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 
-        .product-image img {
-            max-width: 400px;
-            width: 100%;
-            border: 1px solid #ddd;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-        }
+    .product-image img {
+        max-width: 500px;
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+    }
 
-        .product-info {
-            margin-left: 40px;
-        }
+    .product-info {
+        margin-left: 40px;
+        max-width: 600px;
+    }
 
-        .product-info h2 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-        }
+    .product-info h2 {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: #343a40;
+    }
 
-        .product-info p {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
+    .product-info p {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        color: #666;
+    }
 
         .add-to-cart {
             padding: 10px 20px;
@@ -135,6 +151,39 @@ if (!$product) {
         .add-to-cart:hover {
             background-color: #e65a4f;
         }
+        /* ปรับให้เข้ากับหน้าจอ iPhone */
+    @media (max-width: 768px) {
+    
+        .product-detail {
+            flex-direction: column;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .product-image img {
+            max-width: 300px;
+            margin-top: 10em;
+        }
+
+        .product-info {
+            margin-left: 0;
+            padding-top: 20px;
+        }
+
+        .product-info h2 {
+            font-size: 2rem;
+        }
+
+        .product-info p {
+            font-size: 1rem;
+        }
+
+        .add-to-cart {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2rem;
+        }
+    }
     </style>
 </head>
 <body>

@@ -9,6 +9,18 @@ if (!isset($_SESSION["Username"])) {
     die("กรุณาเข้าสู่ระบบ");
 }
 
+// ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
+if (!isset($_COOKIE['user_login'])) {
+    // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
+    session_unset(); // ล้าง session
+    session_destroy(); // ทำลาย session
+    setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
+    
+    // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
+
 // รับ Ord_detail_id จาก URL
 $Ord_id = $_GET['Ord_id'] ?? null;
 
@@ -32,6 +44,18 @@ if ($Ord_id) {
 
 // แสดงชื่อผู้ใช้
 $username = htmlspecialchars($_SESSION["Username"]);
+
+// ดึงที่อยู่จากตาราง Member_detail
+$stmt = $pdo->prepare("
+    SELECT Member_detail.Address 
+    FROM Member 
+    INNER JOIN Member_detail ON Member.MD_ID = Member_detail.MD_ID 
+    WHERE Member.Username = ?
+");
+$stmt->execute([$username]);
+$member = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$default_address = $member ? $member['Address'] : ''; // หากมีที่อยู่ ให้ใช้เป็นค่าเริ่มต้น
 
 ?>
 
@@ -132,6 +156,38 @@ $username = htmlspecialchars($_SESSION["Username"]);
         .pay-button:hover {
             background-color: #e64a19;
         }
+        /* สไตล์การจัดส่งที่อยู่ */
+        .shipping-address {
+            margin-top: 20px;
+        }
+
+        .shipping-address label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        #shipping_address {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            font-size: 16px;
+            line-height: 1.5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            color: #333;
+            resize: vertical;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #shipping_address:focus {
+            border-color: #ff5722;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            outline: none;
+        }
     </style>
 </head>
 
@@ -169,6 +225,8 @@ $username = htmlspecialchars($_SESSION["Username"]);
         </div>
     </header>
 
+    
+
     <div class="payment-container">
         <h2>เลือกวิธีการชำระเงิน</h2>
         <form method="POST" action="process_payment.php" id="payment-form">
@@ -190,6 +248,12 @@ $username = htmlspecialchars($_SESSION["Username"]);
                 <input type="text" name="expiry_date" id="expiry_date" placeholder="MM/YY" maxlength="5" style="display: none;">
                 <input type="text" name="cvv" id="cvv" placeholder="CVV" maxlength="3" style="display: none;">
                 <input type="text" name="mobile_banking_number" id="mobile_banking_number" placeholder="เบอร์โทร Mobile Banking" maxlength="10" style="display: none;">
+            </div>
+                
+            <!-- ช่องที่อยู่จัดส่งพร้อมค่าเริ่มต้น -->
+            <div class="shipping-address">
+                <label for="shipping_address">ที่อยู่การจัดส่ง:</label>
+                <textarea name="shipping_address" id="shipping_address" required><?php echo htmlspecialchars($default_address); ?></textarea>
             </div>
 
             <button type="submit" class="pay-button">ยืนยันการชำระเงิน</button>

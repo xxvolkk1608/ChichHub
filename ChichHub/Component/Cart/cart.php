@@ -16,6 +16,18 @@ if (!isset($_SESSION["Username"])) {
     exit();
 }
 
+// ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
+if (!isset($_COOKIE['user_login'])) {
+    // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
+    session_unset(); // ล้าง session
+    session_destroy(); // ทำลาย session
+    setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
+    
+    // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
+
 // แสดงชื่อผู้ใช้
 $username = htmlspecialchars($_SESSION["Username"]);
 // echo "สวัสดี, $username";

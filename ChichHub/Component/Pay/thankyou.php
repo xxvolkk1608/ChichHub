@@ -1,8 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
 include 'connect.php'; // เชื่อมต่อฐานข้อมูล
 
@@ -18,14 +14,12 @@ $username = $_SESSION['Username'];
 $ord_id = isset($_GET['Ord_id']) ? $_GET['Ord_id'] : null;
 
 if ($ord_id) {
-    // ดึงข้อมูล order ของผู้ใช้ปัจจุบันที่มี Ord_id ตรงกัน
+    // ดึงข้อมูล order ของผู้ใช้ปัจจุบันที่มี Ord_id ตรงกัน พร้อมที่อยู่จัดส่งและวิธีชำระเงิน
     $stmt = $pdo->prepare("
-        SELECT Orders.Ord_id, Orders.Date, Ord_detail.Payment_status, Product.P_name, Ord_detail.Amount, Product.Price, Member_detail.Address 
+        SELECT Orders.Ord_id, Orders.Date, Orders.shipping_address, Orders.payment_method, Ord_detail.Payment_status, Product.P_name, Ord_detail.Amount, Product.Price 
         FROM `Orders`
         INNER JOIN `Ord_detail` ON Orders.Ord_id = Ord_detail.Ord_id
         INNER JOIN `Product` ON Ord_detail.P_ID = Product.P_ID
-        INNER JOIN `Member` ON Orders.ID = Member.ID
-        INNER JOIN `Member_detail` ON Member.MD_ID = Member_detail.MD_ID
         WHERE Orders.Ord_id = ?
     ");
     $stmt->execute([$ord_id]);
@@ -36,7 +30,6 @@ if ($ord_id) {
         exit();
     }
 } else {
-    // ถ้าไม่มี Ord_id ให้เปลี่ยนเส้นทางกลับไปยังหน้าหลัก
     header('Location: ../Home/home.php');
     exit();
 }
@@ -156,10 +149,6 @@ if ($ord_id) {
                         </a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
-                            <?php if ($user['Role'] == 1): ?>
-                                <!-- เฉพาะ Admin ที่มี Role = 1 -->
-                                <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
-                            <?php endif; ?>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>
                     </li>
@@ -184,7 +173,8 @@ if ($ord_id) {
             <div class="order-header">คำสั่งซื้อ #<?php echo htmlspecialchars($ord_id); ?></div>
             <div class="order-details">
                 <p>วันที่สั่งซื้อ: <?php echo htmlspecialchars($Orders[0]['Date']); ?></p>
-                <p>สถานที่จัดส่ง: <?php echo htmlspecialchars($Orders[0]['Address']); ?></p>
+                <p>วิธีการชำระเงิน: <?php echo htmlspecialchars($Orders[0]['payment_method']); ?></p>
+                <p>สถานที่จัดส่ง: <?php echo htmlspecialchars($Orders[0]['shipping_address']); ?></p>
                 <p>สถานะการชำระเงิน: <?php echo htmlspecialchars($Orders[0]['Payment_status']); ?></p>
             </div>
             <h3>รายละเอียดสินค้า</h3>

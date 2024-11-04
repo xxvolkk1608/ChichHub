@@ -1,7 +1,8 @@
 <?php
-// Enable error reporting
-error_reporting(E_ALL);
+
 ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 session_start();
 include 'connect.php'; // เชื่อมต่อกับฐานข้อมูล
@@ -12,51 +13,75 @@ if (!isset($_SESSION["Username"])) {
     exit();
 }
 
+// ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
+if (!isset($_COOKIE['user_login'])) {
+    session_unset();
+    session_destroy();
+    setcookie("user_login", "", time() - 1800, "/");
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
 $username = htmlspecialchars($_SESSION["Username"]);
 
-// กำหนดหมวดหมู่สินค้าที่ต้องการกรองเป็น 'Pants' หรือ C_ID ของกางเกงจากฐานข้อมูล
-$shirt_category_id = 1001; // กำหนด C_ID ของหมวดหมู่กางเกง
+// ดึงหมวดหมู่สินค้าจากฐานข้อมูล
+$category_sql = "SELECT C_ID, C_Name FROM Category";
+$category_stmt = $pdo->prepare($category_sql);
+$category_stmt->execute();
+$categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ตรวจสอบว่ามีการส่ง POST มาจริงหรือไม่
+// ตรวจสอบว่ามีการส่ง POST สำหรับกรองสินค้า
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $category = isset($_POST['category']) && $_POST['category'] != 'ทั้งหมด' ? $_POST['category'] : '';
     $min_price = isset($_POST['min_price']) && $_POST['min_price'] != '' ? (int) $_POST['min_price'] : 0;
     $max_price = isset($_POST['max_price']) && $_POST['max_price'] != '' ? (int) $_POST['max_price'] : 0;
-    $color = isset($_POST['color']) && $_POST['color'] != '' ? strtolower($_POST['color']) : ''; // เปลี่ยนให้เป็นตัวพิมพ์เล็กทั้งหมด
+    $color = isset($_POST['color']) && $_POST['color'] != '' ? strtolower($_POST['color']) : '';
+    $search_query = isset($_POST['search_query']) ? trim($_POST['search_query']) : '';
 
     // เก็บค่าการกรองใน session
+    $_SESSION['category_filter'] = $category;
     $_SESSION['min_price_filter'] = $min_price;
     $_SESSION['max_price_filter'] = $max_price;
     $_SESSION['color_filter'] = $color;
-
-    // รีไดเรกต์ไปที่หน้า Pants.php (เพื่อแก้ปัญหาการส่งฟอร์มซ้ำ)
-    header("Location: Shirt.php");
-    exit();
+    $_SESSION['search_query'] = $search_query;
+} else {
+    // นำค่าจาก session มาใช้
+    $category = isset($_SESSION['category_filter']) ? $_SESSION['category_filter'] : '';
+    $min_price = isset($_SESSION['min_price_filter']) ? (int) $_SESSION['min_price_filter'] : 0;
+    $max_price = isset($_SESSION['max_price_filter']) ? (int) $_SESSION['max_price_filter'] : 0;
+    $color = isset($_SESSION['color_filter']) ? $_SESSION['color_filter'] : '';
+    $search_query = isset($_SESSION['search_query']) ? $_SESSION['search_query'] : '';
 }
 
-// นำค่าจาก session มาใช้ (ถ้ามี)
-$min_price = isset($_SESSION['min_price_filter']) ? (int) $_SESSION['min_price_filter'] : 0;
-$max_price = isset($_SESSION['max_price_filter']) ? (int) $_SESSION['max_price_filter'] : 0;
-$color = isset($_SESSION['color_filter']) ? $_SESSION['color_filter'] : '';
+// สร้างคำสั่ง SQL สำหรับแสดงเฉพาะสินค้าประเภทกางเกง (C_ID = 1002) ตามตัวกรองที่เลือก
+$sql = "SELECT Product.P_ID, Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
+FROM Product 
+INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
+WHERE Product.C_ID = 1001";  // เพิ่มเงื่อนไขการกรอง C_ID เป็น 1002
 
-// สร้างคำสั่ง SQL สำหรับแสดงสินค้าหมวดกางเกงตามตัวกรอง
-$sql = "SELECT Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
-        FROM Product 
-        INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
-        WHERE Product.C_ID = ?"; // กรองสินค้าตามหมวดหมู่กางเกง
+// เพิ่มเงื่อนไขการกรองตามราคา สี และคำค้นหา
+$conditions = [];
+$params = [];
 
-// เพิ่มเงื่อนไขในการกรองตามราคาและสี
-$params = [$shirt_category_id]; // ค่าเริ่มต้นคือหมวดหมู่กางเกง
 if ($min_price > 0) {
-    $sql .= " AND Product.Price >= ?";
+    $conditions[] = "Product.Price >= ?";
     $params[] = $min_price;
 }
 if ($max_price > 0) {
-    $sql .= " AND Product.Price <= ?";
+    $conditions[] = "Product.Price <= ?";
     $params[] = $max_price;
 }
 if ($color) {
-    $sql .= " AND LOWER(Product.Color) = ?";  // ใช้ LOWER เพื่อไม่สนใจตัวพิมพ์เล็ก/ใหญ่
+    $conditions[] = "LOWER(Product.Color) = ?";
     $params[] = $color;
+}
+if ($search_query) {
+    $conditions[] = "Product.P_Name LIKE ?";
+    $params[] = "%" . $search_query . "%";
+}
+
+// เพิ่ม WHERE ใน SQL query ถ้ามีเงื่อนไขอื่นๆ เพิ่มเติม
+if (count($conditions) > 0) {
+    $sql .= " AND " . implode(" AND ", $conditions);
 }
 
 // เตรียมและรันคำสั่ง SQL
@@ -64,18 +89,16 @@ $stmt = $pdo->prepare($sql);
 if ($stmt->execute($params)) {
     $products = $stmt->fetchAll();
 } else {
-    // แสดงข้อผิดพลาดถ้า query ไม่สำเร็จ
     print_r($stmt->errorInfo());
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="th">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChicHub - เสื้อ</title>
+    <title>ChicHub - ร้านค้า</title>
     <!-- ลิงก์ไปยัง Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- ลิงก์ไปยังไฟล์ CSS -->
@@ -129,7 +152,8 @@ if ($stmt->execute($params)) {
             gap: 2rem;
             width: 75%;
             padding: 20px;
-            translate: 30% -25rem;
+            translate: 30% -30rem;
+            margin-bottom: -30rem;
         }
 
         .filter {
@@ -140,11 +164,78 @@ if ($stmt->execute($params)) {
             border-radius: 4px;
             cursor: pointer;
         }
-        
+
+        .search-section button {
+            padding: 15px 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .add-to-cart {
+            padding: 10px 20px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+
+        .add-to-cart:hover {
+            background: #e65b50;
+        }
+
+        .info {
+            padding: 10px 20px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+
+        .info:hover {
+            background: #e65b50;
+        }
+
+        @media (max-width: 600px) {
+            .product-list {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2rem;
+                width: 5%;
+                padding: 20px;
+                translate: 0% -32rem;
+                margin-bottom: -30rem;
+                margin-top: 40rem;
+            }
+            
+            .filter-sidebar {
+                width: 100%;
+                padding: 30px;
+                border-right: 0px solid #c5c5c5;
+            }
+            
+        }
     </style>
 </head>
 
 <body>
+    <?php
+    // รีเซตการกรองสินค้าเมื่อผู้ใช้เข้ามาหน้าร้านค้าใหม่
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        unset($_SESSION['category_filter']);
+        unset($_SESSION['price_filter']);
+    }
+
+    ?>
     <!-- ส่วนหัว (Header) -->
     <header>
         <div class="container-header">
@@ -158,7 +249,9 @@ if ($stmt->execute($params)) {
                     <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
+                            <?php echo $username; ?>
+                        </a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
@@ -178,7 +271,7 @@ if ($stmt->execute($params)) {
     <div class="blur-background"></div>
 
     <div class="shop-container">
-
+        <!-- ฟอร์มกรองสินค้า -->
         <aside class="filter-sidebar">
             <h3>กรองสินค้า</h3>
             <form action="Shirt.php" method="POST">
@@ -187,7 +280,18 @@ if ($stmt->execute($params)) {
                 <div class="search-section">
                     <input type="text" name="search_query" placeholder="ค้นหาชื่อสินค้า...">
                 </div>
-        
+                <div class="filter-category">
+                    <label for="category">หมวดหมู่</label>
+                    <select name="category" id="category">
+                        <option value="ทั้งหมด">ทั้งหมด</option>
+                        <!-- ดึงหมวดหมู่จากฐานข้อมูล -->
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?php echo $cat['C_ID']; ?>">
+                                <?php echo $cat['C_Name']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 <div class="filter-price">
                     <label for="min_price">ราคาต่ำสุด (บาท)</label>
                     <input type="number" name="min_price" id="min_price" min="0">
@@ -212,13 +316,15 @@ if ($stmt->execute($params)) {
                         <h4>
                             <?php echo htmlspecialchars($product['P_Name']); ?>
                         </h4>
-                        <p>฿
+                        <p style="color:#ff6f61; margin-bottom: 2vh;">฿
                             <?php echo number_format($product['Price'], 2); ?>
                         </p>
-                        <a href="#" class="btn add-to-cart" 
-                           data-name="<?php echo htmlspecialchars($product['P_Name']); ?>" 
-                           data-price="<?php echo number_format($product['Price'], 2); ?>">
-                           เพิ่มในรถเข็น</a>
+                        <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>"
+                            class="info">ดูรายละเอียด</a>
+                        <a href="#" class="add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
+                            data-price="<?php echo $product['Price']; ?>" data-img="<?php echo $product['IMG_path']; ?>"
+                            data-id="<?php echo $product['P_ID']; ?>">
+                            เพิ่มในรถเข็น</a>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -269,19 +375,22 @@ if ($stmt->execute($params)) {
         const addToCartButtons = document.querySelectorAll('.add-to-cart');
         addToCartButtons.forEach(button => {
             button.addEventListener('click', () => {
-                const productName = button.dataset.name;
-                const productPrice = button.dataset.price;
+                const productId = button.getAttribute('data-id'); // ดึงค่า id จาก attribute
+                const productName = button.getAttribute('data-name');
+                const productPrice = button.getAttribute('data-price');
+                const productImage = button.getAttribute('data-img'); // ดึงค่า img จาก attribute
 
                 const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 
-                // ตรวจสอบว่ามีสินค้าในรถเข็นแล้วหรือยัง
                 const existingItem = cartItems.find(item => item.name === productName);
                 if (existingItem) {
                     existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
                 } else {
                     cartItems.push({
+                        id: productId, // บันทึก id
                         name: productName,
                         price: productPrice,
+                        img: productImage, // บันทึก img
                         quantity: 1
                     });
                 }

@@ -323,7 +323,7 @@ footer p {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  margin-top: 5rem;
+  margin-top: 10rem;
 }
 
 .shop-content {
@@ -860,6 +860,15 @@ footer p {
   .nav-links li a:hover {
     color: var(--primary-color);
   }
+  .info, .add-to-cart{
+    padding: 5px 10px;
+  }
+  .shop-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin-top: 1rem;
+  }
 }
 /* สำหรับหน้าจอขนาดเล็ก (เช่น iPhone) */
 @media (max-width: 600px) {
@@ -913,6 +922,12 @@ footer p {
   .product-list {
     grid-template-columns: repeat(2, 1fr); /* แสดง 2 คอลัมน์ในหน้าจอเล็ก */
     width: 100%;
+  }
+  .shop-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin-top: 1rem;
   }
 }
 

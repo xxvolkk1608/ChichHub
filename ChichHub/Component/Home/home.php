@@ -33,10 +33,6 @@ $stmt = $pdo->prepare("SELECT Role FROM Member WHERE Username = ?");
 $stmt->execute([$username]);
 $user = $stmt->fetch();
 
-// แสดงชื่อผู้ใช้
-// echo "สวัสดี, $username";
-
-
 ?>
 
 <!DOCTYPE html>
@@ -171,6 +167,8 @@ $user = $stmt->fetch();
                             <?php if ($user['Role'] == 1): ?>
                                 <!-- เฉพาะ Admin ที่มี Role = 1 -->
                                 <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
+                                <a href="../Admin/edit-product.php">แก้ไขสินค้า</a>
+                                <a href="../Admin/view.php">เช็คยอดสินค้า</a>
                             <?php endif; ?>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
                         </div>

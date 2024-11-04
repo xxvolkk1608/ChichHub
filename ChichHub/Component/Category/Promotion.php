@@ -141,7 +141,7 @@ if ($stmt->execute($params)) {
             gap: 2rem;
             width: 75%;
             padding: 20px;
-            translate: 30% -25rem;
+            translate: 30% -26.5rem;
         }
 
         .filter {
@@ -186,21 +186,22 @@ if ($stmt->execute($params)) {
         }
         @media (max-width: 600px) {
             .product-list {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 2rem;
-                width: 5%;
-                padding: 20px;
-                translate: 0% -32rem;
-                margin-bottom: -30rem;
-                margin-top: 40rem;
-            }
-            
-            .filter-sidebar {
-                width: 100%;
-                padding: 30px;
-                border-right: 0px solid #c5c5c5;
-            }
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 2rem;
+        width: 100%;
+        padding: 20px;
+        translate: 0% -32rem;
+        margin-bottom: -30rem;
+        margin-top: 40rem;
+      }
+
+      .filter-sidebar {
+        width: 100%;
+        padding: 30px;
+        margin-top: 4rem;
+        border-right: 0px solid #c5c5c5;
+      }
             
         }
     </style>

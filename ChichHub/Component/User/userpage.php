@@ -9,8 +9,6 @@ if (!isset($_SESSION['Username'])) {
     exit();
 }
 
-<<<<<<< HEAD
-=======
 // ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
 if (!isset($_COOKIE['user_login'])) {
     // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
@@ -23,7 +21,6 @@ if (!isset($_COOKIE['user_login'])) {
     exit();
 }
 
->>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
 // ดึงข้อมูลผู้ใช้จาก session
 $username = $_SESSION['Username'];
 

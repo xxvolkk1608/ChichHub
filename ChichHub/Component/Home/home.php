@@ -21,7 +21,7 @@ if (!isset($_COOKIE['user_login'])) {
     session_unset(); // ล้าง session
     session_destroy(); // ทำลาย session
     setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
-    
+
     // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
     header("Location: ../Sign-In/signin.php");
     exit();
@@ -127,13 +127,20 @@ $user = $stmt->fetch();
         .info:hover {
             background: #e65b50;
         }
+
+        @media (max-width: 600px) {
+            .banner img {
+                width: 100%;
+                height: 30vh;
+            }
+        }
     </style>
 </head>
 
 <body>
     <?php
     include 'connect.php'; // เชื่อมต่อฐานข้อมูล
-    
+
     // ดึงข้อมูลสินค้ายอดนิยมและรูปภาพจากฐานข้อมูล
     $stmt = $pdo->prepare("SELECT Product.P_ID, Product.P_Name, Product.Price, Images.IMG_path 
                        FROM Product 
@@ -282,10 +289,10 @@ $user = $stmt->fetch();
                     existingItem.quantity += 1; // เพิ่มจำนวนสินค้า
                 } else {
                     cartItems.push({
-                        id: productId,        // บันทึก id
+                        id: productId, // บันทึก id
                         name: productName,
                         price: productPrice,
-                        img: productImage,    // บันทึก img
+                        img: productImage, // บันทึก img
                         quantity: 1
                     });
                 }

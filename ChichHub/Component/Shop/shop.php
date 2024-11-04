@@ -19,7 +19,7 @@ if (!isset($_COOKIE['user_login'])) {
   session_unset(); // ล้าง session
   session_destroy(); // ทำลาย session
   setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
-  
+
   // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
   header("Location: ../Sign-In/signin.php");
   exit();
@@ -217,29 +217,28 @@ if ($stmt->execute($params)) {
     .info:hover {
       background: #e65b50;
     }
-<<<<<<< HEAD
-=======
+
     @media (max-width: 600px) {
-            .product-list {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 2rem;
-                width: 5%;
-                padding: 20px;
-                translate: 0% -32rem;
-                margin-bottom: -30rem;
-                margin-top: 40rem;
-            }
-            
-            .filter-sidebar {
-                width: 100%;
-                padding: 30px;
-                border-right: 0px solid #c5c5c5;
-            }
-            
-        }
-    
->>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
+      .product-list {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 2rem;
+        width: 100%;
+        padding: 20px;
+        translate: 0% -32rem;
+        margin-bottom: -30rem;
+        margin-top: 40rem;
+      }
+
+      .filter-sidebar {
+        width: 100%;
+        padding: 30px;
+        margin-top: 4rem;
+        border-right: 0px solid #c5c5c5;
+      }
+    }
+
+  
   </style>
 </head>
 
@@ -335,11 +334,7 @@ if ($stmt->execute($params)) {
             <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>" class="info">ดูรายละเอียด</a>
             <a href="#" class="add-to-cart"
               data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
-<<<<<<< HEAD
-              data-price="<?php echo number_format($product['Price'], 2); ?>"
-=======
               data-price="<?php echo $product['Price']; ?>"
->>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
               data-img="<?php echo $product['IMG_path']; ?>"
               data-id="<?php echo $product['P_ID']; ?>">
               เพิ่มในรถเข็น</a>

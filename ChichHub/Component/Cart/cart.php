@@ -189,7 +189,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
 
         // การอัปเดตจำนวนสินค้าและคำนวณราคารวมใหม่
         document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('change', function() {
+            input.addEventListener('change', function () {
                 const newQuantity = parseInt(this.value, 10);
                 const productName = this.dataset.name;
 
@@ -266,28 +266,6 @@ $username = htmlspecialchars($_SESSION["Username"]);
                 });
         });
 
-            // ส่งข้อมูลตะกร้าสินค้าไปยังเซิร์ฟเวอร์เพื่อสร้างคำสั่งซื้อ
-            fetch('process-checkout.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(cartItems),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // เปลี่ยนเส้นทางไปยังหน้า pay.php พร้อม order_id
-                        window.location.href = `../Pay/pay.php?Ord_id=${data.Ord_id}`;
-                    } else {
-                        alert(`เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ: ${data.message}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('เกิดข้อผิดพลาด');
-                });
-        });
     </script>
 
     <script>

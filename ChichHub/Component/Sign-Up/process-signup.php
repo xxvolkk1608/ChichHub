@@ -16,32 +16,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $phone = $_POST['phone'];
     $address = $_POST['address'];
 
+    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
     try {
         // เริ่มต้นการทำธุรกรรม
-        $conn->beginTransaction();
+        $pdo->beginTransaction();
 
         // เพิ่มข้อมูลลงในตาราง `member_detail` ก่อน
         $sql_member_detail = "INSERT INTO member_detail (Name, Surname, Email, Tel, Address) VALUES (?, ?, ?, ?, ?)";
-        $stmt_member_detail = $conn->prepare($sql_member_detail);
+        $stmt_member_detail = $pdo->prepare($sql_member_detail);
         $stmt_member_detail->execute([$name, $surname, $email, $phone, $address]);
 
         // ดึง `MD_ID` ของ `member_detail` ที่เพิ่งเพิ่มเข้ามาใหม่
-        $md_id = $conn->lastInsertId();
+        $md_id = $pdo->lastInsertId();
 
         // เพิ่มข้อมูลลงในตาราง `member` พร้อมกับ `MD_ID` ที่ได้จากการเพิ่มข้อมูลใน `member_detail`
         $sql_member = "INSERT INTO member (Username, Password, MD_ID) VALUES (?, ?, ?)";
-        $stmt_member = $conn->prepare($sql_member);
-        $stmt_member->execute([$username, $password, $md_id]);
+        $stmt_member = $pdo->prepare($sql_member);
+        $stmt_member->execute([$username, $hashedPassword, $md_id]);
 
         // ถ้าทุกอย่างสำเร็จ ให้ commit การทำงาน
-        $conn->commit();
+        $pdo->commit();
 
         // ส่งผู้ใช้ไปที่หน้าสำเร็จ
         header("Location: success-page.php");
         exit();
     } catch (Exception $e) {
         // ถ้ามีปัญหาให้ rollback การทำงาน
-        $conn->rollBack();
+        $pdo->rollBack();
         echo "Error: " . $e->getMessage();
     }
 }

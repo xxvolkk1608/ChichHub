@@ -11,6 +11,17 @@ if (!isset($_SESSION["Username"])) {
     header("Location: ../Sign-In/signin.php");
     exit();
 }
+// ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
+if (!isset($_COOKIE['user_login'])) {
+    // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
+    session_unset(); // ล้าง session
+    session_destroy(); // ทำลาย session
+    setcookie("user_login", "", time() - 3600, "/"); // ลบคุกกี้
+    
+    // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
 
 $username = htmlspecialchars($_SESSION["Username"]);
 
@@ -173,6 +184,25 @@ if ($stmt->execute($params)) {
         .info:hover {
             background: #e65b50;
         }
+        @media (max-width: 600px) {
+            .product-list {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2rem;
+                width: 5%;
+                padding: 20px;
+                translate: 0% -32rem;
+                margin-bottom: -30rem;
+                margin-top: 40rem;
+            }
+            
+            .filter-sidebar {
+                width: 100%;
+                padding: 30px;
+                border-right: 0px solid #c5c5c5;
+            }
+            
+        }
     </style>
 </head>
 
@@ -190,7 +220,9 @@ if ($stmt->execute($params)) {
                     <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
+                            <?php echo $username; ?>
+                        </a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
@@ -213,7 +245,7 @@ if ($stmt->execute($params)) {
 
         <aside class="filter-sidebar">
             <h3>กรองสินค้า</h3>
-            <form action="Promotion.php" method="POST">
+            <form action="promotion.php" method="POST">
                 <br><br>
                 <h3>ค้นหาสินค้า</h3>
                 <div class="search-section">
@@ -241,19 +273,22 @@ if ($stmt->execute($params)) {
                     <div class="product-item2">
                         <img src="<?php echo $product['IMG_path']; ?>"
                             alt="<?php echo htmlspecialchars($product['P_Name']); ?>">
-                        <h4><?php echo htmlspecialchars($product['P_Name']); ?></h4>
-                        <p style="color:#ff6f61; margin-bottom: 2vh;">฿<?php echo number_format($product['Price'], 2); ?></p>
-                        <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>" class="info">ดูรายละเอียด</a>
-                        <a href="#" class="add-to-cart"
-                            data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
-                            data-price="<?php echo number_format($product['Price'], 2); ?>"
-                            data-img="<?php echo $product['IMG_path']; ?>"
-                            data-id="<?php echo $product['P_ID']; ?>">
+                        <h4>
+                            <?php echo htmlspecialchars($product['P_Name']); ?>
+                        </h4>
+                        <p style="color:#ff6f61; margin-bottom: 2vh;">฿
+                        <?php echo number_format($product['Price'], 2); ?>
+                        </p>
+                        <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>"
+                            class="info">ดูรายละเอียด</a>
+                        <a href="#" class="add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
+                            data-price="<?php echo $product['Price']; ?>"
+                            data-img="<?php echo $product['IMG_path']; ?>" data-id="<?php echo $product['P_ID']; ?>">
                             เพิ่มในรถเข็น</a>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <p>ไม่พบสินค้าที่ตรงกับการกรองของคุณ</p>
+                <p style="translate: 100%; ">ไม่พบสินค้าที่ตรงกับการกรองของคุณ</p>
             <?php endif; ?>
         </section>
     </div>

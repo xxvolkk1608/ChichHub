@@ -12,21 +12,31 @@ if (!isset($_SESSION['Username'])) {
     exit();
 }
 
+// ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
+if (!isset($_COOKIE['user_login'])) {
+    // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
+    session_unset(); // ล้าง session
+    session_destroy(); // ทำลาย session
+    setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
+    
+    // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
 $username = $_SESSION['Username'];
 
-// ดึงข้อมูล order ของผู้ใช้ปัจจุบัน
+// ดึงข้อมูล order ของผู้ใช้ปัจจุบัน โดยใช้ shipping_address จาก Orders
 $stmt = $pdo->prepare("
-    SELECT Orders.Ord_id, Orders.Date, Ord_detail.Payment_status, Product.P_name, Ord_detail.Amount, Product.Price 
+    SELECT Orders.Ord_id, Orders.Date, Orders.shipping_address, Ord_detail.Payment_status, Product.P_name, Ord_detail.Amount, Product.Price
     FROM `Orders`
     INNER JOIN `Ord_detail` ON Orders.Ord_id = Ord_detail.Ord_id
     INNER JOIN `Product` ON Ord_detail.P_ID = Product.P_ID
     INNER JOIN `Member` ON Orders.ID = Member.ID
     WHERE Member.Username = ?
-    ORDER BY Orders.Date DESC
+    ORDER BY Orders.Ord_id DESC
 ");
 $stmt->execute([$username]);
 $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 ?>
 
 <!DOCTYPE html>
@@ -48,6 +58,12 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             width: 90%;
             margin: 2rem auto;
         }
+<<<<<<< HEAD
+=======
+        .order-card:hover {
+            transform: scale(1.05);
+        }
+>>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
         .order-card {
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -67,7 +83,11 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .product-item {
             display: flex;
             justify-content: space-between;
+<<<<<<< HEAD
             margin-top: 0.5rem;
+=======
+            margin-top: 1.5rem;
+>>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
         }
         .product-item span {
             font-size: 0.9rem;
@@ -139,14 +159,23 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </li>
                     <li><a href="../Cart/cart.php"><i class="fas fa-shopping-cart"></i> รถเข็น</a></li>
                 </ul>
+<<<<<<< HEAD
                  <!-- ปุ่ม Hamburger สำหรับมือถือ -->
                  <div class="hamburger">
+=======
+                <!-- ปุ่ม Hamburger สำหรับมือถือ -->
+                <div class="hamburger">
+>>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
                     <i class="fas fa-bars"></i>
                 </div>
             </nav>
         </div>
     </header><br><br>
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
     <!-- Blur Background -->
     <div class="blur-background"></div>
     
@@ -167,11 +196,16 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     echo "<div class='order-header'>คำสั่งซื้อ #{$order['Ord_id']}</div>";
                     echo "<div class='order-details'>";
                     echo "<p>วันที่สั่งซื้อ: {$order['Date']}</p>";
+                    echo "<p>สถานที่จัดส่ง: {$order['shipping_address']}</p>";
                     echo "<p>สถานะการชำระเงิน: {$order['Payment_status']}</p>";
                     echo "</div>";
                 }
                 echo "<div class='product-item'>";
+<<<<<<< HEAD
                 echo "<span>สินค้า: {$order['P_name']}</span>";
+=======
+                echo "<span>สินค้า: {$order['P_name']}  </span>";
+>>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
                 echo "<span>จำนวน: {$order['Amount']}</span>";
                 echo "<span>ราคา: ฿" . number_format($order['Price'], 2) . "</span>";
                 echo "</div>";

@@ -1,6 +1,7 @@
 <?php
-error_reporting(E_ALL);
 ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 session_start();
 include 'connect.php';  // เชื่อมต่อกับฐานข้อมูล
@@ -9,6 +10,17 @@ $username = $_SESSION['Username'];
 
 // ตรวจสอบว่ามีการล็อกอินและเป็น Admin หรือไม่
 if (!isset($_SESSION["Role"]) || $_SESSION["Role"] != 1) {
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
+// ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
+if (!isset($_COOKIE['user_login'])) {
+    // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
+    session_unset(); // ล้าง session
+    session_destroy(); // ทำลาย session
+    setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
+
+    // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
     header("Location: ../Sign-In/signin.php");
     exit();
 }
@@ -42,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $upload_dir = "/Applications/XAMPP/xamppfiles/htdocs/project/ChichHub/Component/img/$category/";
             if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0777, true);  
+                mkdir($upload_dir, 0777, true);
             }
 
             $img_path = "http://localhost/project/ChichHub/Component/img/$category/$file_name";
@@ -157,34 +169,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-left: 4.5rem;
         }
     }
+
     .dropdown {
-            position: relative;
-            display: inline-block;
-        }
+        position: relative;
+        display: inline-block;
+    }
 
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-        }
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
 
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
 
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
 
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
 </style>
 
 <body>
@@ -313,9 +326,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 window.history.replaceState(null, null, window.location.pathname);
             }
         <?php elseif (!empty($message)): ?>
-            alert('<?= $message; ?>');
+            alert('<?= addslashes($message); ?>'); // แปลงเครื่องหมายพิเศษด้วย addslashes
         <?php endif; ?>
-
     </script>
 
 </body>

@@ -323,7 +323,11 @@ footer p {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+<<<<<<< HEAD
   margin-top: 5rem;
+=======
+  margin-top: 10rem;
+>>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
 }
 
 .shop-content {
@@ -361,11 +365,12 @@ footer p {
     border-radius: 8px;
     transition: transform 0.3s ease;
     translate: 0 -28%;
+<<<<<<< HEAD
     /* margin-top: 1rem; */
 }
+=======
+>>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
 
-.product-item:hover {
-  transform: scale(1.05);
 }
 
 .product-item img {
@@ -391,6 +396,17 @@ footer p {
 
 .product-item2:hover {
   transform: scale(1.05);
+}
+
+.product-item2 img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 15px;
+}
+
+.product-item2 h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
 }
 
 .product-item2 img {
@@ -867,6 +883,15 @@ footer p {
   .nav-links li a:hover {
     color: var(--primary-color);
   }
+  .info, .add-to-cart{
+    padding: 5px 10px;
+  }
+  .shop-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin-top: 1rem;
+  }
 }
 /* สำหรับหน้าจอขนาดเล็ก (เช่น iPhone) */
 @media (max-width: 600px) {
@@ -890,6 +915,7 @@ footer p {
   .product-card {
     width: 100%; /* ให้แต่ละ card ใช้พื้นที่เต็มหน้าจอ */
     margin-bottom: 20px;
+    
   }
 
   /* ปรับการแสดงผลของหมวดหมู่สินค้าให้เป็นแถวเดียว */
@@ -920,6 +946,15 @@ footer p {
     grid-template-columns: repeat(2, 1fr); /* แสดง 2 คอลัมน์ในหน้าจอเล็ก */
     width: 100%;
   }
+<<<<<<< HEAD
+=======
+  .shop-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin-top: 1rem;
+  }
+>>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
 }
 
 

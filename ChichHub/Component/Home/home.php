@@ -15,6 +15,17 @@ if (!isset($_SESSION["Username"])) {
     header("Location: ../Sign-In/signin.php");
     exit();
 }
+// ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
+if (!isset($_COOKIE['user_login'])) {
+    // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
+    session_unset(); // ล้าง session
+    session_destroy(); // ทำลาย session
+    setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
+    
+    // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
 
 // ดึงข้อมูล Role ของผู้ใช้จากฐานข้อมูล
 $username = htmlspecialchars($_SESSION["Username"]);
@@ -102,7 +113,20 @@ $user = $stmt->fetch();
             display: block;
         }
 
-        
+        .info {
+            padding: 10px 20px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .info:hover {
+            background: #e65b50;
+        }
     </style>
 </head>
 
@@ -191,11 +215,11 @@ $user = $stmt->fetch();
                         <h3>
                             <?php echo htmlspecialchars($product['P_Name']); ?>
                         </h3>
-                        <p>฿
-                            <?php echo number_format($product['Price'], 2); ?>
-                        </p>
+                        <p>฿<?php echo number_format($product['Price'], 2); ?></p>
+                        <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>"
+                            class="info">ดูรายละเอียด</a>
                         <a href="#" class="btn add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
-                            data-price="<?php echo number_format($product['Price'], 2); ?>"
+                            data-price="<?php echo $product['Price']; ?>"
                             data-img="<?php echo $product['IMG_path']; ?>"
                             data-id="<?php echo $product['P_ID']; ?>">เพิ่มในรถเข็น</a>
                     </div>

@@ -9,6 +9,21 @@ if (!isset($_SESSION['Username'])) {
     exit();
 }
 
+<<<<<<< HEAD
+=======
+// ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
+if (!isset($_COOKIE['user_login'])) {
+    // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
+    session_unset(); // ล้าง session
+    session_destroy(); // ทำลาย session
+    setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
+    
+    // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+    header("Location: ../Sign-In/signin.php");
+    exit();
+}
+
+>>>>>>> 58a66f63b771ddeb104ab13f81ef115ac2338ea5
 // ดึงข้อมูลผู้ใช้จาก session
 $username = $_SESSION['Username'];
 

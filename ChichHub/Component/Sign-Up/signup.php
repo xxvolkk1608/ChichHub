@@ -243,7 +243,7 @@
     </script>
     <script>
         // ตรวจสอบ Username ทุกครั้งที่มีการพิมพ์
-        document.getElementById('username').addEventListener('input', function () {
+        document.getElementById('username').addEventListener('input', function() {
             let username = this.value; // รับค่าจาก input
 
             if (username === '') {
@@ -257,7 +257,7 @@
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
             // ตรวจสอบการทำงานและแสดงผลลัพธ์ในฟิลด์
-            xhr.onload = function () {
+            xhr.onload = function() {
                 if (xhr.status === 200) {
                     let response = xhr.responseText;
                     let usernameFeedback = document.getElementById('username-feedback');

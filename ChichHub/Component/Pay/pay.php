@@ -15,7 +15,7 @@ if (!isset($_COOKIE['user_login'])) {
     session_unset(); // ล้าง session
     session_destroy(); // ทำลาย session
     setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
-    
+
     // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
     header("Location: ../Sign-In/signin.php");
     exit();
@@ -69,7 +69,7 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../styles/styles.css">
     <style>
-       header {
+        header {
             position: fixed;
             top: 0;
             left: 0;
@@ -105,6 +105,7 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
         .dropdown:hover .dropdown-content {
             display: block;
         }
+
         /* สไตล์การชำระเงิน */
         .payment-container {
             max-width: 600px;
@@ -116,8 +117,13 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
             border-top: 5px solid #ff5722;
         }
 
-        .payment-method, .extra-fields {
+        .payment-method,
+        .extra-fields {
             margin-top: 20px;
+        }
+
+        .payment-container form+.pay-button {
+            background-color: #ff0000;
         }
 
         select[name="payment_method"] {
@@ -156,6 +162,7 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
         .pay-button:hover {
             background-color: #e64a19;
         }
+
         /* สไตล์การจัดส่งที่อยู่ */
         .shipping-address {
             margin-top: 20px;
@@ -204,12 +211,15 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
                     <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
+                            <?php echo $username; ?>
+                        </a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
                             <!-- ประวัติการสั่งซื้อ -->
                             <a href="../Order/order_history.php">ประวัติการสั่งซื้อ</a>
-                            <?php if ($user['Role'] == 1): ?> <!-- เฉพาะ Admin ที่มี Role = 1 -->
+                            <?php if ($user['Role'] == 1): ?>
+                                <!-- เฉพาะ Admin ที่มี Role = 1 -->
                                 <a href="../Admin/add-product.php">เพิ่มสินค้า</a>
                             <?php endif; ?>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
@@ -225,7 +235,7 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
         </div>
     </header>
 
-    
+
 
     <div class="payment-container">
         <h2>เลือกวิธีการชำระเงิน</h2>
@@ -244,16 +254,20 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
 
             <!-- ช่องข้อมูลเพิ่มเติม -->
             <div class="extra-fields" id="extra-fields" style="display: none;">
-                <input type="text" name="credit_card_number" id="credit_card_number" placeholder="หมายเลขบัตรเครดิต" maxlength="19" style="display: none;">
-                <input type="text" name="expiry_date" id="expiry_date" placeholder="MM/YY" maxlength="5" style="display: none;">
+                <input type="text" name="credit_card_number" id="credit_card_number" placeholder="หมายเลขบัตรเครดิต"
+                    maxlength="19" style="display: none;">
+                <input type="text" name="expiry_date" id="expiry_date" placeholder="MM/YY" maxlength="5"
+                    style="display: none;">
                 <input type="text" name="cvv" id="cvv" placeholder="CVV" maxlength="3" style="display: none;">
-                <input type="text" name="mobile_banking_number" id="mobile_banking_number" placeholder="เบอร์โทร Mobile Banking" maxlength="10" style="display: none;">
+                <input type="text" name="mobile_banking_number" id="mobile_banking_number"
+                    placeholder="เบอร์โทร Mobile Banking" maxlength="10" style="display: none;">
             </div>
-                
+
             <!-- ช่องที่อยู่จัดส่งพร้อมค่าเริ่มต้น -->
             <div class="shipping-address">
                 <label for="shipping_address">ที่อยู่การจัดส่ง:</label>
-                <textarea name="shipping_address" id="shipping_address" required><?php echo htmlspecialchars($default_address); ?></textarea>
+                <textarea name="shipping_address" id="shipping_address"
+                    required><?php echo htmlspecialchars($default_address); ?></textarea>
             </div>
 
             <button type="submit" class="pay-button">ยืนยันการชำระเงิน</button>
@@ -328,64 +342,64 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
     </footer>
 
     <script>
-    const paymentForm = document.getElementById('payment-form');
-    paymentMethodSelect = document.getElementById("payment_method");
-    
-    paymentForm.addEventListener('submit', function (e) {
-        e.preventDefault(); // ป้องกันการรีเฟรชหน้า
+        const paymentForm = document.getElementById('payment-form');
+        const paymentMethodSelect = document.getElementById("payment_method");
 
-        // รับค่าการเลือกวิธีการชำระเงิน
-        const paymentMethod = paymentMethodSelect.value;
+        paymentForm.addEventListener('submit', function (e) {
+            e.preventDefault(); // ป้องกันการรีเฟรชหน้า
 
-        if (paymentMethod === "credit_card") {
-            const creditCardNumber = document.getElementById("credit_card_number").value;
-            const expiryDate = document.getElementById("expiry_date").value;
-            const cvv = document.getElementById("cvv").value;
-            
-            // ตรวจสอบว่ากรอกข้อมูลครบ
-            if (!creditCardNumber || !expiryDate || !cvv) {
-                alert("กรุณากรอกข้อมูลบัตรเครดิตให้ครบ");
-                return;
+            // รับค่าการเลือกวิธีการชำระเงิน
+            const paymentMethod = paymentMethodSelect.value;
+
+            if (paymentMethod === "credit_card") {
+                const creditCardNumber = document.getElementById("credit_card_number").value;
+                const expiryDate = document.getElementById("expiry_date").value;
+                const cvv = document.getElementById("cvv").value;
+
+                // ตรวจสอบว่ากรอกข้อมูลครบ
+                if (!creditCardNumber || !expiryDate || !cvv) {
+                    alert("กรุณากรอกข้อมูลบัตรเครดิตให้ครบ");
+                    return;
+                }
+            } else if (paymentMethod === "mobile_banking") {
+                const mobileBankingNumber = document.getElementById("mobile_banking_number").value;
+                if (!mobileBankingNumber) {
+                    alert("กรุณากรอกหมายเลขโทรศัพท์ Mobile Banking");
+                    return;
+                }
             }
-        } else if (paymentMethod === "mobile_banking") {
-            const mobileBankingNumber = document.getElementById("mobile_banking_number").value;
-            if (!mobileBankingNumber) {
-                alert("กรุณากรอกหมายเลขโทรศัพท์ Mobile Banking");
-                return;
-            }
-        }
 
-        // ส่งข้อมูลไปยัง process_payment.php
-        fetch('process_payment.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                Ord_id: "<?php echo $Ord_id; ?>",
-                payment_method: paymentMethod,
-                credit_card_number: document.getElementById("credit_card_number").value,
-                expiry_date: document.getElementById("expiry_date").value,
-                cvv: document.getElementById("cvv").value,
-                mobile_banking_number: document.getElementById("mobile_banking_number").value
+            // ส่งข้อมูลไปยัง process_payment.php
+            fetch('process_payment.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Ord_id: "<?php echo $Ord_id; ?>",
+                    payment_method: paymentMethod,
+                    credit_card_number: document.getElementById("credit_card_number").value,
+                    expiry_date: document.getElementById("expiry_date").value,
+                    cvv: document.getElementById("cvv").value,
+                    mobile_banking_number: document.getElementById("mobile_banking_number").value
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('การชำระเงินสำเร็จ');
-                localStorage.removeItem('cartItems'); // ล้างตะกร้าหลังจากการชำระเงินสำเร็จเท่านั้น
-                window.location.href = 'thankyou.php'; // ไปยังหน้าขอบคุณ
-            } else {
-                alert('เกิดข้อผิดพลาดในการชำระเงิน');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('เกิดข้อผิดพลาด');
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('การชำระเงินสำเร็จ');
+                        localStorage.removeItem('cartItems'); // ล้างตะกร้าหลังจากการชำระเงินสำเร็จเท่านั้น
+                        window.location.href = 'thankyou.php'; // ไปยังหน้าขอบคุณ
+                    } else {
+                        alert('เกิดข้อผิดพลาดในการชำระเงิน');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('เกิดข้อผิดพลาด');
+                });
         });
-    });
-</script>
+    </script>
 
 </body>
 

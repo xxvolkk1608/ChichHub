@@ -5,13 +5,13 @@ if (isset($_POST['Username'])) {
     $username = $_POST['Username'];
 
     // ตรวจสอบว่าเชื่อมต่อกับฐานข้อมูลสำเร็จหรือไม่
-    if (!$conn) {
+    if (!$pdo) {
         echo 'Error: Database connection failed.';
         exit();
     }
 
     // คำสั่ง SQL เพื่อตรวจสอบ username
-    $stmt = $conn->prepare("SELECT COUNT(*) FROM Member WHERE Username = ?");
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM Member WHERE Username = ?");
     $stmt->execute([$username]);
     $count = $stmt->fetchColumn();
 

@@ -1,11 +1,10 @@
 <?php
+session_start();
+include 'connect.php'; // เชื่อมต่อกับฐานข้อมูล
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-session_start();
-include 'connect.php'; // เชื่อมต่อกับฐานข้อมูล
 
 // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
 if (!isset($_SESSION["Username"])) {
@@ -21,6 +20,7 @@ if (!isset($_COOKIE['user_login'])) {
     header("Location: ../Sign-In/signin.php");
     exit();
 }
+
 $username = htmlspecialchars($_SESSION["Username"]);
 
 // ดึงหมวดหมู่สินค้าจากฐานข้อมูล
@@ -29,39 +29,40 @@ $category_stmt = $pdo->prepare($category_sql);
 $category_stmt->execute();
 $categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ตรวจสอบว่ามีการส่ง POST สำหรับกรองสินค้า
+// ตรวจสอบค่าจาก POST และเก็บตัวกรองใน session
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $category = isset($_POST['category']) && $_POST['category'] != 'ทั้งหมด' ? $_POST['category'] : '';
-    $min_price = isset($_POST['min_price']) && $_POST['min_price'] != '' ? (int) $_POST['min_price'] : 0;
-    $max_price = isset($_POST['max_price']) && $_POST['max_price'] != '' ? (int) $_POST['max_price'] : 0;
-    $color = isset($_POST['color']) && $_POST['color'] != '' ? strtolower($_POST['color']) : '';
-    $search_query = isset($_POST['search_query']) ? trim($_POST['search_query']) : '';
-
-    // เก็บค่าการกรองใน session
-    $_SESSION['category_filter'] = $category;
-    $_SESSION['min_price_filter'] = $min_price;
-    $_SESSION['max_price_filter'] = $max_price;
-    $_SESSION['color_filter'] = $color;
-    $_SESSION['search_query'] = $search_query;
-} else {
-    // นำค่าจาก session มาใช้
-    $category = isset($_SESSION['category_filter']) ? $_SESSION['category_filter'] : '';
-    $min_price = isset($_SESSION['min_price_filter']) ? (int) $_SESSION['min_price_filter'] : 0;
-    $max_price = isset($_SESSION['max_price_filter']) ? (int) $_SESSION['max_price_filter'] : 0;
-    $color = isset($_SESSION['color_filter']) ? $_SESSION['color_filter'] : '';
-    $search_query = isset($_SESSION['search_query']) ? $_SESSION['search_query'] : '';
+    $_SESSION['category_filter'] = isset($_POST['category']) ? $_POST['category'] : '';
+    $_SESSION['min_price_filter'] = isset($_POST['min_price']) ? (int) $_POST['min_price'] : 0;
+    $_SESSION['max_price_filter'] = isset($_POST['max_price']) ? (int) $_POST['max_price'] : 0;
+    $_SESSION['color_filter'] = isset($_POST['color']) ? strtolower($_POST['color']) : '';
+    $_SESSION['search_query'] = isset($_POST['search_query']) ? trim($_POST['search_query']) : '';
 }
 
-// สร้างคำสั่ง SQL สำหรับแสดงเฉพาะสินค้าประเภทกางเกง (C_ID = 1002) ตามตัวกรองที่เลือก
-$sql = "SELECT Product.P_ID, Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
-FROM Product 
-INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
-WHERE Product.C_ID = 1001";  // เพิ่มเงื่อนไขการกรอง C_ID เป็น 1002
+// กำหนดค่าตัวกรองจาก session
+$category = $_SESSION['category_filter'] ?? '';
+$min_price = $_SESSION['min_price_filter'] ?? 0;
+$max_price = $_SESSION['max_price_filter'] ?? 0;
+$color = $_SESSION['color_filter'] ?? '';
+$search_query = $_SESSION['search_query'] ?? '';
 
-// เพิ่มเงื่อนไขการกรองตามราคา สี และคำค้นหา
+// กำหนดค่าการแบ่งหน้า
+$items_per_page = 12;
+$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+$offset = ($page - 1) * $items_per_page;
+
+// สร้างคำสั่ง SQL สำหรับแสดงสินค้าตามตัวกรอง
+$sql = "SELECT Product.P_ID, Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
+        FROM Product 
+        INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID 
+        WHERE Product.C_ID = 1001";  // เพิ่มเงื่อนไขกรองเฉพาะ C_ID = 1001
+
 $conditions = [];
 $params = [];
 
+if ($category && $category != 'ทั้งหมด') {
+    $conditions[] = "Product.C_ID = ?";
+    $params[] = $category;
+}
 if ($min_price > 0) {
     $conditions[] = "Product.Price >= ?";
     $params[] = $min_price;
@@ -79,28 +80,25 @@ if ($search_query) {
     $params[] = "%" . $search_query . "%";
 }
 
-// เพิ่ม WHERE ใน SQL query ถ้ามีเงื่อนไขอื่นๆ เพิ่มเติม
+// เชื่อมเงื่อนไขทั้งหมดกับ WHERE
 if (count($conditions) > 0) {
     $sql .= " AND " . implode(" AND ", $conditions);
 }
 
-// เตรียมและรันคำสั่ง SQL
-$stmt = $pdo->prepare($sql);
-if ($stmt->execute($params)) {
-    $products = $stmt->fetchAll();
-} else {
-    print_r($stmt->errorInfo());
-}
 $sql .= " LIMIT $items_per_page OFFSET $offset";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $products = $stmt->fetchAll();
 
 // นับจำนวนสินค้าทั้งหมดเพื่อใช้ในการสร้าง pagination
-$count_sql = "SELECT COUNT(*) FROM Product";
+$count_sql = "SELECT COUNT(*) FROM Product WHERE Product.C_ID = 1001"; // นับเฉพาะสินค้าที่ C_ID = 1001
 if (count($conditions) > 0) {
-    $count_sql .= " WHERE " . implode(" AND ", $conditions);
+    $count_sql .= " AND " . implode(" AND ", $conditions);
 }
+$count_stmt = $pdo->prepare($count_sql);
+$count_stmt->execute($params);
+$total_items = $count_stmt->fetchColumn();
+$total_pages = ceil($total_items / $items_per_page);
 $count_stmt = $pdo->prepare($count_sql);
 $count_stmt->execute($params);
 $total_items = $count_stmt->fetchColumn();
@@ -322,18 +320,7 @@ $total_pages = ceil($total_items / $items_per_page);
                 <div class="search-section">
                     <input type="text" name="search_query" placeholder="ค้นหาชื่อสินค้า...">
                 </div>
-                <div class="filter-category">
-                    <label for="category">หมวดหมู่</label>
-                    <select name="category" id="category">
-                        <option value="ทั้งหมด">ทั้งหมด</option>
-                        <!-- ดึงหมวดหมู่จากฐานข้อมูล -->
-                        <?php foreach ($categories as $cat): ?>
-                            <option value="<?php echo $cat['C_ID']; ?>">
-                                <?php echo $cat['C_Name']; ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+            
                 <div class="filter-price">
                     <label for="min_price">ราคาต่ำสุด (บาท)</label>
                     <input type="number" name="min_price" id="min_price" min="0">

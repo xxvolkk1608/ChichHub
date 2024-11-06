@@ -20,7 +20,7 @@ if (!isset($_COOKIE['user_login'])) {
 }
 
 // คำสั่ง SQL ที่ 1
-$sql1 = "SELECT Product.P_name, category.C_Name, Ord_detail.Amount, Orders.Date, Member.Username
+$sql1 = "SELECT Product.P_name, Category.C_Name, Ord_detail.Amount, Orders.Date, Member.Username
          FROM Orders
          INNER JOIN Member ON Orders.ID = Member.Id 
          INNER JOIN Ord_detail ON Orders.Ord_ID = Ord_detail.Ord_ID 

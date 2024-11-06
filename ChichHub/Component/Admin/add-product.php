@@ -52,20 +52,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $file_name = $_FILES['product_image']['name'];
             $file_tmp = $_FILES['product_image']['tmp_name'];
 
-            $upload_dir = "/Applications/XAMPP/xamppfiles/htdocs/project/ChichHub/Component/img/$category/";
+            $upload_dir = "/home/std/csb6463134/public_html/ChichHub/Component/img/$category/";
             if (!file_exists($upload_dir)) {
                 mkdir($upload_dir, 0777, true);
             }
 
-            $img_path = "http://localhost/project/ChichHub/Component/img/$category/$file_name";
+            $img_path = "http://202.44.40.193/~csb6463134/ChichHub/Component/img/$category/$file_name";
 
-            // ย้ายไฟล์ที่อัพโหลด
+            // ลองย้ายไฟล์อีกครั้งโดยใช้เส้นทางของโฮสต์
             if (move_uploaded_file($file_tmp, $upload_dir . $file_name)) {
                 $stmt = $pdo->prepare("INSERT INTO Images (File_name, Upload_date, IMG_path) VALUES (?, NOW(), ?)");
                 if ($stmt->execute([$file_name, $img_path])) {
                     $img_id = $pdo->lastInsertId();
 
-                    // เพิ่มข้อมูลสินค้า
+                    // เพิ่มข้อมูลสินค้าในฐานข้อมูล
                     $stmt = $pdo->prepare("INSERT INTO Product (P_Name, Price, Amount, C_ID, Color, IMG_ID, Detail) VALUES (?, ?, ?, ?, ?, ?, ?)");
                     if ($stmt->execute([$pname, $price, $amount, $category_id, $color, $img_id, $detail])) {
                         header("Location: add-product.php?status=success");
@@ -79,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } else {
                 throw new Exception("เกิดข้อผิดพลาดในการย้ายไฟล์รูปภาพ");
             }
+
         } else {
             throw new Exception("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: " . $_FILES['product_image']['error']);
         }

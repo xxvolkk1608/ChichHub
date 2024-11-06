@@ -8,17 +8,17 @@ error_reporting(E_ALL);
 
 // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
 if (!isset($_SESSION["Username"])) {
-  header("Location: ../Sign-In/signin.php");
-  exit();
+    header("Location: ../Sign-In/signin.php");
+    exit();
 }
 
 // ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
 if (!isset($_COOKIE['user_login'])) {
-  session_unset();
-  session_destroy();
-  setcookie("user_login", "", time() - 1800, "/");
-  header("Location: ../Sign-In/signin.php");
-  exit();
+    session_unset();
+    session_destroy();
+    setcookie("user_login", "", time() - 1800, "/");
+    header("Location: ../Sign-In/signin.php");
+    exit();
 }
 
 $username = htmlspecialchars($_SESSION["Username"]);
@@ -31,13 +31,11 @@ $categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // ตรวจสอบค่าจาก POST และเก็บตัวกรองใน session
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $_SESSION['category_filter'] = isset($_POST['category']) ? $_POST['category'] : '';
-  $_SESSION['min_price_filter'] = isset($_POST['min_price']) ? (int) $_POST['min_price'] : 0;
-  $_SESSION['max_price_filter'] = isset($_POST['max_price']) ? (int) $_POST['max_price'] : 0;
-  $_SESSION['color_filter'] = isset($_POST['color']) ? strtolower($_POST['color']) : '';
-  $_SESSION['search_query'] = isset($_POST['search_query']) ? trim($_POST['search_query']) : '';
-  header("Location: shop.php");
-  exit();
+    $_SESSION['category_filter'] = isset($_POST['category']) ? $_POST['category'] : '';
+    $_SESSION['min_price_filter'] = isset($_POST['min_price']) ? (int) $_POST['min_price'] : 0;
+    $_SESSION['max_price_filter'] = isset($_POST['max_price']) ? (int) $_POST['max_price'] : 0;
+    $_SESSION['color_filter'] = isset($_POST['color']) ? strtolower($_POST['color']) : '';
+    $_SESSION['search_query'] = isset($_POST['search_query']) ? trim($_POST['search_query']) : '';
 }
 
 // กำหนดค่าตัวกรองจาก session
@@ -60,29 +58,29 @@ $sql = "SELECT Product.P_ID, Product.P_Name, Product.Price, Product.Color, Image
 $conditions = [];
 $params = [];
 
-if ($category) {
-  $conditions[] = "Product.C_ID = ?";
-  $params[] = $category;
+if ($category && $category != 'ทั้งหมด') {
+    $conditions[] = "Product.C_ID = ?";
+    $params[] = $category;
 }
 if ($min_price > 0) {
-  $conditions[] = "Product.Price >= ?";
-  $params[] = $min_price;
+    $conditions[] = "Product.Price >= ?";
+    $params[] = $min_price;
 }
 if ($max_price > 0) {
-  $conditions[] = "Product.Price <= ?";
-  $params[] = $max_price;
+    $conditions[] = "Product.Price <= ?";
+    $params[] = $max_price;
 }
 if ($color) {
-  $conditions[] = "LOWER(Product.Color) = ?";
-  $params[] = $color;
+    $conditions[] = "LOWER(Product.Color) = ?";
+    $params[] = $color;
 }
 if ($search_query) {
-  $conditions[] = "Product.P_Name LIKE ?";
-  $params[] = "%" . $search_query . "%";
+    $conditions[] = "Product.P_Name LIKE ?";
+    $params[] = "%" . $search_query . "%";
 }
 
 if (count($conditions) > 0) {
-  $sql .= " WHERE " . implode(" AND ", $conditions);
+    $sql .= " WHERE " . implode(" AND ", $conditions);
 }
 
 $sql .= " LIMIT $items_per_page OFFSET $offset";
@@ -93,7 +91,7 @@ $products = $stmt->fetchAll();
 // นับจำนวนสินค้าทั้งหมดเพื่อใช้ในการสร้าง pagination
 $count_sql = "SELECT COUNT(*) FROM Product";
 if (count($conditions) > 0) {
-  $count_sql .= " WHERE " . implode(" AND ", $conditions);
+    $count_sql .= " WHERE " . implode(" AND ", $conditions);
 }
 $count_stmt = $pdo->prepare($count_sql);
 $count_stmt->execute($params);

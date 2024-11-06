@@ -14,9 +14,9 @@ $username = $_SESSION['Username'];
 $ord_id = isset($_GET['Ord_id']) ? $_GET['Ord_id'] : null;
 
 if ($ord_id) {
-    // ดึงข้อมูล order ของผู้ใช้ปัจจุบันที่มี Ord_id ตรงกัน พร้อมที่อยู่จัดส่งและวิธีชำระเงิน
+    // ดึงข้อมูล order ของผู้ใช้ปัจจุบันที่มี Ord_id ตรงกัน พร้อมที่อยู่จัดส่ง วิธีชำระเงิน และราคารวมหลังหักส่วนลด
     $stmt = $pdo->prepare("
-        SELECT Orders.Ord_id, Orders.Date, Orders.shipping_address, Orders.payment_method, Ord_detail.Payment_status, Product.P_name, Ord_detail.Amount, Product.Price 
+        SELECT Orders.Ord_id, Orders.Date, Orders.shipping_address, Orders.payment_method, Orders.final_price, Ord_detail.Payment_status, Product.P_name, Ord_detail.Amount, Product.Price 
         FROM `Orders`
         INNER JOIN `Ord_detail` ON Orders.Ord_id = Ord_detail.Ord_id
         INNER JOIN `Product` ON Ord_detail.P_ID = Product.P_ID
@@ -124,7 +124,19 @@ if ($ord_id) {
         .dropdown:hover .dropdown-content {
             display: block;
         }
-        
+        .finalp{
+            text-align: end;
+            font-size: large;
+            font-weight: bold;
+            margin-top: 1em;
+        }
+        .finalp1{
+            text-align: end;
+            font-size: large;
+            font-weight: bold;
+            color: #ff5722;
+            margin-right: 0.5em;
+        }
     </style>
 </head>
 
@@ -185,6 +197,8 @@ if ($ord_id) {
                     <span>ราคา: ฿<?php echo number_format($order['Price'], 2); ?></span>
                 </div>
             <?php endforeach; ?>
+            <p class="finalp">ราคารวมหลังหักส่วนลด: </p>
+            <p class="finalp1">฿<?php echo number_format($Orders[0]['final_price'], 2); ?></p> <!-- แสดงราคารวมหลังหักส่วนลด -->
         </div>
         <a href="../Home/home.php" class="btn" style="display: block; text-align: center; margin-top: 20px;">กลับไปยังหน้าหลัก</a>
     </section>
@@ -233,7 +247,7 @@ if ($ord_id) {
 
         function confirmLogout() {
             if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                window.location.href = "./logout.php";
+                window.location.href = "../Home/logout.php";
             }
         }
 

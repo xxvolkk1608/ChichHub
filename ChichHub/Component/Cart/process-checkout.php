@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 include 'connect.php'; // เชื่อมต่อฐานข้อมูล
 
@@ -32,9 +32,22 @@ if (!empty($data)) {
 
         $userId = $user['ID'];
 
-        // เพิ่มข้อมูลคำสั่งซื้อในตาราง Orders
-        $stmt = $pdo->prepare("INSERT INTO Orders (ID, Date, Time) VALUES (?, CURDATE(), CURTIME())");
-        $stmt->execute([$userId]);
+        // คำนวณราคารวมและตรวจสอบเงื่อนไขโปรโมชั่น
+        $totalPrice = 0;
+        foreach ($data as $item) {
+            $totalPrice += $item['price'] * $item['quantity'];
+        }
+
+        // ตรวจสอบว่ามียอดรวมเกิน 2000 บาทหรือไม่
+        if ($totalPrice > 2000) {
+            $finalPrice = $totalPrice * 0.8; // ลด 20%
+        } else {
+            $finalPrice = $totalPrice;
+        }
+
+        // เพิ่มข้อมูลคำสั่งซื้อในตาราง Orders พร้อมกับ final_price
+        $stmt = $pdo->prepare("INSERT INTO Orders (ID, Date, Time, final_price) VALUES (?, CURDATE(), CURTIME(), ?)");
+        $stmt->execute([$userId, $finalPrice]);
 
         // ดึง ID ของคำสั่งซื้อที่เพิ่งถูกเพิ่ม
         $Ord_id = $pdo->lastInsertId();
@@ -52,7 +65,6 @@ if (!empty($data)) {
                 $stmt->execute([$item['id'], $Ord_id, $item['quantity'], 'waiting']);
             }
         }
-
 
         // ยืนยันการทำธุรกรรม
         $pdo->commit();

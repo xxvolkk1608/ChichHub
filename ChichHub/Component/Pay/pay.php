@@ -1,6 +1,4 @@
 <?php
-
-
 session_start();
 include 'connect.php'; // เชื่อมต่อฐานข้อมูล
 
@@ -399,6 +397,11 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
                     alert('เกิดข้อผิดพลาด');
                 });
         });
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "../Home/logout.php";
+            }
+        }
     </script>
 
 </body>

@@ -18,7 +18,7 @@ if (!isset($_COOKIE['user_login'])) {
     session_unset(); // ล้าง session
     session_destroy(); // ทำลาย session
     setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
-    
+
     // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
     header("Location: ../Sign-In/signin.php");
     exit();
@@ -27,7 +27,7 @@ $username = $_SESSION['Username'];
 
 // ดึงข้อมูล order ของผู้ใช้ปัจจุบัน โดยใช้ shipping_address จาก Orders
 $stmt = $pdo->prepare("
-    SELECT Orders.Ord_id, Orders.Date, Orders.shipping_address, Ord_detail.Payment_status, Product.P_name, Ord_detail.Amount, Product.Price
+    SELECT Orders.Ord_id, Orders.Date, Orders.shipping_address, Ord_detail.Payment_status, Product.P_name, Ord_detail.Amount, Product.Price, Orders.final_price
     FROM `Orders`
     INNER JOIN `Ord_detail` ON Orders.Ord_id = Ord_detail.Ord_id
     INNER JOIN `Product` ON Ord_detail.P_ID = Product.P_ID
@@ -54,13 +54,16 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-family: Arial, sans-serif;
             line-height: 1.6;
         }
+
         .order-container {
             width: 90%;
             margin: 2rem auto;
         }
+
         .order-card:hover {
             transform: scale(1.05);
         }
+
         .order-card {
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -68,20 +71,24 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             margin-bottom: 1.5rem;
             background-color: #f9f9f9;
         }
+
         .order-header {
             font-weight: bold;
             color: #333;
             margin-bottom: 8px;
         }
+
         .order-details {
             margin-left: 1rem;
             color: #555;
         }
+
         .product-item {
             display: flex;
             justify-content: space-between;
             margin-top: 1.5rem;
         }
+
         .product-item span {
             font-size: 0.9rem;
             color: #444;
@@ -97,16 +104,20 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             z-index: 999;
         }
+
         .contact-section {
             margin-top: 5%;
         }
+
         .name1 {
             text-align: center;
         }
+
         .dropdown {
             position: relative;
             display: inline-block;
         }
+
         .dropdown-content {
             display: none;
             position: absolute;
@@ -115,17 +126,36 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
             z-index: 1;
         }
+
         .dropdown-content a {
             color: black;
             padding: 12px 16px;
             text-decoration: none;
             display: block;
         }
+
         .dropdown-content a:hover {
             background-color: #f1f1f1;
         }
+
         .dropdown:hover .dropdown-content {
             display: block;
+        }
+
+        .final-price {
+            font-size: 1.4em;
+            /* ขนาดตัวอักษรใหญ่ขึ้น */
+            font-weight: bold;
+            color: #FF5722;
+            /* สีส้มเพื่อให้โดดเด่น */
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #FFF3E0;
+            /* พื้นหลังสีอ่อน */
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            /* เพิ่มเงา */
         }
     </style>
 </head>
@@ -143,7 +173,9 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
                     <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
                     <li class="dropdown">
-                        <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo htmlspecialchars($username); ?></a>
+                        <a href="#"><i class="fas fa-user"></i> สวัสดี,
+                            <?php echo htmlspecialchars($username); ?>
+                        </a>
                         <div class="dropdown-content">
                             <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
                             <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
@@ -164,36 +196,44 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- ส่วนแสดงประวัติการสั่งซื้อ -->
     <section class="order-container">
-        <h1 style="text-align: center; padding-top: 2vh; margin-bottom: 2vh">ประวัติการสั่งซื้อ</h1>
-        <?php
-        if (!empty($Orders)) {
-            $currentOrder = null;
-            foreach ($Orders as $order) {
-                if ($currentOrder != $order['Ord_id']) {
-                    if ($currentOrder !== null) {
-                        echo "</div>"; // ปิดกล่องคำสั่งซื้อก่อนหน้า
-                    }
-                    $currentOrder = $order['Ord_id'];
-                    echo "<div class='order-card'>";
-                    echo "<div class='order-header'>คำสั่งซื้อ #{$order['Ord_id']}</div>";
-                    echo "<div class='order-details'>";
-                    echo "<p>วันที่สั่งซื้อ: {$order['Date']}</p>";
-                    echo "<p>สถานที่จัดส่ง: {$order['shipping_address']}</p>";
-                    echo "<p>สถานะการชำระเงิน: {$order['Payment_status']}</p>";
-                    echo "</div>";
+    <h1 style="text-align: center; padding-top: 2vh; margin-bottom: 2vh">ประวัติการสั่งซื้อ</h1>
+    <?php
+    if (!empty($Orders)) {
+        $currentOrder = null;
+        foreach ($Orders as $order) {
+            if ($currentOrder != $order['Ord_id']) {
+                if ($currentOrder !== null) {
+                    echo "<p class='final-price'>ราคารวมหลังหักส่วนลด: ฿" . number_format($finalPrice, 2) . "</p>"; // แสดงยอดรวมที่ด้านล่าง
+                    echo "</div>"; // ปิดกล่องคำสั่งซื้อก่อนหน้า
                 }
-                echo "<div class='product-item'>";
-                echo "<span>สินค้า: {$order['P_name']}  </span>";
-                echo "<span>จำนวน: {$order['Amount']}</span>";
-                echo "<span>ราคา: ฿" . number_format($order['Price'], 2) . "</span>";
+                $currentOrder = $order['Ord_id'];
+                $finalPrice = $order['final_price']; // เก็บยอดรวมของออเดอร์ปัจจุบัน
+
+                echo "<div class='order-card'>";
+                echo "<div class='order-header'>คำสั่งซื้อ #{$order['Ord_id']}</div>";
+                echo "<div class='order-details'>";
+                echo "<p>วันที่สั่งซื้อ: {$order['Date']}</p>";
+                echo "<p>สถานที่จัดส่ง: {$order['shipping_address']}</p>";
+                echo "<p>สถานะการชำระเงิน: {$order['Payment_status']}</p>";
                 echo "</div>";
             }
-            echo "</div>"; // ปิดกล่องคำสั่งซื้อสุดท้าย
-        } else {
-            echo "<p style='text-align: center;'>ไม่มีประวัติการสั่งซื้อ</p>";
+
+            // แสดงรายละเอียดสินค้าแต่ละรายการในออเดอร์
+            echo "<div class='product-item'>";
+            echo "<span>สินค้า: {$order['P_name']}  </span>";
+            echo "<span>จำนวน: {$order['Amount']}</span>";
+            echo "<span>ราคา: ฿" . number_format($order['Price'], 2) . "</span>";
+            echo "</div>";
         }
-        ?>
-    </section>
+        
+        // แสดงยอดรวมสำหรับออเดอร์สุดท้าย
+        echo "<p class='final-price'>ราคารวม(หลังหักส่วนลด): ฿" . number_format($finalPrice, 2) . "</p>";
+        echo "</div>"; // ปิดกล่องคำสั่งซื้อสุดท้าย
+    } else {
+        echo "<p style='text-align: center;'>ไม่มีประวัติการสั่งซื้อ</p>";
+    }
+    ?>
+</section>
 
     <footer>
         <div class="container">
@@ -213,9 +253,9 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </footer>
 
     <script>
-        function confirmLogout() {
+       function confirmLogout() {
             if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                window.location.href = "./logout.php";
+                window.location.href = "../Home/logout.php";
             }
         }
 
@@ -234,4 +274,5 @@ $Orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         });
     </script>
 </body>
+
 </html>

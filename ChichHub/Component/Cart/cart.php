@@ -22,7 +22,6 @@ if (!isset($_COOKIE['user_login'])) {
     session_unset(); // ล้าง session
     session_destroy(); // ทำลาย session
     setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
-    
     // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
     header("Location: ../Sign-In/signin.php");
     exit();
@@ -54,6 +53,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
             z-index: 999;
         }
 
+        /* Dropdown Styles */
         .dropdown {
             position: relative;
             display: inline-block;
@@ -75,12 +75,79 @@ $username = htmlspecialchars($_SESSION["Username"]);
             display: block;
         }
 
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
-
         .dropdown:hover .dropdown-content {
             display: block;
+        }
+
+
+        .cart-summary {
+            margin-top: 20px;
+        }
+
+        .cart-summary label {
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            color: #333;
+            cursor: pointer;
+            margin-top: 10px;
+            user-select: none;
+        }
+
+        .cart-summary input[type="checkbox"] {
+            display: none;
+        }
+
+        .cart-summary input[type="checkbox"]+span {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #FF5722;
+            border-radius: 4px;
+            margin-right: 10px;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .cart-summary input[type="checkbox"]:checked+span {
+            background-color: #FF5722;
+        }
+
+        .cart-summary input[type="checkbox"]:checked+span::before {
+            content: "\f00c";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: #fff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+        }
+
+        .final-price-container {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #FFF3E0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .final-price-container p {
+            margin: 5px 0;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .final-price {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #FF5722;
+        }
+
+        .discount-amount {
+            color: #388E3C;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -132,6 +199,19 @@ $username = htmlspecialchars($_SESSION["Username"]);
             <div class="cart-summary">
                 <h3>สรุปการสั่งซื้อ</h3>
                 <p>ราคารวม: <span class="total-price" id="total-price">฿0</span></p>
+
+                <!-- เพิ่มส่วนของช่องติ๊กเพื่อเลือกใช้โปรโมชั่น -->
+                <label>
+                    <input type="checkbox" id="promo-checkbox" />
+                    <span></span> ใช้โปรโมชั่นลด 20% เมื่อซื้อเกิน 2,000 บาท
+                </label>
+
+                <!-- แสดงราคารวมหลังหักส่วนลดและจำนวนเงินที่ลดไป -->
+                <div class="final-price-container">
+                    <p>ราคาหลังหักส่วนลด: <span class="final-price" id="final-price">฿0</span></p>
+                    <p>คุณประหยัดไป: <span class="discount-amount" id="discount-amount">฿0</span></p>
+                </div>
+
                 <button class="checkout-btn" id="checkout-btn">ชำระเงิน</button>
             </div>
         </div>
@@ -158,6 +238,9 @@ $username = htmlspecialchars($_SESSION["Username"]);
         const cartItemsContainer = document.getElementById('cart-items');
         const totalPriceElement = document.getElementById('total-price');
         const checkoutButton = document.getElementById('checkout-btn');
+        const promoCheckbox = document.getElementById('promo-checkbox');
+        const finalPriceElement = document.getElementById('final-price');
+        const discountAmountElement = document.getElementById('discount-amount');
 
         // ดึงข้อมูลจาก LocalStorage
         const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
@@ -168,7 +251,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
             const itemElement = document.createElement('div');
             itemElement.classList.add('cart-item');
             itemElement.innerHTML = `
-                <img src="${item.img}" alt="${item.name}" width="100" height="150"> <!-- ใช้ item.img เพื่อแสดงรูปสินค้า -->
+                <img src="${item.img}" alt="${item.name}" width="100" height="150">
                 <div class="item-details">
                     <h3>${item.name}</h3>
                     <p>฿${item.price}</p>
@@ -182,10 +265,25 @@ $username = htmlspecialchars($_SESSION["Username"]);
             cartItemsContainer.appendChild(itemElement);
 
             totalPrice += parseFloat(item.price) * item.quantity;
-
         });
 
         totalPriceElement.textContent = `฿${totalPrice.toFixed(2)}`;
+        updateFinalPrice(totalPrice); // คำนวณส่วนลดครั้งแรก
+
+        // ฟังก์ชันคำนวณราคารวมหลังหักส่วนลด
+        function updateFinalPrice(totalPrice) {
+            let finalPrice = totalPrice;
+            let discountAmount = 0;
+
+            if (promoCheckbox.checked && totalPrice >= 2000) {
+                discountAmount = totalPrice * 0.2; // ลด 20%
+                finalPrice = totalPrice - discountAmount;
+            }
+
+            finalPriceElement.textContent = `฿${finalPrice.toFixed(2)}`;
+            discountAmountElement.textContent = `฿${discountAmount.toFixed(2)}`;
+            localStorage.setItem('finalPrice', finalPrice); // เก็บราคาสุดท้ายใน LocalStorage
+        }
 
         // การอัปเดตจำนวนสินค้าและคำนวณราคารวมใหม่
         document.querySelectorAll('input[type="number"]').forEach(input => {
@@ -204,15 +302,18 @@ $username = htmlspecialchars($_SESSION["Username"]);
 
                 // คำนวณราคารวมใหม่
                 let totalPrice = 0;
-
                 cartItems.forEach(item => {
-                const itemPrice = parseFloat(item.price); // แปลง price ให้เป็นตัวเลข
-                totalPrice += itemPrice * item.quantity;
+                    const itemPrice = parseFloat(item.price);
+                    totalPrice += itemPrice * item.quantity;
                 });
 
                 totalPriceElement.textContent = `฿${totalPrice.toFixed(2)}`;
-                });
+                updateFinalPrice(totalPrice); // คำนวณส่วนลดใหม่
+            });
         });
+
+        // เรียกใช้ updateFinalPrice เมื่อมีการเปลี่ยนแปลงช่องติ๊กส่วนลด
+        promoCheckbox.addEventListener('change', () => updateFinalPrice(totalPrice));
 
         // การลบสินค้า
         const removeButtons = document.querySelectorAll('.remove-btn');

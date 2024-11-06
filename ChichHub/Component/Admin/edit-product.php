@@ -381,4 +381,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_product'])) {
 
    
 </body>
+<script>
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        const blurBackground = document.querySelector('.blur-background');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            blurBackground.classList.toggle('active');
+        });
+
+        blurBackground.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            blurBackground.classList.remove('active');
+        });
+
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "../Home/logout.php";
+            }
+        }
+
+        <?php if (isset($_GET['status']) && $_GET['status'] == 'success'): ?>
+            alert('เพิ่มสินค้าสำเร็จ!');
+            // ลบ status=success จาก URL เพื่อไม่ให้แสดง alert ซ้ำเมื่อรีเฟรชหน้า
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.pathname);
+            }
+        <?php elseif (!empty($message)): ?>
+            alert('<?= addslashes($message); ?>'); // แปลงเครื่องหมายพิเศษด้วย addslashes
+        <?php endif; ?>
+    </script>
 </html>

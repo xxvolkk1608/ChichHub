@@ -360,7 +360,7 @@ footer p {
     text-align: center;
     border-radius: 8px;
     transition: transform 0.3s ease;
-    translate: 0 -25%;
+    translate: 0 -28%;
 
 }
 
@@ -385,20 +385,6 @@ footer p {
     margin-top: 2.5rem;
 }
 
-.product-item2:hover {
-  transform: scale(1.05);
-}
-
-.product-item2 img {
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 15px;
-}
-
-.product-item2 h4 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
 
 .product-item2 img {
   max-width: 100%;
@@ -656,7 +642,7 @@ footer p {
   margin-top: 30px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
-  margin-bottom: 26rem;
+  margin-bottom: 21rem;
 }
 
 .cart-summary h3 {

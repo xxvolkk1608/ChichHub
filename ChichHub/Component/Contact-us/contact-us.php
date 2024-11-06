@@ -229,7 +229,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
 
         function confirmLogout() {
             if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                window.location.href = "./logout.php";
+                window.location.href = "../Home/logout.php";
             }
         }
     </script>

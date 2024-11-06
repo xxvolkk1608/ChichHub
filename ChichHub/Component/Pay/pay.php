@@ -1,6 +1,4 @@
 <?php
-
-
 session_start();
 include 'connect.php'; // เชื่อมต่อฐานข้อมูล
 
@@ -275,7 +273,7 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
     </div>
 
     <script>
-        const paymentMethodSelect = document.getElementById("payment_method");
+        paymentMethodSelect = document.getElementById("payment_method");
         const extraFieldsContainer = document.getElementById("extra-fields");
         const creditCardInput = document.getElementById("credit_card_number");
         const expiryDateInput = document.getElementById("expiry_date");
@@ -343,7 +341,7 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
 
     <script>
         const paymentForm = document.getElementById('payment-form');
-        paymentMethodSelect = document.getElementById("payment_method");
+        const paymentMethodSelect = document.getElementById("payment_method");
 
         paymentForm.addEventListener('submit', function (e) {
             e.preventDefault(); // ป้องกันการรีเฟรชหน้า
@@ -399,6 +397,11 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
                     alert('เกิดข้อผิดพลาด');
                 });
         });
+        function confirmLogout() {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                window.location.href = "../Home/logout.php";
+            }
+        }
     </script>
 
 </body>

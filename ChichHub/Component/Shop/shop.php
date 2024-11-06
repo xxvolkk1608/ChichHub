@@ -1,11 +1,10 @@
 <?php
+session_start();
+include 'connect.php'; // เชื่อมต่อกับฐานข้อมูล
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-session_start();
-include 'connect.php'; // เชื่อมต่อกับฐานข้อมูล
 
 // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
 if (!isset($_SESSION["Username"])) {
@@ -15,15 +14,13 @@ if (!isset($_SESSION["Username"])) {
 
 // ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
 if (!isset($_COOKIE['user_login'])) {
-  // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
-  session_unset(); // ล้าง session
-  session_destroy(); // ทำลาย session
-  setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
-
-  // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+  session_unset();
+  session_destroy();
+  setcookie("user_login", "", time() - 1800, "/");
   header("Location: ../Sign-In/signin.php");
   exit();
 }
+
 $username = htmlspecialchars($_SESSION["Username"]);
 
 // ดึงหมวดหมู่สินค้าจากฐานข้อมูล
@@ -32,39 +29,34 @@ $category_stmt = $pdo->prepare($category_sql);
 $category_stmt->execute();
 $categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ตรวจสอบว่ามีการส่ง POST มาจริงหรือไม่
+// ตรวจสอบค่าจาก POST และเก็บตัวกรองใน session
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $category = isset($_POST['category']) && $_POST['category'] != 'ทั้งหมด' ? $_POST['category'] : '';
-  $min_price = isset($_POST['min_price']) && $_POST['min_price'] != '' ? (int) $_POST['min_price'] : 0;
-  $max_price = isset($_POST['max_price']) && $_POST['max_price'] != '' ? (int) $_POST['max_price'] : 0;
-  $color = isset($_POST['color']) && $_POST['color'] != '' ? strtolower($_POST['color']) : ''; // เปลี่ยนให้เป็นตัวพิมพ์เล็กทั้งหมด
-  $search_query = isset($_POST['search_query']) ? trim($_POST['search_query']) : ''; // ค้นหาจาก Search Bar
-
-  // เก็บค่าการกรองใน session
-  $_SESSION['category_filter'] = $category;
-  $_SESSION['min_price_filter'] = $min_price;
-  $_SESSION['max_price_filter'] = $max_price;
-  $_SESSION['color_filter'] = $color;
-  $_SESSION['search_query'] = $search_query;
-
-  // รีไดเรกต์ไปที่หน้า shop.php (เพื่อแก้ปัญหาการส่งฟอร์มซ้ำ)
+  $_SESSION['category_filter'] = isset($_POST['category']) ? $_POST['category'] : '';
+  $_SESSION['min_price_filter'] = isset($_POST['min_price']) ? (int) $_POST['min_price'] : 0;
+  $_SESSION['max_price_filter'] = isset($_POST['max_price']) ? (int) $_POST['max_price'] : 0;
+  $_SESSION['color_filter'] = isset($_POST['color']) ? strtolower($_POST['color']) : '';
+  $_SESSION['search_query'] = isset($_POST['search_query']) ? trim($_POST['search_query']) : '';
   header("Location: shop.php");
   exit();
 }
 
-// นำค่าจาก session มาใช้ (ถ้ามี)
-$category = isset($_SESSION['category_filter']) ? $_SESSION['category_filter'] : '';
-$min_price = isset($_SESSION['min_price_filter']) ? (int) $_SESSION['min_price_filter'] : 0;
-$max_price = isset($_SESSION['max_price_filter']) ? (int) $_SESSION['max_price_filter'] : 0;
-$color = isset($_SESSION['color_filter']) ? $_SESSION['color_filter'] : '';
-$search_query = isset($_SESSION['search_query']) ? $_SESSION['search_query'] : '';
+// กำหนดค่าตัวกรองจาก session
+$category = $_SESSION['category_filter'] ?? '';
+$min_price = $_SESSION['min_price_filter'] ?? 0;
+$max_price = $_SESSION['max_price_filter'] ?? 0;
+$color = $_SESSION['color_filter'] ?? '';
+$search_query = $_SESSION['search_query'] ?? '';
+
+// กำหนดค่าการแบ่งหน้า
+$items_per_page = 12;
+$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+$offset = ($page - 1) * $items_per_page;
 
 // สร้างคำสั่ง SQL สำหรับแสดงสินค้าตามตัวกรอง
 $sql = "SELECT Product.P_ID, Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
-      FROM Product 
-      INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID";
+        FROM Product 
+        INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID";
 
-// เพิ่มเงื่อนไขในการกรองตามหมวดหมู่, ราคา, สี และคำค้นหา
 $conditions = [];
 $params = [];
 
@@ -86,23 +78,27 @@ if ($color) {
 }
 if ($search_query) {
   $conditions[] = "Product.P_Name LIKE ?";
-  $params[] = "%" . $search_query . "%";  // ค้นหาด้วยคำค้นหาในชื่อสินค้า
+  $params[] = "%" . $search_query . "%";
 }
 
-// ถ้ามีเงื่อนไข ให้เพิ่ม WHERE ใน SQL query
 if (count($conditions) > 0) {
   $sql .= " WHERE " . implode(" AND ", $conditions);
 }
 
-// เตรียมและรันคำสั่ง SQL
+$sql .= " LIMIT $items_per_page OFFSET $offset";
 $stmt = $pdo->prepare($sql);
-if ($stmt->execute($params)) {
-  $products = $stmt->fetchAll();
-} else {
-  // แสดงข้อผิดพลาดถ้า query ไม่สำเร็จ
-  print_r($stmt->errorInfo());
-}
+$stmt->execute($params);
+$products = $stmt->fetchAll();
 
+// นับจำนวนสินค้าทั้งหมดเพื่อใช้ในการสร้าง pagination
+$count_sql = "SELECT COUNT(*) FROM Product";
+if (count($conditions) > 0) {
+  $count_sql .= " WHERE " . implode(" AND ", $conditions);
+}
+$count_stmt = $pdo->prepare($count_sql);
+$count_stmt->execute($params);
+$total_items = $count_stmt->fetchColumn();
+$total_pages = ceil($total_items / $items_per_page);
 ?>
 
 <!DOCTYPE html>
@@ -218,6 +214,34 @@ if ($stmt->execute($params)) {
       background: #e65b50;
     }
 
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 3em;
+    }
+
+    .pagination a,
+    .pagination span {
+      padding: 10px 15px;
+      margin: 0 5px;
+      text-decoration: none;
+      color: #333;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .pagination a:hover {
+      background-color: #ff6f61;
+      color: #fff;
+    }
+
+    .pagination .active {
+      background-color: #ff6f61;
+      color: #fff;
+      border-color: #ff6f61;
+    }
+
     @media (max-width: 600px) {
       .product-list {
         display: grid;
@@ -237,8 +261,6 @@ if ($stmt->execute($params)) {
         border-right: 0px solid #c5c5c5;
       }
     }
-
-  
   </style>
 </head>
 
@@ -264,7 +286,9 @@ if ($stmt->execute($params)) {
           <li><a href="../Category/Promotion.php">โปรโมชั่น</a></li>
           <li><a href="../Contact-us/contact-us.php">ติดต่อเรา</a></li>
           <li class="dropdown">
-            <a href="#"><i class="fas fa-user"></i> สวัสดี, <?php echo $username; ?></a>
+            <a href="#"><i class="fas fa-user"></i> สวัสดี,
+              <?php echo $username; ?>
+            </a>
             <div class="dropdown-content">
               <a href="../User/edit_profile.php">แก้ไขข้อมูลส่วนตัว</a>
               <a href="#" style="color: red;" onclick="confirmLogout()">ออกจากระบบ</a>
@@ -332,10 +356,8 @@ if ($stmt->execute($params)) {
               <?php echo number_format($product['Price'], 2); ?>
             </p>
             <a href="../Product-detail/product-detail.php?id=<?php echo $product['P_ID']; ?>" class="info">ดูรายละเอียด</a>
-            <a href="#" class="add-to-cart"
-              data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
-              data-price="<?php echo $product['Price']; ?>"
-              data-img="<?php echo $product['IMG_path']; ?>"
+            <a href="#" class="add-to-cart" data-name="<?php echo htmlspecialchars($product['P_Name']); ?>"
+              data-price="<?php echo $product['Price']; ?>" data-img="<?php echo $product['IMG_path']; ?>"
               data-id="<?php echo $product['P_ID']; ?>">
               เพิ่มในรถเข็น</a>
           </div>
@@ -343,8 +365,33 @@ if ($stmt->execute($params)) {
       <?php else: ?>
         <p style="translate: 100%; ">ไม่พบสินค้าที่ตรงกับการกรองของคุณ</p>
       <?php endif; ?>
+
     </section>
+    <!-- ปุ่มแบ่งหน้า -->
+    <div class="pagination">
+      <?php if ($page > 1): ?>
+        <a href="?page=<?php echo $page - 1; ?>">&laquo; ก่อนหน้า</a>
+      <?php endif; ?>
+
+      <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+        <?php if ($i == $page): ?>
+          <span class="active">
+            <?php echo $i; ?>
+          </span>
+        <?php else: ?>
+          <a href="?page=<?php echo $i; ?>">
+            <?php echo $i; ?>
+          </a>
+        <?php endif; ?>
+      <?php endfor; ?>
+
+      <?php if ($page < $total_pages): ?>
+        <a href="?page=<?php echo $page + 1; ?>">ถัดไป &raquo;</a>
+      <?php endif; ?>
+    </div>
   </div>
+  </div>
+
 
   <footer>
     <div class="container">

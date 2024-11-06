@@ -91,6 +91,20 @@ if ($stmt->execute($params)) {
 } else {
     print_r($stmt->errorInfo());
 }
+$sql .= " LIMIT $items_per_page OFFSET $offset";
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$products = $stmt->fetchAll();
+
+// นับจำนวนสินค้าทั้งหมดเพื่อใช้ในการสร้าง pagination
+$count_sql = "SELECT COUNT(*) FROM Product";
+if (count($conditions) > 0) {
+    $count_sql .= " WHERE " . implode(" AND ", $conditions);
+}
+$count_stmt = $pdo->prepare($count_sql);
+$count_stmt->execute($params);
+$total_items = $count_stmt->fetchColumn();
+$total_pages = ceil($total_items / $items_per_page);
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -205,24 +219,52 @@ if ($stmt->execute($params)) {
             background: #e65b50;
         }
 
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3em;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 10px 15px;
+            margin: 0 5px;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .pagination a:hover {
+            background-color: #ff6f61;
+            color: #fff;
+        }
+
+        .pagination .active {
+            background-color: #ff6f61;
+            color: #fff;
+            border-color: #ff6f61;
+        }
+
         @media (max-width: 600px) {
             .product-list {
                 display: grid;
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(1, 1fr);
                 gap: 2rem;
-                width: 5%;
+                width: 100%;
                 padding: 20px;
                 translate: 0% -32rem;
                 margin-bottom: -30rem;
                 margin-top: 40rem;
             }
-            
+
             .filter-sidebar {
                 width: 100%;
                 padding: 30px;
+                margin-top: 4rem;
                 border-right: 0px solid #c5c5c5;
             }
-            
         }
     </style>
 </head>
@@ -331,6 +373,29 @@ if ($stmt->execute($params)) {
                 <p style="translate: 100%; ">ไม่พบสินค้าที่ตรงกับการกรองของคุณ</p>
             <?php endif; ?>
         </section>
+        <!-- ปุ่มแบ่งหน้า -->
+        <div class="pagination">
+            <?php if ($page > 1): ?>
+                <a href="?page=<?php echo $page - 1; ?>">&laquo; ก่อนหน้า</a>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <?php if ($i == $page): ?>
+                    <span class="active">
+                        <?php echo $i; ?>
+                    </span>
+                <?php else: ?>
+                    <a href="?page=<?php echo $i; ?>">
+                        <?php echo $i; ?>
+                    </a>
+                <?php endif; ?>
+            <?php endfor; ?>
+
+            <?php if ($page < $total_pages): ?>
+                <a href="?page=<?php echo $page + 1; ?>">ถัดไป &raquo;</a>
+            <?php endif; ?>
+        </div>
+    </div>
     </div>
 
     <footer>

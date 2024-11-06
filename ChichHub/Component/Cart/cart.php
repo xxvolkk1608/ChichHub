@@ -22,6 +22,7 @@ if (!isset($_COOKIE['user_login'])) {
     session_unset(); // ล้าง session
     session_destroy(); // ทำลาย session
     setcookie("user_login", "", time() - 1800, "/"); // ลบคุกกี้
+
     // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
     header("Location: ../Sign-In/signin.php");
     exit();

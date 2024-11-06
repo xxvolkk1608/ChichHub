@@ -273,7 +273,7 @@ $default_address = $member ? $member['Address'] : ''; // หากมีที�
     </div>
 
     <script>
-        paymentMethodSelect = document.getElementById("payment_method");
+        const paymentMethodSelect = document.getElementById("payment_method");
         const extraFieldsContainer = document.getElementById("extra-fields");
         const creditCardInput = document.getElementById("credit_card_number");
         const expiryDateInput = document.getElementById("expiry_date");

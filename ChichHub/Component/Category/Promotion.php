@@ -1,99 +1,109 @@
 <?php
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 include 'connect.php'; // เชื่อมต่อกับฐานข้อมูล
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
 if (!isset($_SESSION["Username"])) {
     header("Location: ../Sign-In/signin.php");
     exit();
 }
+
 // ตรวจสอบว่ามีการตั้งค่าคุกกี้ user_login หรือไม่
 if (!isset($_COOKIE['user_login'])) {
-    // หากไม่มีคุกกี้หรือตรวจพบว่าหมดอายุ
-    session_unset(); // ล้าง session
-    session_destroy(); // ทำลาย session
-    setcookie("user_login", "", time() - 3600, "/"); // ลบคุกกี้
-    // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+    session_unset();
+    session_destroy();
+    setcookie("user_login", "", time() - 1800, "/");
     header("Location: ../Sign-In/signin.php");
     exit();
 }
 
 $username = htmlspecialchars($_SESSION["Username"]);
 
-// กำหนดหมวดหมู่สินค้าที่ต้องการกรองเป็น 'Pants' หรือ C_ID ของกางเกงจากฐานข้อมูล
-$promo_category_id = 1003; // กำหนด C_ID ของหมวดหมู่กางเกง
+// ดึงหมวดหมู่สินค้าจากฐานข้อมูล
+$category_sql = "SELECT C_ID, C_Name FROM Category";
+$category_stmt = $pdo->prepare($category_sql);
+$category_stmt->execute();
+$categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ตรวจสอบว่ามีการส่ง POST มาจริงหรือไม่
+// ตรวจสอบค่าจาก POST และเก็บตัวกรองใน session
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $min_price = isset($_POST['min_price']) && $_POST['min_price'] != '' ? (int) $_POST['min_price'] : 0;
-    $max_price = isset($_POST['max_price']) && $_POST['max_price'] != '' ? (int) $_POST['max_price'] : 0;
-    $color = isset($_POST['color']) && $_POST['color'] != '' ? strtolower($_POST['color']) : '';
-
-    // เก็บค่าการกรองใน session
-    $_SESSION['min_price_filter'] = $min_price;
-    $_SESSION['max_price_filter'] = $max_price;
-    $_SESSION['color_filter'] = $color;
-
-    // รีไดเรกต์ไปที่หน้า Promotion.php (เพื่อแก้ปัญหาการส่งฟอร์มซ้ำ)
-    header("Location: Promotion.php");
-    exit();
+    $_SESSION['category_filter'] = isset($_POST['category']) ? $_POST['category'] : '';
+    $_SESSION['min_price_filter'] = isset($_POST['min_price']) ? (int) $_POST['min_price'] : 0;
+    $_SESSION['max_price_filter'] = isset($_POST['max_price']) ? (int) $_POST['max_price'] : 0;
+    $_SESSION['color_filter'] = isset($_POST['color']) ? strtolower($_POST['color']) : '';
+    $_SESSION['search_query'] = isset($_POST['search_query']) ? trim($_POST['search_query']) : '';
 }
 
-// นำค่าจาก session มาใช้ (ถ้ามี)
-$min_price = isset($_SESSION['min_price_filter']) ? (int) $_SESSION['min_price_filter'] : 0;
-$max_price = isset($_SESSION['max_price_filter']) ? (int) $_SESSION['max_price_filter'] : 0;
-$color = isset($_SESSION['color_filter']) ? $_SESSION['color_filter'] : '';
+// กำหนดค่าตัวกรองจาก session
+$category = $_SESSION['category_filter'] ?? '';
+$min_price = $_SESSION['min_price_filter'] ?? 0;
+$max_price = $_SESSION['max_price_filter'] ?? 0;
+$color = $_SESSION['color_filter'] ?? '';
+$search_query = $_SESSION['search_query'] ?? '';
 
-// สร้างคำสั่ง SQL สำหรับแสดงสินค้าหมวดกางเกงตามตัวกรอง
+// กำหนดค่าการแบ่งหน้า
+$items_per_page = 12;
+$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+$offset = ($page - 1) * $items_per_page;
+
+// สร้างคำสั่ง SQL สำหรับแสดงสินค้าตามตัวกรอง
 $sql = "SELECT Product.P_ID, Product.P_Name, Product.Price, Product.Color, Images.IMG_path 
         FROM Product 
-        INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID
-        WHERE Product.C_ID = ?"; // กรองสินค้าตามหมวดหมู่กางเกง
+        INNER JOIN Images ON Product.IMG_ID = Images.IMG_ID 
+        WHERE Product.C_ID = 1003";  
 
-// เพิ่มเงื่อนไขในการกรองตามราคาและสี
-$params = [$promo_category_id];
+$conditions = [];
+$params = [];
+
+if ($category && $category != 'ทั้งหมด') {
+    $conditions[] = "Product.C_ID = ?";
+    $params[] = $category;
+}
 if ($min_price > 0) {
-    $sql .= " AND Product.Price >= ?";
+    $conditions[] = "Product.Price >= ?";
     $params[] = $min_price;
 }
 if ($max_price > 0) {
-    $sql .= " AND Product.Price <= ?";
+    $conditions[] = "Product.Price <= ?";
     $params[] = $max_price;
 }
 if ($color) {
-    $sql .= " AND LOWER(Product.Color) = ?";
+    $conditions[] = "LOWER(Product.Color) = ?";
     $params[] = $color;
 }
-
-// เตรียมและรันคำสั่ง SQL
-$stmt = $pdo->prepare($sql);
-if ($stmt->execute($params)) {
-    $products = $stmt->fetchAll();
-} else {
-    // แสดงข้อผิดพลาดถ้า query ไม่สำเร็จ
-    print_r($stmt->errorInfo());
+if ($search_query) {
+    $conditions[] = "Product.P_Name LIKE ?";
+    $params[] = "%" . $search_query . "%";
 }
+
+// เชื่อมเงื่อนไขทั้งหมดกับ WHERE
+if (count($conditions) > 0) {
+    $sql .= " AND " . implode(" AND ", $conditions);
+}
+
 $sql .= " LIMIT $items_per_page OFFSET $offset";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $products = $stmt->fetchAll();
 
 // นับจำนวนสินค้าทั้งหมดเพื่อใช้ในการสร้าง pagination
-$count_sql = "SELECT COUNT(*) FROM Product";
+$count_sql = "SELECT COUNT(*) FROM Product WHERE Product.C_ID = 1003"; 
 if (count($conditions) > 0) {
-    $count_sql .= " WHERE " . implode(" AND ", $conditions);
+    $count_sql .= " AND " . implode(" AND ", $conditions);
 }
 $count_stmt = $pdo->prepare($count_sql);
 $count_stmt->execute($params);
 $total_items = $count_stmt->fetchColumn();
 $total_pages = ceil($total_items / $items_per_page);
+$count_stmt = $pdo->prepare($count_sql);
+$count_stmt->execute($params);
+$total_items = $count_stmt->fetchColumn();
+$total_pages = ceil($total_items / $items_per_page);
 ?>
-
-
 <!DOCTYPE html>
 <html lang="th">
 
@@ -296,7 +306,7 @@ $total_pages = ceil($total_items / $items_per_page);
 
         <aside class="filter-sidebar">
             <h3>กรองสินค้า</h3>
-            <form action="promotion.php" method="POST">
+            <form action="Promotion.php" method="POST">
                 <br><br>
                 <h3>ค้นหาสินค้า</h3>
                 <div class="search-section">

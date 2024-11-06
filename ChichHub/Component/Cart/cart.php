@@ -236,6 +236,7 @@ $username = htmlspecialchars($_SESSION["Username"]);
     </footer>
 
     <script>
+
         const cartItemsContainer = document.getElementById('cart-items');
         const totalPriceElement = document.getElementById('total-price');
         const checkoutButton = document.getElementById('checkout-btn');
@@ -244,34 +245,74 @@ $username = htmlspecialchars($_SESSION["Username"]);
         const discountAmountElement = document.getElementById('discount-amount');
 
         // ดึงข้อมูลจาก LocalStorage
-        const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        let totalPrice = calculateTotalPrice(cartItems);
 
-        let totalPrice = 0;
+        // ฟังก์ชันคำนวณราคารวมสินค้าในตะกร้า
+        function calculateTotalPrice(cartItems) {
+            return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+        }
 
-        cartItems.forEach(item => {
-            const itemElement = document.createElement('div');
-            itemElement.classList.add('cart-item');
-            itemElement.innerHTML = `
-                <img src="${item.img}" alt="${item.name}" width="100" height="150">
-                <div class="item-details">
-                    <h3>${item.name}</h3>
-                    <p>฿${item.price}</p>
-                    <label>จำนวน:</label>
-                    <input type="number" value="${item.quantity}" min="1" data-name="${item.name}">
-                </div>
-                <div class="remove-item">
-                    <button class="remove-btn" data-name="${item.name}">ลบ</button>
-                </div>
-            `;
-            cartItemsContainer.appendChild(itemElement);
+        // ฟังก์ชันแสดงสินค้าจากตะกร้า
+        function displayCartItems(cartItems) {
+            cartItemsContainer.innerHTML = '';
+            cartItems.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.classList.add('cart-item');
+                itemElement.innerHTML = `
+            <img src="${item.img}" alt="${item.name}" width="100" height="150">
+            <div class="item-details">
+                <h3>${item.name}</h3>
+                <p>฿${item.price}</p>
+                <label>จำนวน:</label>
+                <input type="number" value="${item.quantity}" min="1" data-name="${item.name}">
+            </div>
+            <div class="remove-item">
+                <button class="remove-btn" data-name="${item.name}">ลบ</button>
+            </div>
+        `;
+                cartItemsContainer.appendChild(itemElement);
+            });
 
-            totalPrice += parseFloat(item.price) * item.quantity;
-        });
+            // อัปเดตจำนวนสินค้าเมื่อมีการเปลี่ยนแปลง
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.addEventListener('change', function () {
+                    const productName = this.dataset.name;
+                    const newQuantity = parseInt(this.value, 10);
 
-        totalPriceElement.textContent = `฿${totalPrice.toFixed(2)}`;
-        updateFinalPrice(totalPrice); // คำนวณส่วนลดครั้งแรก
+                    // ตรวจสอบจำนวนที่เป็นค่าบวก
+                    if (newQuantity > 0) {
+                        cartItems = cartItems.map(item => {
+                            if (item.name === productName) item.quantity = newQuantity;
+                            return item;
+                        });
 
-        // ฟังก์ชันคำนวณราคารวมหลังหักส่วนลด
+                        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                        totalPrice = calculateTotalPrice(cartItems);
+                        totalPriceElement.textContent = `฿${totalPrice.toFixed(2)}`;
+                        updateFinalPrice(totalPrice);
+                    } else {
+                        alert("กรุณาใส่จำนวนที่มากกว่า 0");
+                        this.value = 1; // ตั้งค่าใหม่เป็น 1 หากมีการใส่ค่าที่ไม่ถูกต้อง
+                    }
+                });
+            });
+
+            // ลบสินค้าเมื่อกดปุ่มลบ
+            document.querySelectorAll('.remove-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const productName = button.dataset.name;
+                    cartItems = cartItems.filter(item => item.name !== productName);
+                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                    window.location.reload(); // รีเฟรชหน้า
+                });
+            });
+
+            totalPriceElement.textContent = `฿${totalPrice.toFixed(2)}`;
+            updateFinalPrice(totalPrice); // คำนวณส่วนลดเมื่อแสดงผลครั้งแรก
+        }
+
+        // คำนวณราคารวมหลังหักส่วนลด
         function updateFinalPrice(totalPrice) {
             let finalPrice = totalPrice;
             let discountAmount = 0;
@@ -283,49 +324,17 @@ $username = htmlspecialchars($_SESSION["Username"]);
 
             finalPriceElement.textContent = `฿${finalPrice.toFixed(2)}`;
             discountAmountElement.textContent = `฿${discountAmount.toFixed(2)}`;
-            localStorage.setItem('finalPrice', finalPrice); // เก็บราคาสุดท้ายใน LocalStorage
         }
 
-        // การอัปเดตจำนวนสินค้าและคำนวณราคารวมใหม่
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('change', function () {
-                const newQuantity = parseInt(this.value, 10);
-                const productName = this.dataset.name;
-
-                cartItems.forEach(item => {
-                    if (item.name === productName) {
-                        item.quantity = newQuantity;
-                    }
-                });
-
-                // อัปเดตข้อมูลใน LocalStorage
-                localStorage.setItem('cartItems', JSON.stringify(cartItems));
-
-                // คำนวณราคารวมใหม่
-                let totalPrice = 0;
-                cartItems.forEach(item => {
-                    const itemPrice = parseFloat(item.price);
-                    totalPrice += itemPrice * item.quantity;
-                });
-
-                totalPriceElement.textContent = `฿${totalPrice.toFixed(2)}`;
-                updateFinalPrice(totalPrice); // คำนวณส่วนลดใหม่
-            });
+        // อัปเดตส่วนลดเมื่อมีการเปลี่ยนแปลงช่องติ๊กโปรโมชั่น
+        promoCheckbox.addEventListener('change', () => {
+            totalPrice = calculateTotalPrice(cartItems); // อัปเดตราคาใหม่ทุกครั้งที่มีการเปลี่ยนแปลงโปรโมชั่น
+            updateFinalPrice(totalPrice);
         });
 
-        // เรียกใช้ updateFinalPrice เมื่อมีการเปลี่ยนแปลงช่องติ๊กส่วนลด
-        promoCheckbox.addEventListener('change', () => updateFinalPrice(totalPrice));
+        // เรียกฟังก์ชันแสดงสินค้าเมื่อโหลดหน้า
+        displayCartItems(cartItems);
 
-        // การลบสินค้า
-        const removeButtons = document.querySelectorAll('.remove-btn');
-        removeButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const productName = button.dataset.name;
-                const updatedCartItems = cartItems.filter(item => item.name !== productName);
-                localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-                window.location.reload(); // รีเฟรชหน้า
-            });
-        });
 
         // ฟังก์ชันสำหรับชำระเงิน
         checkoutButton.addEventListener('click', () => {

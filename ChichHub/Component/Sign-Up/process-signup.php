@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $pdo->beginTransaction();
 
         // เพิ่มข้อมูลลงในตาราง `member_detail` ก่อน
-        $sql_member_detail = "INSERT INTO member_detail (Name, Surname, Email, Tel, Address) VALUES (?, ?, ?, ?, ?)";
+        $sql_member_detail = "INSERT INTO Member_detail (Name, Surname, Email, Tel, Address) VALUES (?, ?, ?, ?, ?)";
         $stmt_member_detail = $pdo->prepare($sql_member_detail);
         $stmt_member_detail->execute([$name, $surname, $email, $phone, $address]);
 
@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $md_id = $pdo->lastInsertId();
 
         // เพิ่มข้อมูลลงในตาราง `member` พร้อมกับ `MD_ID` ที่ได้จากการเพิ่มข้อมูลใน `member_detail`
-        $sql_member = "INSERT INTO member (Username, Password, MD_ID) VALUES (?, ?, ?)";
+        $sql_member = "INSERT INTO Member (Username, Password, MD_ID) VALUES (?, ?, ?)";
         $stmt_member = $pdo->prepare($sql_member);
         $stmt_member->execute([$username, $hashedPassword, $md_id]);
 
